@@ -1,4 +1,4 @@
-# Welcome to Dol_R's GitHub Pages
+# Group Dol_R's Progress Journal
 
 This is group Dol_R's [Progress Journal website](https://pjournal.github.io/boun01g-dol-r/) created for IE 48A course at Boğaziçi University. 
 
@@ -14,3 +14,6 @@ This is group Dol_R's [Progress Journal website](https://pjournal.github.io/boun
 - Analysis using dplyr, ggplot2 and rmarkdown.
 - Shiny app for the analysis
 <br> [New York City Airbnb Open Data](https://www.kaggle.com/dgomonov/new-york-city-airbnb-open-data)
+
+### Final Project
+- Project Proposal, Summary Of The Data And Explanations
