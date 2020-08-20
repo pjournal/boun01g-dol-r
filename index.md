@@ -1,37 +1,16 @@
-## Welcome to GitHub Pages
+# Welcome to Dol_R's GitHub Pages
 
-You can use the [editor on GitHub](https://github.com/pjournal/gh-pages-template/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
+This is group Dol_R's [Progress Journal website](https://pjournal.github.io/boun01g-dol-r/) created for IE 48A course at Boğaziçi University. 
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+## Group Members and Personal Progress Journals
+- [Enes Fevzettin Kaçar](https://pjournal.github.io/boun01-enesfkacar/)
+- [İlayda Çelenk](https://pjournal.github.io/boun01-ilaydacelenk/)
+- [Muhammet Hakan Ekiz](https://pjournal.github.io/boun01-Hakanekiz/)
+- [Ramazan Eraslan](https://pjournal.github.io/boun01-ramazaneraslan/)
+- [Umut Mete Saka](https://pjournal.github.io/boun01-metesaka/)
+- [Yusuf Işık](https://pjournal.github.io/boun01-yusufisik1/)
 
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/pjournal/gh-pages-template/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+### Group Assignment: New York City Airbnb Open Data - Kaggle
+- Analysis using dplyr, ggplot2 and rmarkdown.
+- Shiny app for the analysis
+<br> [New York City Airbnb Open Data](https://www.kaggle.com/dgomonov/new-york-city-airbnb-open-data)
