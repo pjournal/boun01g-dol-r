@@ -1,0 +1,89 @@
+---
+title: "Airbnb data for New York City 2019"
+author: "Group Dol_R"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+date: "8/20/2020"
+---
+
+## Introduction
+Airbnb is an online marketplace for accommodations and it has more than 150 million users worldwide. In this report, the listing activity and metrics in New York City for 2019 will be analyzed according to **New York City Airbnb Open Data** data from  [*Kaggle*](https://www.kaggle.com/dgomonov/new-york-city-airbnb-open-data). 
+
+## Loading Libraries and Data
+```{r setup, message=FALSE, warning=FALSE, echo=TRUE}
+
+library(readr)
+library(tidyverse)
+library(lubridate)
+library(tinytex)
+data <- read.csv("/Users/ilaydacelenk/Desktop/projects/boun01g-dol-r/AB_NYC_2019.csv", header = TRUE, check.names=TRUE)
+```
+
+## Overview and Manipulation of Data
+
+### Variables
+Numerical Variables: id, host_id, latitude, longitude, price, minimum_nights, number_of_reviews, last_review, reviews_per_month, calculated_host_listings_count, availability_365.All the numerical values can be considered as discrete. 
+<br> Categorical Variables: name, host_name, neighbourhood_group, neighbourhood, room_type 
+<br> Since host_id identifies the host, there is no need for host_name and the respective column can be removed.  
+```{r summary-manipulation}
+data %>% glimpse()
+data$last_review <- ymd(data$last_review)
+data <- data %>% select(-host_name)
+data %>% glimpse()
+```
+
+### NA values
+```{r null, warning=FALSE}
+data %>% select(everything()) %>% summarise_all(funs(sum(is.na(.))))
+```
+
+## Analysis
+Average price per night is `r data %>% summarise(avg_price = round(mean(data$price),2))`.
+Average price per room type
+
+### Summary of Dataset
+There are `r data %>% summarise(count=n())` data points in total.
+
+```{r summary, message=FALSE}
+data %>% summary()
+```
+
+### Pie Plots for Categorical Variables
+```{r pie-categorical, message=FALSE}
+
+```
+
+### Plots for Numerical Variables
+```{r numerical, message=FALSE}
+
+```
+
+### Hosts with the Most Listings in NYC
+```{r top-hosts, message=FALSE}
+
+```
+
+### Top 10 Neigbourhood
+```{r top-neig, message=FALSE}
+
+```
+
+### Heatmap
+```{r heatmap, message=FALSE}
+#use the picture, x=latitude and y=longitude
+#make shiny app here, slidebar for price and the heatmap changes according to neigbourhood_group or room_type
+
+```
+
+## References
+- Dataset: **New York City Airbnb Open Data** from  [*Kaggle*](https://www.kaggle.com/dgomonov/new-york-city-airbnb-open-data). 
+
+
+
+<br>To see Group Dol_R's Progress Journal, visit [Progress Journal website](https://pjournal.github.io/boun01g-dol-r/).
+
+
+
+
