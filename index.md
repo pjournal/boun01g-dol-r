@@ -18,6 +18,6 @@ This is group Dol_R's [Progress Journal website](https://pjournal.github.io/boun
 
 ### Final Project
 - [Project Proposal, Summary Of the Data and Explanations:](https://pjournal.github.io/boun01g-dol-r/YKS_analysis_project/Project_Proposal_YKS.html)
-<br>The project's aim is to compare and analyse **YKS** results from different years. Data is taken from  [*Hacettepe University's Website*](http://web.ee.hacettepe.edu.tr/osym/index.php?selectedYear=2019&selectedUniversityCode=&selectedType=&selectedComparisonType=&selectedStatus=&selectedCombination=0&selectedShowQuotaNotFull=1&selectedKeyword1=&selectedKeyword2=&selectedSortOrder=min). There are 9 variables.
+<br>The project's aim is to compare and analyse **YKS** results from different years. Data is taken from  [*Hacettepe University's Website*](http://web.ee.hacettepe.edu.tr/osym/index.php?selectedYear=2019&selectedUniversityCode=&selectedType=&selectedComparisonType=&selectedStatus=&selectedCombination=0&selectedShowQuotaNotFull=1&selectedKeyword1=&selectedKeyword2=&selectedSortOrder=min). There are 9 variables and more than 10000 data points for each year.
 
 
