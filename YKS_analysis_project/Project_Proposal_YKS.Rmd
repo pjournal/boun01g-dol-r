@@ -1,0 +1,105 @@
+---
+title: "Project Proposal: YKS Exam Data"
+author: "Dol_R"
+date: "8/24/2020"
+output: html_document
+---
+
+## Project Proposal
+The following analysis for years 2016-2019 is made according to **YKS Exam** data from  [*Hacettepe University's Website*](http://web.ee.hacettepe.edu.tr/osym/index.php?selectedYear=2019&selectedUniversityCode=&selectedType=&selectedComparisonType=&selectedStatus=&selectedCombination=0&selectedShowQuotaNotFull=1&selectedKeyword1=&selectedKeyword2=&selectedSortOrder=min). The project's aim is to compare and analyse **YKS** results from different years.
+
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(lubridate)
+library(tinytex)
+library(readxl)
+library(tidyr)
+raw_df19 <- read_excel("/Users/ilaydacelenk/Desktop/projects/boun01g-dol-r/YKS_analysis_project/YKS.xlsx", sheet="19", skip=21)
+raw_df18 <- read_excel("/Users/ilaydacelenk/Desktop/projects/boun01g-dol-r/YKS_analysis_project/YKS.xlsx", sheet="18", skip=21)
+raw_df17 <- read_excel("/Users/ilaydacelenk/Desktop/projects/boun01g-dol-r/YKS_analysis_project/YKS.xlsx", sheet="17", skip=21)
+raw_df16 <- read_excel("/Users/ilaydacelenk/Desktop/projects/boun01g-dol-r/YKS_analysis_project/YKS.xlsx", sheet="16", skip=21)
+```
+
+
+```{r manipulation}
+mani97 <- function(data){
+  newdata <- data %>% 
+  rename(
+    number = c(1),
+    difference = c(2),
+    university = c(3),
+    city = c(4),
+    department = c(5),
+    type = c(6),
+    quota = c(7),
+    difference_quota = c(8),
+    accepted_number = c(9),
+    lowest_score = c(10),
+    highest_score = c(11),
+    lowest_ranking = c(12),
+    difference_ranking = c(13)
+  )  %>% select(-number, -difference, -difference_quota, -difference_ranking)
+  return(newdata)
+}
+mani86 <- function(data){
+  newdata <- data %>% 
+  rename(
+    number = c(1),
+    difference = c(2),
+    university = c(3),
+    city = c(4),
+    department = c(5),
+    type = c(6),
+    quota = c(7),
+    difference_quota = c(8),
+    accepted_number = c(9),
+    lowest_score = c(10),
+    highest_score = c(11),
+    lowest_ranking = c(12)
+  )  %>% select(-number, -difference, -difference_quota)
+  return(newdata)
+}
+```
+
+## Summary of the Data
+
+### YKS 2019
+```{r 2019}
+data2019 <- mani97(raw_df19)
+data2019 %>% arrange(desc(highest_score)) %>% glimpse()
+```
+### YKS 2018
+```{r 2018}
+data2018 <- mani86(raw_df18)
+data2018 %>% arrange(desc(highest_score)) %>% glimpse()
+```
+### YKS 2017
+```{r 2017}
+data2017 <- mani97(raw_df17)
+data2017 %>% arrange(desc(highest_score)) %>% glimpse()
+```
+### YKS 2016
+```{r 2016}
+data2016 <- mani97(raw_df16)
+data2016 %>% arrange(desc(highest_score)) %>% glimpse()
+```
+
+## Explanations
+Each dataset represents a year. There are 9 variables and more than 10k rows for each dataset. Our aim is to clean and manipulate datasets, explore by analysis and visualization in order to help future participants' decision making process. 
+
+university          <chr>: Name of the university
+<br>city            <chr>: University's location 
+<br>department      <chr>: Name of the department
+<br>type            <chr>: Type of the exam
+<br>quota           <dbl>: Maximum number of participants to be accepted, upper bound for accepted_number
+<br>accepted_number <dbl>: Accepted number of participants to the selected university's selected department
+<br>lowest_score    <dbl>: Lowest score of the accepted participant's scores
+<br>highest_score   <dbl>: Highest score of the accepted participant's scores
+<br>lowest_ranking  <dbl>: Lowest ranking of the accepted participant's scores, last accepted person's ranking
+
+## References
+[*Hacettepe University's Website*](http://web.ee.hacettepe.edu.tr/osym/index.php?selectedYear=2019&selectedUniversityCode=&selectedType=&selectedComparisonType=&selectedStatus=&selectedCombination=0&selectedShowQuotaNotFull=1&selectedKeyword1=&selectedKeyword2=&selectedSortOrder=min).
+
+
