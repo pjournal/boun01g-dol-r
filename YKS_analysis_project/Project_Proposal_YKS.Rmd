@@ -16,10 +16,13 @@ library(lubridate)
 library(tinytex)
 library(readxl)
 library(tidyr)
-raw_df19 <- read_excel("/Users/ilaydacelenk/Desktop/projects/boun01g-dol-r/YKS_analysis_project/YKS.xlsx", sheet="19", skip=21)
-raw_df18 <- read_excel("/Users/ilaydacelenk/Desktop/projects/boun01g-dol-r/YKS_analysis_project/YKS.xlsx", sheet="18", skip=21)
-raw_df17 <- read_excel("/Users/ilaydacelenk/Desktop/projects/boun01g-dol-r/YKS_analysis_project/YKS.xlsx", sheet="17", skip=21)
-raw_df16 <- read_excel("/Users/ilaydacelenk/Desktop/projects/boun01g-dol-r/YKS_analysis_project/YKS.xlsx", sheet="16", skip=21)
+library(httr)
+url<-'https://github.com/pjournal/boun01g-dol-r/blob/gh-pages/YKS_analysis_project/YKS.xlsx?raw=true'
+GET(url, write_disk(tf <- tempfile(fileext = ".xlsx")))
+raw_df19 <- read_excel(tf, sheet="19", skip=21)
+raw_df18 <- read_excel(tf, sheet="18", skip=21)
+raw_df17 <- read_excel(tf, sheet="17", skip=21)
+raw_df16 <- read_excel(tf, sheet="16", skip=21)
 ```
 
 

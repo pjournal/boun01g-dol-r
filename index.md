@@ -16,9 +16,10 @@ This is group Dol_R's [Progress Journal website](https://pjournal.github.io/boun
 - Shiny app for the analysis
 <br> New York City Airbnb Open Data: [Kaggle](https://www.kaggle.com/dgomonov/new-york-city-airbnb-open-data)
 
-### Bonus Work: h2o Package Tutorial
+### Bonus Work: [h2o Package](https://cran.r-project.org/web/packages/h2o/index.html) Tutorial
 - Written tutorial using RMarkdown
 - Video tutorial of presentation
+
 
 ### Final Project
 - [Project Proposal, Summary Of the Data and Explanations:](https://pjournal.github.io/boun01g-dol-r/YKS_analysis_project/Project_Proposal_YKS.html)
