@@ -12,14 +12,16 @@ This is group Dol_R's [Progress Journal website](https://pjournal.github.io/boun
 
 ### Group Assignment: New York City Airbnb Open Data - Kaggle
 - Analysis using dplyr, ggplot2 and rmarkdown
-[NYC - Airbnb Analysis](https://pjournal.github.io/boun01g-dol-r/AB_NYC_2019_analysis.html)
+[NYC - Airbnb Analysis](https://pjournal.github.io/boun01g-dol-r/NYC_assignment/AB_NYC_2019_analysis.html)
 - Shiny app for the analysis
-<br> [New York City Airbnb Open Data](https://www.kaggle.com/dgomonov/new-york-city-airbnb-open-data)
+<br> New York City Airbnb Open Data: [Kaggle](https://www.kaggle.com/dgomonov/new-york-city-airbnb-open-data)
+
+### Bonus Work: h2o Package Tutorial
+- Written tutorial using RMarkdown
+- Video tutorial of presentation
 
 ### Final Project
 - [Project Proposal, Summary Of the Data and Explanations:](https://pjournal.github.io/boun01g-dol-r/YKS_analysis_project/Project_Proposal_YKS.html)
 <br>The project's aim is to compare and analyse **YKS** results from different years. 
-<br>Data is taken from  [*Hacettepe University's Website*](http://web.ee.hacettepe.edu.tr/osym/index.php?selectedYear=2019&selectedUniversityCode=&selectedType=&selectedComparisonType=&selectedStatus=&selectedCombination=0&selectedShowQuotaNotFull=1&selectedKeyword1=&selectedKeyword2=&selectedSortOrder=min). 
-<br>There are 9 variables and more than 10000 data points for each year.
-
+<br>Data for year 2019: [*Hacettepe University's Website*](http://web.ee.hacettepe.edu.tr/osym/index.php?selectedYear=2019&selectedUniversityCode=&selectedType=&selectedComparisonType=&selectedStatus=&selectedCombination=0&selectedShowQuotaNotFull=1&selectedKeyword1=&selectedKeyword2=&selectedSortOrder=min). 
 

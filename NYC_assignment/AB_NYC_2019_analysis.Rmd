@@ -18,7 +18,7 @@ library(readr)
 library(tidyverse)
 library(lubridate)
 library(tinytex)
-data <- read.csv("/Users/ilaydacelenk/Desktop/projects/boun01g-dol-r/AB_NYC_2019.csv", header = TRUE, check.names=TRUE)
+data <- read.csv("/Users/ilaydacelenk/Desktop/projects/boun01g-dol-r/NYC_assignment/AB_NYC_2019.csv", header = TRUE, check.names=TRUE)
 ```
 
 ## Overview and Manipulation of Data
