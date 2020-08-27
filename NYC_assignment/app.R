@@ -28,7 +28,8 @@ ui <- fluidPage(
                         max = max(data$price),
                         value = c(1000,2000),
                         sep = ""
-            )
+            ),
+            selectInput("roomtype","Select Room Type",choices=data$room_type,selected = NULL,multiple = TRUE),
           
             
         ),
@@ -37,7 +38,8 @@ ui <- fluidPage(
         mainPanel(
             tabsetPanel(
                 tabPanel("Map", plotOutput("plot")),
-                tabPanel("Table", dataTableOutput("table"))
+                tabPanel("Table", dataTableOutput("table")),
+                tabPanel("Number of Rooms", plotOutput("hist"))
             )
            
         )
@@ -55,7 +57,13 @@ server <- function(input, output) {
         ggplot(dataplot, aes(x=latitude, y=longitude)) + background_image(img) + geom_point(aes(color=room_type)) 
 
     })
-    
+    output$hist<- renderPlot({
+        
+        selected<- data%>%
+            filter(room_type==input$roomtype)
+        
+        ggplot(selected,aes(x=room_type,fill=neighbourhood_group))+geom_bar(position = "dodge")
+    })
 }
 
 # Run the application 
