@@ -32,8 +32,11 @@ ui <- fluidPage(
 
         # Show a plot of the generated distribution
         mainPanel(
-           plotOutput("plot"),
-            dataTableOutput("table")
+            tabsetPanel(
+                tabPanel("Map", plotOutput("plot")),
+                tabPanel("Table", dataTableOutput("table"))
+            )
+           
         )
         
     )
