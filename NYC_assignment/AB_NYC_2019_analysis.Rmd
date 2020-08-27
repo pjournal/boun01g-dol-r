@@ -24,13 +24,28 @@ data <- read.csv("https://raw.githubusercontent.com/pjournal/boun01g-dol-r/gh-pa
 ## Overview and Manipulation of Data
 
 ### Variables
-Numerical Variables: id, host_id, latitude, longitude, price, minimum_nights, number_of_reviews, last_review, reviews_per_month, calculated_host_listings_count, availability_365.All the numerical values can be considered as discrete. 
+* __id__ : Listing ID
+* __name__ : Name of the Listing
+* __host_id__ : Host ID
+* __host_name__ : Host Name
+* __neighbourhood_group__ : Location
+* __neighbourhood__ : Area
+* __latitude__ : Latitude Coordinates
+* __longitude__ : Longitude Coordinates
+* __room_type__ : Listing Space Type
+* __price__ : price (in US dollars)
+* __minimum_nights__ : Minimum Nights
+* __number_of_reviews__ : Total Number of Reviews
+* __last_review__ : Date of the Last Review
+* __reviews_per_month__ : 
+* __calculated_host_listings_count__ : 
+* __availability_365__ : 
+
+<br> Numerical Variables: id, host_id, latitude, longitude, price, minimum_nights, number_of_reviews, last_review, reviews_per_month, calculated_host_listings_count, availability_365.All the numerical values can be considered as discrete.
 <br> Categorical Variables: name, host_name, neighbourhood_group, neighbourhood, room_type 
 <br> Since host_id identifies the host, there is no need for host_name and the respective column can be removed.  
 ```{r summary-manipulation}
-data %>% glimpse()
 data$last_review <- ymd(data$last_review)
-data <- data %>% select(-host_name)
 data %>% glimpse()
 ```
 

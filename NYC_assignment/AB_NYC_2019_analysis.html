@@ -404,34 +404,33 @@ data &lt;- read.csv(&quot;https://raw.githubusercontent.com/pjournal/boun01g-dol
 <h2>Overview and Manipulation of Data</h2>
 <div id="variables" class="section level3">
 <h3>Variables</h3>
-<p>Numerical Variables: id, host_id, latitude, longitude, price, minimum_nights, number_of_reviews, last_review, reviews_per_month, calculated_host_listings_count, availability_365.All the numerical values can be considered as discrete. <br> Categorical Variables: name, host_name, neighbourhood_group, neighbourhood, room_type <br> Since host_id identifies the host, there is no need for host_name and the respective column can be removed.</p>
-<pre class="r"><code>data %&gt;% glimpse()</code></pre>
+<ul>
+<li><strong>id</strong> : Listing ID</li>
+<li><strong>name</strong> : Name of the Listing</li>
+<li><strong>host_id</strong> : Host ID</li>
+<li><strong>host_name</strong> : Host Name</li>
+<li><strong>neighbourhood_group</strong> : Location</li>
+<li><strong>neighbourhood</strong> : Area</li>
+<li><strong>latitude</strong> : Latitude Coordinates</li>
+<li><strong>longitude</strong> : Longitude Coordinates</li>
+<li><strong>room_type</strong> : Listing Space Type</li>
+<li><strong>price</strong> : price (in US dollars)</li>
+<li><strong>minimum_nights</strong> : Minimum Nights</li>
+<li><strong>number_of_reviews</strong> : Total Number of Reviews</li>
+<li><strong>last_review</strong> : Date of the Last Review</li>
+<li><strong>reviews_per_month</strong> :</li>
+<li><strong>calculated_host_listings_count</strong> :</li>
+<li><strong>availability_365</strong> :</li>
+</ul>
+<p><br> Numerical Variables: id, host_id, latitude, longitude, price, minimum_nights, number_of_reviews, last_review, reviews_per_month, calculated_host_listings_count, availability_365.All the numerical values can be considered as discrete. <br> Categorical Variables: name, host_name, neighbourhood_group, neighbourhood, room_type <br> Since host_id identifies the host, there is no need for host_name and the respective column can be removed.</p>
+<pre class="r"><code>data$last_review &lt;- ymd(data$last_review)
+data %&gt;% glimpse()</code></pre>
 <pre><code>## Rows: 48,895
 ## Columns: 16
 ## $ id                             &lt;int&gt; 2539, 2595, 3647, 3831, 5022, 5099, 51…
 ## $ name                           &lt;chr&gt; &quot;Clean &amp; quiet apt home by the park&quot;, …
 ## $ host_id                        &lt;int&gt; 2787, 2845, 4632, 4869, 7192, 7322, 73…
 ## $ host_name                      &lt;chr&gt; &quot;John&quot;, &quot;Jennifer&quot;, &quot;Elisabeth&quot;, &quot;Lisa…
-## $ neighbourhood_group            &lt;chr&gt; &quot;Brooklyn&quot;, &quot;Manhattan&quot;, &quot;Manhattan&quot;, …
-## $ neighbourhood                  &lt;chr&gt; &quot;Kensington&quot;, &quot;Midtown&quot;, &quot;Harlem&quot;, &quot;Cl…
-## $ latitude                       &lt;dbl&gt; 40.64749, 40.75362, 40.80902, 40.68514…
-## $ longitude                      &lt;dbl&gt; -73.97237, -73.98377, -73.94190, -73.9…
-## $ room_type                      &lt;chr&gt; &quot;Private room&quot;, &quot;Entire home/apt&quot;, &quot;Pr…
-## $ price                          &lt;int&gt; 149, 225, 150, 89, 80, 200, 60, 79, 79…
-## $ minimum_nights                 &lt;int&gt; 1, 1, 3, 1, 10, 3, 45, 2, 2, 1, 5, 2, …
-## $ number_of_reviews              &lt;int&gt; 9, 45, 0, 270, 9, 74, 49, 430, 118, 16…
-## $ last_review                    &lt;chr&gt; &quot;2018-10-19&quot;, &quot;2019-05-21&quot;, &quot;&quot;, &quot;2019-…
-## $ reviews_per_month              &lt;dbl&gt; 0.21, 0.38, NA, 4.64, 0.10, 0.59, 0.40…
-## $ calculated_host_listings_count &lt;int&gt; 6, 2, 1, 1, 1, 1, 1, 1, 1, 4, 1, 1, 3,…
-## $ availability_365               &lt;int&gt; 365, 355, 365, 194, 0, 129, 0, 220, 0,…</code></pre>
-<pre class="r"><code>data$last_review &lt;- ymd(data$last_review)
-data &lt;- data %&gt;% select(-host_name)
-data %&gt;% glimpse()</code></pre>
-<pre><code>## Rows: 48,895
-## Columns: 15
-## $ id                             &lt;int&gt; 2539, 2595, 3647, 3831, 5022, 5099, 51…
-## $ name                           &lt;chr&gt; &quot;Clean &amp; quiet apt home by the park&quot;, …
-## $ host_id                        &lt;int&gt; 2787, 2845, 4632, 4869, 7192, 7322, 73…
 ## $ neighbourhood_group            &lt;chr&gt; &quot;Brooklyn&quot;, &quot;Manhattan&quot;, &quot;Manhattan&quot;, …
 ## $ neighbourhood                  &lt;chr&gt; &quot;Kensington&quot;, &quot;Midtown&quot;, &quot;Harlem&quot;, &quot;Cl…
 ## $ latitude                       &lt;dbl&gt; 40.64749, 40.75362, 40.80902, 40.68514…
@@ -448,10 +447,10 @@ data %&gt;% glimpse()</code></pre>
 <div id="na-values" class="section level3">
 <h3>NA values</h3>
 <pre class="r"><code>data %&gt;% select(everything()) %&gt;% summarise_all(funs(sum(is.na(.))))</code></pre>
-<pre><code>##   id name host_id neighbourhood_group neighbourhood latitude longitude
-## 1  0    0       0                   0             0        0         0
-##   room_type price minimum_nights number_of_reviews last_review
-## 1         0     0              0                 0       10052
+<pre><code>##   id name host_id host_name neighbourhood_group neighbourhood latitude
+## 1  0    0       0         0                   0             0        0
+##   longitude room_type price minimum_nights number_of_reviews last_review
+## 1         0         0     0              0                 0       10052
 ##   reviews_per_month calculated_host_listings_count availability_365
 ## 1             10052                              0                0</code></pre>
 </div>
@@ -463,38 +462,46 @@ data %&gt;% glimpse()</code></pre>
 <h3>Summary of Dataset</h3>
 <p>There are 48895 data points in total.</p>
 <pre class="r"><code>data %&gt;% summary()</code></pre>
-<pre><code>##        id               name              host_id          neighbourhood_group
-##  Min.   :    2539   Length:48895       Min.   :     2438   Length:48895       
-##  1st Qu.: 9471945   Class :character   1st Qu.:  7822033   Class :character   
-##  Median :19677284   Mode  :character   Median : 30793816   Mode  :character   
-##  Mean   :19017143                      Mean   : 67620011                      
-##  3rd Qu.:29152178                      3rd Qu.:107434423                      
-##  Max.   :36487245                      Max.   :274321313                      
-##                                                                               
-##  neighbourhood         latitude       longitude       room_type        
-##  Length:48895       Min.   :40.50   Min.   :-74.24   Length:48895      
-##  Class :character   1st Qu.:40.69   1st Qu.:-73.98   Class :character  
-##  Mode  :character   Median :40.72   Median :-73.96   Mode  :character  
-##                     Mean   :40.73   Mean   :-73.95                     
-##                     3rd Qu.:40.76   3rd Qu.:-73.94                     
-##                     Max.   :40.91   Max.   :-73.71                     
-##                                                                        
-##      price         minimum_nights    number_of_reviews  last_review        
-##  Min.   :    0.0   Min.   :   1.00   Min.   :  0.00    Min.   :2011-03-28  
-##  1st Qu.:   69.0   1st Qu.:   1.00   1st Qu.:  1.00    1st Qu.:2018-07-08  
-##  Median :  106.0   Median :   3.00   Median :  5.00    Median :2019-05-19  
-##  Mean   :  152.7   Mean   :   7.03   Mean   : 23.27    Mean   :2018-10-04  
-##  3rd Qu.:  175.0   3rd Qu.:   5.00   3rd Qu.: 24.00    3rd Qu.:2019-06-23  
-##  Max.   :10000.0   Max.   :1250.00   Max.   :629.00    Max.   :2019-07-08  
-##                                                        NA&#39;s   :10052       
-##  reviews_per_month calculated_host_listings_count availability_365
-##  Min.   : 0.010    Min.   :  1.000                Min.   :  0.0   
-##  1st Qu.: 0.190    1st Qu.:  1.000                1st Qu.:  0.0   
-##  Median : 0.720    Median :  1.000                Median : 45.0   
-##  Mean   : 1.373    Mean   :  7.144                Mean   :112.8   
-##  3rd Qu.: 2.020    3rd Qu.:  2.000                3rd Qu.:227.0   
-##  Max.   :58.500    Max.   :327.000                Max.   :365.0   
-##  NA&#39;s   :10052</code></pre>
+<pre><code>##        id               name              host_id           host_name        
+##  Min.   :    2539   Length:48895       Min.   :     2438   Length:48895      
+##  1st Qu.: 9471945   Class :character   1st Qu.:  7822033   Class :character  
+##  Median :19677284   Mode  :character   Median : 30793816   Mode  :character  
+##  Mean   :19017143                      Mean   : 67620011                     
+##  3rd Qu.:29152178                      3rd Qu.:107434423                     
+##  Max.   :36487245                      Max.   :274321313                     
+##                                                                              
+##  neighbourhood_group neighbourhood         latitude       longitude     
+##  Length:48895        Length:48895       Min.   :40.50   Min.   :-74.24  
+##  Class :character    Class :character   1st Qu.:40.69   1st Qu.:-73.98  
+##  Mode  :character    Mode  :character   Median :40.72   Median :-73.96  
+##                                         Mean   :40.73   Mean   :-73.95  
+##                                         3rd Qu.:40.76   3rd Qu.:-73.94  
+##                                         Max.   :40.91   Max.   :-73.71  
+##                                                                         
+##   room_type             price         minimum_nights    number_of_reviews
+##  Length:48895       Min.   :    0.0   Min.   :   1.00   Min.   :  0.00   
+##  Class :character   1st Qu.:   69.0   1st Qu.:   1.00   1st Qu.:  1.00   
+##  Mode  :character   Median :  106.0   Median :   3.00   Median :  5.00   
+##                     Mean   :  152.7   Mean   :   7.03   Mean   : 23.27   
+##                     3rd Qu.:  175.0   3rd Qu.:   5.00   3rd Qu.: 24.00   
+##                     Max.   :10000.0   Max.   :1250.00   Max.   :629.00   
+##                                                                          
+##   last_review         reviews_per_month calculated_host_listings_count
+##  Min.   :2011-03-28   Min.   : 0.010    Min.   :  1.000               
+##  1st Qu.:2018-07-08   1st Qu.: 0.190    1st Qu.:  1.000               
+##  Median :2019-05-19   Median : 0.720    Median :  1.000               
+##  Mean   :2018-10-04   Mean   : 1.373    Mean   :  7.144               
+##  3rd Qu.:2019-06-23   3rd Qu.: 2.020    3rd Qu.:  2.000               
+##  Max.   :2019-07-08   Max.   :58.500    Max.   :327.000               
+##  NA&#39;s   :10052        NA&#39;s   :10052                                   
+##  availability_365
+##  Min.   :  0.0   
+##  1st Qu.:  0.0   
+##  Median : 45.0   
+##  Mean   :112.8   
+##  3rd Qu.:227.0   
+##  Max.   :365.0   
+## </code></pre>
 </div>
 <div id="pie-plots-for-categorical-variables" class="section level3">
 <h3>Pie Plots for Categorical Variables</h3>
