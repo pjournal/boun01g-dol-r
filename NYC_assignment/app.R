@@ -11,8 +11,11 @@ library(ggpubr)
 library(DT)
 
 data <- read.csv("https://raw.githubusercontent.com/pjournal/boun01g-dol-r/gh-pages/NYC_assignment/AB_NYC_2019.csv", header = TRUE, check.names=TRUE)
-img <- readJPEG("/Users/ilaydacelenk/Desktop/projects/boun01g-dol-r/NYC_assignment/New_York_City_.png")
-
+url <- "https://raw.githubusercontent.com/pjournal/boun01g-dol-r/gh-pages/NYC_assignment/NYC.jpeg"
+z <- tempfile()
+download.file(url,z,mode="wb")
+img <- readJPEG(z)
+file.remove(z)
 
 ui <- fluidPage(
 
