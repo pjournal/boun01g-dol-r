@@ -51,13 +51,13 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
     rv_options <- eventReactive(input$show_options, {
-        paste("You have", data %>% filter(data$price>input$price[1] & data$price<input$price[2]) %>% summarise(count=n()), "options.")
+        paste("You have", data %>% filter(data$price>input$price[1] & data$price<input$price[2] & room_type==input$roomtype) %>% summarise(count=n()), "options.")
     })
     
     output$table<- renderDataTable(data)
 
     output$plot <- renderPlot({
-        dataplot <- data %>% filter(data$price>input$price[1] & data$price<input$price[2])
+        dataplot <- data %>% filter(data$price>input$price[1] & data$price<input$price[2] & room_type==input$roomtype)
         
         ggplot(dataplot, aes(x=latitude, y=longitude)) + background_image(img) + geom_point(aes(color=room_type)) 
     })
@@ -69,7 +69,7 @@ server <- function(input, output) {
     output$hist<- renderPlot({
         
         selected<- data%>%
-            filter(room_type==input$roomtype)
+            filter(data$price>input$price[1] & data$price<input$price[2] & room_type==input$roomtype)
         
         ggplot(selected,aes(x=room_type,fill=neighbourhood_group))+geom_bar(position = "dodge")
     })
