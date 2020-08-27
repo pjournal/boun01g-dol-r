@@ -26,11 +26,10 @@ ui <- fluidPage(
                         "Select a Price Range:",
                         min = min(data$price),
                         max = max(data$price),
-                        value = c(1000,2000),
-                        sep = ""
-            ),
+                        value = c(100,500),
+                        sep = "" ),
             selectInput("roomtype","Select Room Type",choices=data$room_type,selected = "Private room",multiple = TRUE),
-            selectInput("neigb","Select Neigbourhood",choices=data$neighbourhood,selected = "Midtown",multiple = TRUE),
+            selectInput("neigb_g","Select Neigbourhood Group",choices=data$neighbourhood_group,selected = "Manhattan",multiple = TRUE),
             
             actionButton("show_options", label = "Show Number of Options")
             
@@ -41,7 +40,8 @@ ui <- fluidPage(
             tabsetPanel(
                 tabPanel("Map", plotOutput("plot"), textOutput("options")),
                 tabPanel("Table", dataTableOutput("table")),
-                tabPanel("Number of Rooms", plotOutput("hist"))
+                tabPanel("Number of Rooms", plotOutput("hist")),
+                tabPanel("Availability vs Number of Reviews", plotOutput("dot_plot"))
             )
            
         )
@@ -52,26 +52,32 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
     rv_options <- eventReactive(input$show_options, {
-        paste("You have", data %>% filter(data$price>input$price[1] & data$price<input$price[2] & room_type==input$roomtype & neighbourhood==input$neigb) %>% summarise(count=n()), "options.")
+        paste("You have", data %>% filter(data$price>input$price[1] & data$price<input$price[2] & room_type==input$roomtype & neighbourhood_group==input$neigb_g) %>% summarise(count=n()), "options.")
     })
     
-    output$table<- renderDataTable(data %>% filter(data$price>input$price[1] & data$price<input$price[2] & room_type==input$roomtype & neighbourhood==input$neigb))
+    output$table<- renderDataTable(data %>% filter(data$price>input$price[1] & data$price<input$price[2] & room_type==input$roomtype & neighbourhood_group==input$neigb_g))
 
     output$plot <- renderPlot({
-        dataplot <- data %>% filter(data$price>input$price[1] & data$price<input$price[2] & room_type==input$roomtype & neighbourhood==input$neigb)
+        dataplot <- data %>% filter(data$price>input$price[1] & data$price<input$price[2] & room_type==input$roomtype & neighbourhood_group==input$neigb_g)
         
         ggplot(dataplot, aes(x=latitude, y=longitude)) + background_image(img) + geom_point(aes(color=room_type)) 
     })
     
     output$options <- renderText({
-        rv_options()
-    })
+        rv_options() 
+        })
     
     output$hist<- renderPlot({
         
         selected <- data %>% filter(data$price>input$price[1] & data$price<input$price[2] & room_type==input$roomtype)
         
         ggplot(selected,aes(x=room_type,fill=neighbourhood_group))+geom_bar(position = "dodge")
+    })
+    
+    output$dot_plot<- renderPlot({
+        
+        selected <- data %>% filter(data$price>input$price[1] & data$price<input$price[2] & room_type==input$roomtype)
+        ggplot(selected,aes(x=reviews_per_month,y=availability_365,size=price,color=neighbourhood_group)) + geom_point(alpha=0.8)+xlim(0,15)+scale_y_continuous(trans = 'log2')
     })
 }
 
