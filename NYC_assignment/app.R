@@ -29,7 +29,7 @@ ui <- fluidPage(
                         value = c(1000,2000),
                         sep = ""
             ),
-            selectInput("roomtype","Select Room Type",choices=data$room_type,selected = NULL,multiple = TRUE),
+            selectInput("roomtype","Select Room Type",choices=data$room_type,selected = "Private room",multiple = TRUE),
           
             
         ),
