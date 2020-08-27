@@ -13,8 +13,8 @@ This is group Dol_R's [Progress Journal website](https://pjournal.github.io/boun
 ### Group Assignment: New York City Airbnb Open Data - Kaggle
 - Analysis using dplyr, ggplot2 and rmarkdown
 [NYC - Airbnb Analysis](https://pjournal.github.io/boun01g-dol-r/NYC_assignment/AB_NYC_2019_analysis.html)
-- Shiny app for the analysis
-<br> New York City Airbnb Open Data: [Kaggle](https://www.kaggle.com/dgomonov/new-york-city-airbnb-open-data)
+- Shiny app for the analysis: [Accommodation in NYC](app.R)
+- New York City Airbnb Open Data: [Kaggle](https://www.kaggle.com/dgomonov/new-york-city-airbnb-open-data)
 
 ### Bonus Work: [h2o Package](https://cran.r-project.org/web/packages/h2o/index.html) Tutorial
 - Written tutorial using RMarkdown
