@@ -267,6 +267,7 @@ Mean_Price_Dist_data %>% filter (mean_price_neig <300) %>% ggplot(.,aes(mean_pri
 
 
 ### Pie Plots for Categorical Variables
+
 ```{r pie-categorical, message=FALSE}
 ```
 
