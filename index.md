@@ -22,7 +22,8 @@ This is group Dol_R's [Progress Journal website](https://pjournal.github.io/boun
 
 
 ### Final Project
-- [Project Proposal, Summary Of the Data and Explanations:](https://pjournal.github.io/boun01g-dol-r/YKS_analysis_project/Project_Proposal_YKS.html)
-<br>The project's aim is to compare and analyse **YKS** results from different years. 
+- [Project Proposal, Summary Of the Data and Explanations:](https://pjournal.github.io/boun01g-dol-r/uni_exam_project/Project_Proposal.html)
+<br>The project's aim is to compare and analyse **University Entrance Exam** results from different years. 
+- [Last version of the Project](https://pjournal.github.io/boun01g-dol-r/uni_exam_project/uni_exam_project.html)
 <br>Data for year 2019: [*Hacettepe University's Website*](http://web.ee.hacettepe.edu.tr/osym/index.php?selectedYear=2019&selectedUniversityCode=&selectedType=&selectedComparisonType=&selectedStatus=&selectedCombination=0&selectedShowQuotaNotFull=1&selectedKeyword1=&selectedKeyword2=&selectedSortOrder=min). 
 
