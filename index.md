@@ -12,7 +12,7 @@ This is group Dol_R's [Progress Journal website](https://pjournal.github.io/boun
 
 ### Group Assignment: New York City Airbnb Open Data - Kaggle
 - Analysis using dplyr, ggplot2 and rmarkdown
-[NYC - Airbnb Analysis](https://pjournal.github.io/boun01g-dol-r/NYC_assignment/AB_NYC_2019_analysis.html)
+[NYC - Airbnb Analysis](https://pjournal.github.io/boun01g-dol-r/NYC_assignment/group_assignment.html)
 - Shiny app for the analysis: [Accommodation in NYC](NYC_assignment/app.R)
 - New York City Airbnb Open Data: [Kaggle](https://www.kaggle.com/dgomonov/new-york-city-airbnb-open-data)
 
