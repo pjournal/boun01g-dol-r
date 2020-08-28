@@ -66,8 +66,25 @@ data %>% summary()
 ```
 
 ### Pie Plots for Categorical Variables
+Lets show the ratios of Room Types and Neigbours with pie charts.
 ```{r pie-categorical, message=FALSE}
+df_neigbour <- data.frame(data$neighbourhood_group)
+df_neigbour <- unlist(df_neigbour)
+df_neigbour <- data.frame(df_neigbour)
+pie_chart <- ggplot(df_neigbour) + geom_bar(mapping = aes(x = "", fill=df_neigbour ), width = 1) + coord_polar("y") + 
+  theme_void() # remove background, grid, numeric labels
+pie_chart <- pie_chart + labs(x="", fill="Neigbours", title = "Dispersion of Neigbour Groups")
+pie_chart
+```
 
+```{r pie-categorical2, message=FALSE}
+df_rt <- data.frame(data$room_type)
+df_rt <- unlist(df_rt)
+df_rt <- data.frame(df_rt)
+pie_chart2 <- ggplot(df_rt) + geom_bar(mapping = aes(x = "", fill=df_rt ), width = 1) + coord_polar("y") + 
+  theme_void() # remove background, grid, numeric labels
+pie_chart2 <- pie_chart2 + labs(x="", fill="Room Types", title = "Room Types Ratio")
+pie_chart2
 ```
 
 ### Plots for Numerical Variables
