@@ -1,0 +1,301 @@
+---
+title: Airbnb data for New York City 2019
+author: Group Dol_R
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+date: 8/20/2020
+---
+
+## Introduction
+Airbnb is an online marketplace for accommodations and it has more than 150 million users worldwide. In this report, the listing activity and metrics in New York City for 2019 will be analyzed according to **New York City Airbnb Open Data** data from  [*Kaggle*](https://www.kaggle.com/dgomonov/new-york-city-airbnb-open-data). 
+
+## Loading Libraries and Data
+```{r setup, message=FALSE, warning=FALSE, echo=TRUE}
+library(readr)
+library(tidyverse)
+library(lubridate)
+library(tinytex)
+
+data <- read.csv("https://raw.githubusercontent.com/pjournal/boun01g-dol-r/gh-pages/NYC_assignment/AB_NYC_2019.csv", header = TRUE, check.names=TRUE)
+```
+
+## Overview and Manipulation of Data
+
+### Variables
+
+First of all we start with checking the structure of the variables by glimpse.
+
+```{r summary-manipulation}
+
+data %>% glimpse()
+```
+ Here;
+ 
+* __id__ : Listing ID
+
+* __name__ : Name of the Listing
+
+* __host_id__ : Host ID
+
+* __host_name__ : Host Name
+
+* __neighbourhood_group__ : Location
+
+* __neighbourhood__ : Area
+
+* __latitude__ : Latitude Coordinates
+
+* __longitude__ : Longitude Coordinates
+
+* __room_type__ : Listing Space Type
+
+* __price__ : price (in US dollars)
+
+* __minimum_nights__ : Minimum Nights
+
+* __number_of_reviews__ : Total Number of Reviews
+
+* __last_review__ : Date of the Last Review
+
+* __reviews_per_month__ : 
+
+* __calculated_host_listings_count__ : 
+
+* __availability_365__ : 
+
+<br> Numerical Variables: id, host_id, latitude, longitude, price, minimum_nights, number_of_reviews, last_review, reviews_per_month, calculated_host_listings_count, availability_365.All the numerical values can be considered as discrete.
+<br> Categorical Variables: name, host_name, neighbourhood_group, neighbourhood, room_type 
+
+<br> Since host_id identifies the host, there is no need for host_name and the respective column can be removed.  
+
+The types of the variables seems appropiate except last_review. We change its type to date.
+```{r date_type, warning=FALSE}
+data$last_review <- ymd(data$last_review)
+data <- data %>% select(-host_name)
+```
+
+### NA values
+
+There may be NA values missing in the data and these NA values may affect our analysis. So we check the variables having NA.
+
+```{r NA_check, warning=FALSE}
+data %>% select(everything()) %>% summarise_all(funs(sum(is.na(.))))
+
+```
+
+We realized that there are 10052 NA values in reviews_per_month and last_review columns. We assume that these are the places with no reviews and check:
+
+```{r No_of_0_reviews}
+data %>% filter(number_of_reviews==0)%>%count()
+```
+
+We see that there are no data with reviews_per_month = 0 so we convert the na values in reviews_per_month column to 0.
+
+```{r cleaning_NAs}
+data <- data %>% mutate(reviews_per_month=ifelse(is.na(reviews_per_month), 0, reviews_per_month))
+```
+
+## Analysis
+Average price per night is `r data %>% summarise(avg_price = round(mean(data$price),2))`.
+Average price per room type
+
+### Summary of Dataset
+There are `r data %>% summarise(count=n())` data points in total.
+
+```{r summary, message=FALSE}
+data %>% summary()
+```
+
+Now we check the number of the neighborhood groups.
+
+```{r neighbourhood_group_count}
+
+data %>% select(neighbourhood_group)  %>% unique() %>% count()
+
+```
+ There are 5 groups (boroughs of NYC)
+ 
+ And now we check the number of neighborhoods in each group.
+ 
+```{r neighbourhood_count}
+
+neighbor_count <- data %>% select(neighbourhood_group, neighbourhood)  %>% group_by(neighbourhood_group) %>% unique() %>% count() 
+
+neighbor_count
+```
+
+We can see that there are `r    neighbor_count$n %>% sum `  neighbourhoods in NYC.
+
+Lets see the average price in every borough.
+
+```{r neighbor_price_average}
+
+data %>% group_by(neighbourhood_group) %>% transmute(mean_price = mean(price)) %>% unique()
+
+```
+
+There seems a huge gap between neighbourhoods. There could be several reasons for this. So we check the effect of the room types.
+
+Mean price of room types:
+
+```{r room_type_price_average}
+
+data %>% group_by(room_type) %>% transmute(mean_price = mean(price)) %>% unique()
+
+```
+
+There seems a huge gap between entire home / apartment type and the others. 
+
+We check the effect of the number of reviews. 
+
+```{r}
+
+review_0_15_mean <- mean((data %>%  filter (number_of_reviews <=15) %>% select(price))$price) %>% round()
+review_15_25_mean <- mean((data %>%  filter (number_of_reviews >15 & number_of_reviews <=25) %>% select(price))$price)  %>% round()
+review_25_50_mean <- mean((data %>%  filter (number_of_reviews >25 & number_of_reviews <=50) %>% select(price))$price)  %>% round()
+review_50_100_mean <- mean((data %>%  filter (number_of_reviews >50 & number_of_reviews <=100) %>% select(price))$price) %>% round()
+review_100_200_mean <- mean((data %>%  filter (number_of_reviews >100 & number_of_reviews <=200) %>% select(price))$price)  %>% round()
+review_200plus_mean <- mean((data %>%  filter (number_of_reviews >200) %>% select(price))$price)  %>% round()
+
+```
+
+Average price of places with number of reviews:
+
+0 to 15 : `r review_0_15_mean` USD
+
+15 to 25 : `r review_15_25_mean` USD *Around the average number of reviews*
+
+25 to 50 : `r review_25_50_mean` USD
+
+50 to 100 : `r review_50_100_mean` USD
+
+100 to 200 : `r review_100_200_mean` USD
+
+200 and above : `r review_200plus_mean` USD
+
+We can understand that number of reviews has no positive effect on price since it is possible that customers prefer to choose places with low price.
+
+Furthermore we check the house types in boroughs. It may explain the price gap. From the data we see, we can assume that there are more entire house / apartment offers in manhattan than the others.
+
+```{r house_types_boroughs}
+
+data %>% select(neighbourhood_group,room_type) %>% group_by(neighbourhood_group,room_type) %>% count() %>% group_by(neighbourhood_group) %>% mutate(total_in_borough = sum(n)) %>% mutate (percentage = paste0(as.character(round(n / total_in_borough*100)),"%")) %>% select(-total_in_borough)
+```
+
+Manhattan has higher percentage in having entire home apartment offers. This can explain the higher prices. But there is only 10% difference between Brooklyn and Staten Island percentages therefore we cannot say that this price gap is only caused by the room type. 
+
+AirBnb is used by tourists and travellers mostly. A tourist usually prefers to stay close to the places where they plan to visit which are commonly the landmarks of the city. We select several landmarks of NYC from [here](https://www.planetware.com/tourist-attractions-/new-york-city-us-ny-nyc.htm). This list shows the most popular tourist attractions. And we find the coordinates from [here](https://www.latlong.net/), a coordinate search engine.
+
+
+```{r loading_landmarks ,warning=F,message=F}
+Landmarks <- read_csv2("https://raw.githubusercontent.com/pjournal/boun01g-dol-r/gh-pages/NYC_assignment/landmarks_NYC.csv")
+
+Landmarks <- as.tibble(Landmarks)
+
+Landmarks%>%glimpse()
+```
+
+We load our landmarks. These landmarks we choose are:
+
+-Rockefeller Center
+
+-Metropolitan Museum of Art 
+
+-Empire State Building      
+
+-9/11 Memorial and Museum  
+
+-Times Square               
+
+-Grand Central Terminal     
+
+-One World Observatory      
+
+-New York Public Library   
+
+-St. Patrick's Cathedral   
+
+And now we will calculate the average distance of every single house to these landmarks. We use a package called geosphere with which we can calculate the distance between two coordinates.
+
+```{r Calculating_distances_to_landmarks}
+library(geosphere)
+
+data <- data%>% rowwise() %>% mutate(rock_dist = distm (cbind(Landmarks$Longitude[1], Landmarks$Latitude[1]), cbind(longitude,latitude), fun = distHaversine))
+
+data <- data%>% rowwise() %>% mutate(Met_dist = distm (cbind(Landmarks$Longitude[2], Landmarks$Latitude[2]), cbind(longitude,latitude), fun = distHaversine))
+  
+data <- data%>% rowwise() %>% mutate(Emp_State_dist = distm (cbind(Landmarks$Longitude[3], Landmarks$Latitude[3]), cbind(longitude,latitude), fun = distHaversine))
+
+data <- data%>% rowwise() %>% mutate(NineElevenMemo_dist = distm (cbind(Landmarks$Longitude[4], Landmarks$Latitude[4]), cbind(longitude,latitude), fun = distHaversine))
+ 
+data <- data%>% rowwise() %>% mutate(TimesSq_dist = distm (cbind(Landmarks$Longitude[5], Landmarks$Latitude[5]), cbind(longitude,latitude), fun = distHaversine))
+
+data <- data%>% rowwise() %>% mutate(Terminal_dist = distm (cbind(Landmarks$Longitude[6], Landmarks$Latitude[6]), cbind(longitude,latitude), fun = distHaversine))
+
+data <- data%>% rowwise() %>% mutate(OneWorld_dist = distm (cbind(Landmarks$Longitude[7], Landmarks$Latitude[7]), cbind(longitude,latitude), fun = distHaversine))
+
+data <- data%>% rowwise() %>% mutate(Library_dist = distm (cbind(Landmarks$Longitude[8], Landmarks$Latitude[8]), cbind(longitude,latitude), fun = distHaversine))
+
+data <- data%>% rowwise() %>% mutate(StPatrick_dist = distm (cbind(Landmarks$Longitude[9], Landmarks$Latitude[9]), cbind(longitude,latitude), fun = distHaversine))
+
+data <- data %>% mutate(Mean_Distance = mean(rock_dist,Met_dist,Emp_State_dist,NineElevenMemo_dist,TimesSq_dist, Terminal_dist,OneWorld_dist,Library_dist,StPatrick_dist))
+  
+```
+
+Now we will check the possible effect of location to the prices. We will start with plotting. (We filter prices < 750 since there are outliers above and the graph do not mean anything.) 
+
+```{r}
+data %>% filter(price<750) %>% ggplot(.,aes(x=price,y=Mean_Distance)) + geom_point(color = "black") + labs(x="Price",y="Average Distance") + ggtitle("Price vs Distance to Landmarks Scatterplot")
+```
+
+We can see that high proportion of the places with higher price has shorter distance. But there are around 50K observations and this makes us harder to understand the graphics. Therefore we calculate the mean distance and mean prices of neighborhood.
+
+```{r}
+
+Mean_Price_Dist_data <- data %>% select(neighbourhood_group,neighbourhood,Mean_Distance,price) %>% group_by(neighbourhood_group,neighbourhood) %>% mutate(mean_price_neig = mean(price)) %>% mutate(mean_dist_neig = mean(Mean_Distance)) %>% select(-Mean_Distance, -price) %>% group_by(neighbourhood_group) %>% unique() %>% arrange(neighbourhood_group)
+
+
+
+Mean_Price_Dist_data %>% filter (mean_price_neig <300) %>% ggplot(.,aes(mean_price_neig,mean_dist_neig,color=neighbourhood_group)) +geom_point() + labs(x="Average Price",y="Average Distance") + ggtitle("Price vs Distance to Landmarks Scatterplot by Neighbourhoods")
+
+```
+
+
+
+
+
+### Pie Plots for Categorical Variables
+```{r pie-categorical, message=FALSE}
+```
+
+### Plots for Numerical Variables
+```{r numerical, message=FALSE}
+```
+
+### Hosts with the Most Listings in NYC
+```{r top-hosts, message=FALSE}
+```
+
+### Top 10 Neigbourhood
+```{r top-neig, message=FALSE}
+```
+
+### Heatmap
+```{r heatmap, message=FALSE}
+#use the picture, x=latitude and y=longitude
+#make shiny app here, slidebar for price and the heatmap changes according to neigbourhood_group or room_type
+```
+
+## References
+- Dataset: **New York City Airbnb Open Data** from  [*Kaggle*](https://www.kaggle.com/dgomonov/new-york-city-airbnb-open-data). 
+
+- 20 Top-Rated Tourist Attractions in New York City from
+
+
+
+<br>To see Group Dol_R's Progress Journal, visit [Progress Journal website](https://pjournal.github.io/boun01g-dol-r/).
+
+
+
