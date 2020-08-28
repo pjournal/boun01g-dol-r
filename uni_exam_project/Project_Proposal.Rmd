@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ## Project Proposal
-The following analysis for years 2016-2019 is made according to **YKS Exam** data from  [*Hacettepe University's Website*](http://web.ee.hacettepe.edu.tr/osym/index.php?selectedYear=2019&selectedUniversityCode=&selectedType=&selectedComparisonType=&selectedStatus=&selectedCombination=0&selectedShowQuotaNotFull=1&selectedKeyword1=&selectedKeyword2=&selectedSortOrder=min). The project's aim is to compare and analyse **YKS** results from different years.
+The following analysis for years 2016-2019 is made according to **University Entrance Exam** data from  [*Hacettepe University's Website*](http://web.ee.hacettepe.edu.tr/osym/index.php?selectedYear=2019&selectedUniversityCode=&selectedType=&selectedComparisonType=&selectedStatus=&selectedCombination=0&selectedShowQuotaNotFull=1&selectedKeyword1=&selectedKeyword2=&selectedSortOrder=min). The project's aim is to compare and analyse **YKS** results from different years.
 
 
 ```{r setup, include=FALSE, message=FALSE, warning=FALSE}
@@ -17,7 +17,7 @@ library(tinytex)
 library(readxl)
 library(tidyr)
 library(httr)
-url<-'https://github.com/pjournal/boun01g-dol-r/blob/gh-pages/YKS_analysis_project/YKS.xlsx?raw=true'
+url<-'https://github.com/pjournal/boun01g-dol-r/blob/gh-pages/uni_exam_project/uni_exam.xlsx?raw=true'
 GET(url, write_disk(tf <- tempfile(fileext = ".xlsx")))
 raw_df19 <- read_excel(tf, sheet="19", skip=21)
 raw_df18 <- read_excel(tf, sheet="18", skip=21)

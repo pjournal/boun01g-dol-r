@@ -1,0 +1,142 @@
+---
+title: "Project: University Entrance Exam Analysis"
+author: "Dol_R"
+date: "8/24/2020"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    code_folding: hide
+---
+
+## Introduction and Key Takeaways
+In Turkey, every year millions of students take the university entrance exam. After the announcement of results, participants list their university and department choices and they are placed according to their ranks.
+
+<br>This analysis focuses on universities and departments popularity over the years. Hopefully, it would help future participants in their decision making process.
+
+**Key Takeaways:**
+
+* We analyzed University Exam Entrance data
+* We explored the popularity trends of the universities and departments over the years
+* We compared top selected universities and departments
+
+
+## Summary of the Data and Explanations
+Using **University Exam** data from  [*Hacettepe University's Website*](http://web.ee.hacettepe.edu.tr/osym), we obtained university results of years 2016-2020. Each year is on a separate Excel spreadsheet. Since every year some departments are opened and some are shut down, datasets will have different number of rows. There are 9 variables and more than 10000 rows for each dataset.
+
+**university**: Name of the university
+<br>**city**: University's location 
+<br>**department**: Name of the department
+<br>**type**: Type of the exam
+<br>**quota**: Maximum number of participants to be accepted, upper bound for accepted_number
+<br>**accepted_number**: Accepted number of participants to the selected university's selected department
+<br>**lowest_score**: Lowest score of the accepted participant's scores
+<br>**highest_score**: Highest score of the accepted participant's scores
+<br>**lowest_ranking**: Lowest ranking of the accepted participant's scores, last accepted person's ranking
+
+**Objectives:**
+
+* Cleaning and manipulation of datasets
+* Exploration of the popularity trends of the universities and departments
+* Comparison by visualization
+* Finding top selected universities and departments
+
+### Data Preprocessing
+In order to ease the reading process, functions `mani97` and `mani86` are created. These functions remove the columns related to the percentage of change regarding the previous year. They also rename the columns and remove the last empty rows. The raw data for some years have an additional column at the end, therefore two functions were needed.
+```{r manipulation}
+knitr::opts_chunk$set(echo = TRUE) # applies to all chunks
+mani97 <- function(data){
+  newdata <- data %>% 
+  rename(
+    number = c(1),
+    difference = c(2),
+    university = c(3),
+    city = c(4),
+    department = c(5),
+    type = c(6),
+    quota = c(7),
+    difference_quota = c(8),
+    accepted_number = c(9),
+    lowest_score = c(10),
+    highest_score = c(11),
+    lowest_ranking = c(12),
+    difference_ranking = c(13)
+  )  %>% select(-number, -difference, -difference_quota, -difference_ranking) %>% slice_head(n=nrow(data)-9)
+  return(newdata)
+}
+mani86 <- function(data){
+  newdata <- data %>% 
+  rename(
+    number = c(1),
+    difference = c(2),
+    university = c(3),
+    city = c(4),
+    department = c(5),
+    type = c(6),
+    quota = c(7),
+    difference_quota = c(8),
+    accepted_number = c(9),
+    lowest_score = c(10),
+    highest_score = c(11),
+    lowest_ranking = c(12)
+  )  %>% select(-number, -difference, -difference_quota) %>% slice_head(n=nrow(data)-9)
+  return(newdata)
+}
+```
+After loading the required libraries, we read the .xlsx file from our project repository.
+```{r setup, results="hide", message=FALSE, warning=FALSE}
+library(tidyverse)
+library(lubridate)
+library(tinytex)
+library(readxl)
+library(tidyr)
+library(httr)
+url<-'https://github.com/pjournal/boun01g-dol-r/blob/gh-pages/uni_exam_project/uni_exam.xlsx?raw=true'
+GET(url, write_disk(tf <- tempfile(fileext = ".xlsx")))
+raw_df20 <- read_excel(tf, sheet="20", skip=21)
+raw_df19 <- read_excel(tf, sheet="19", skip=21)
+raw_df18 <- read_excel(tf, sheet="18", skip=21)
+raw_df17 <- read_excel(tf, sheet="17", skip=21)
+raw_df16 <- read_excel(tf, sheet="16", skip=21)
+file.remove(tf)
+```
+
+### Loading the Libraries and Datasets
+We have 5 datasets, each has 9 columns. All have different number of rows. For example there are `r mani97(raw_df20) %>% summarise(exam20=n())` rows in dataset for the year 2020.
+
+```{r datasets}
+data2020 <- mani97(raw_df20)
+data2020 <- mani97(raw_df20)
+data2019 <- mani97(raw_df19)
+data2018 <- mani86(raw_df18)
+data2017 <- mani97(raw_df17)
+data2016 <- mani97(raw_df16)
+
+data2020 %>% summarise(exam20=n()) %>% mutate(data2019 %>% summarise(exam19=n())) %>% mutate(data2018 %>% summarise(exam18=n())) %>% mutate(data2017 %>% summarise(exam17=n())) %>% mutate(data2016 %>% summarise(exam16=n())) 
+```
+
+As an example, let's observe dataset for the year 2020. Four of the variables are categorical and the rest is numerical. 
+```{r ex-dataset}
+data2020 %>% arrange(desc(highest_score)) %>% glimpse()
+```
+
+## Exploratory Data Analysis
+
+### Top Selected Universities
+
+### Top Selected Departments
+
+### Top Cities
+
+  
+  
+  
+
+## Conclusion
+
+
+
+## References
+[*Hacettepe University's Website*](http://web.ee.hacettepe.edu.tr/osym/).
+
+
