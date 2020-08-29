@@ -25,6 +25,11 @@ This is group Dol_R's [Progress Journal website](https://pjournal.github.io/boun
 ### Final Project
 - [Project Proposal, Summary Of the Data and Explanations:](https://pjournal.github.io/boun01g-dol-r/uni_exam_project/Project_Proposal.html)
 <br>The project's aim is to compare and analyse **University Entrance Exam** results from different years. 
-- [Last version of the Project](https://pjournal.github.io/boun01g-dol-r/uni_exam_project/uni_exam_project.html)
-<br>Data for year 2019: [*Hacettepe University's Website*](http://web.ee.hacettepe.edu.tr/osym/index.php?selectedYear=2019&selectedUniversityCode=&selectedType=&selectedComparisonType=&selectedStatus=&selectedCombination=0&selectedShowQuotaNotFull=1&selectedKeyword1=&selectedKeyword2=&selectedSortOrder=min). 
+- [Exploratory Data Analysis](https://pjournal.github.io/boun01g-dol-r/uni_exam_project/uni_exam_project.html)
+<br> Using dplyr and ggplot2 packages mainly.
+- Final Project: 
+<br>[HTML Format](https://pjournal.github.io/boun01g-dol-r/uni_exam_project/uni_exam_project_final.html)
+<br> [PDF Format](https://pjournal.github.io/boun01g-dol-r/uni_exam_project/uni_exam_project_final.pdf)
+- Presentation
+- Datasets: [*Hacettepe University's Website*](http://web.ee.hacettepe.edu.tr/osym)
 
