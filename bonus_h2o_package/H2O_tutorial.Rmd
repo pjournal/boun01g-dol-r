@@ -1,0 +1,30 @@
+---
+title: "H2O Tutorial"
+author: "Dol_R"
+date: "8/30/2020"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+---
+
+## Introduction
+`h2o` is an open source Machine Learning library that can be used in both R and Python. It provides easy and fast solutions for huge datasets. In this tutorial we will demonstrate how to use this package for machine learning.  
+
+## Install and Load the Library
+```{r setup, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#install one time only
+#install.packages("h2o")
+library(h2o)
+```
+
+## Example Dataset
+
+
+
+## Resources
+- [Cran](https://cran.r-project.org/web/packages/h2o/index.html)
+- [h2o.ai](http://docs.h2o.ai/h2o-tutorials/latest-stable/WhatIsH2O.html)
+- [H2O Documentation](http://docs.h2o.ai/)
+
