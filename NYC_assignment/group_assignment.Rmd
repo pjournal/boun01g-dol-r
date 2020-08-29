@@ -99,7 +99,11 @@ data <- data %>% mutate(reviews_per_month=ifelse(is.na(reviews_per_month), 0, re
 
 ## Analysis
 Average price per night is `r data %>% summarise(avg_price = round(mean(data$price),2))`.
-Average price per room type
+There are 3 different types of rooms which are `r unique(data$room_type)` . 
+Average prices per room type  are : 
+```{r room-type-mean, message=FALSE} 
+data %>% select(price, room_type) %>% group_by(room_type)%>% summarise(mean(price))
+``` 
 
 ### Summary of Dataset
 There are `r data %>% summarise(count=n())` data points in total.
