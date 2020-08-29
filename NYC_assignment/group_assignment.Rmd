@@ -118,10 +118,8 @@ top_hosts <- sort(table(data$host_id), decreasing = T)
 top_hosts <- head(top_hosts, 10)
 top_hosts <- data.frame(top_hosts)
 
-
-bar_p <- ggplot(top_hosts, aes(x=Var1, y = Freq, fill = Var1)) + geom_bar(stat = "identity") + labs(x="Host IDs", y="Count of Host Listings", color="Host IDs", title = "Hosts with the most listing in NYC") + theme(axis.text.x = element_text(angle=45,hjust=1,vjust=1))
+bar_p <- ggplot(top_hosts, aes(x=Var1, y = Freq, fill = Var1)) + geom_bar(stat = "identity") + labs(x="Host IDs", y="Count of Host Listings", color="Host IDs", title = "Hosts with the most listing in NYC") + theme(axis.text.x = element_text(angle=45,hjust=1,vjust=1), legend.position = "none")
 bar_p
-
 ```
 ### Pie Plots for Categorical Variables
 Lets show the ratios of Room Types and Neigbours with pie charts.
@@ -174,8 +172,19 @@ Lets see the average price in every borough.
 data %>% group_by(neighbourhood_group) %>% transmute(mean_price = mean(price)) %>% unique()
 
 ```
+```{r top-neig, message=FALSE}
+top_neig <- sort(table(data$neighbourhood), decreasing = T)
 
+top_neig <- head(top_neig, 10)
+top_neig <- data.frame(top_neig)
+
+
+bar_p2 <- ggplot(top_neig, aes(x=Var1, y = Freq, fill = Var1)) + geom_bar(stat = "identity") + labs(x="Neigbours", y="Frequency",color= "Neigbours", title = "Top 10 Frequent Neigbours") + theme(axis.text.x = element_text(angle=45,hjust=1,vjust=1), legend.position = "none")
+bar_p2
+```
 There seems a huge gap between neighbourhoods. There could be several reasons for this. So we check the effect of the room types.
+
+
 
 ### Room Types
 
