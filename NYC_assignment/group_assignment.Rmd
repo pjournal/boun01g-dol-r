@@ -108,6 +108,8 @@ There are `r data %>% summarise(count=n())` data points in total.
 data %>% summary()
 ```
 
+### Neigbourhoods
+
 Now we check the number of the neighborhood groups.
 
 ```{r neighbourhood_group_count}
@@ -138,6 +140,8 @@ data %>% group_by(neighbourhood_group) %>% transmute(mean_price = mean(price)) %
 
 There seems a huge gap between neighbourhoods. There could be several reasons for this. So we check the effect of the room types.
 
+### Room Types
+
 Mean price of room types:
 
 ```{r room_type_price_average}
@@ -147,6 +151,9 @@ data %>% group_by(room_type) %>% transmute(mean_price = mean(price)) %>% unique(
 ```
 
 There seems a huge gap between entire home / apartment type and the others. 
+
+
+### Number of Reviews
 
 We check the effect of the number of reviews. 
 
@@ -185,6 +192,9 @@ data %>% select(neighbourhood_group,room_type) %>% group_by(neighbourhood_group,
 ```
 
 Manhattan has higher percentage in having entire home apartment offers. This can explain the higher prices. But there is only 10% difference between Brooklyn and Staten Island percentages therefore we cannot say that this price gap is only caused by the room type. 
+
+
+### Landmarks
 
 AirBnb is used by tourists and travellers mostly. A tourist usually prefers to stay close to the places where they plan to visit which are commonly the landmarks of the city. We select several landmarks of NYC from [here](https://www.planetware.com/tourist-attractions-/new-york-city-us-ny-nyc.htm). This list shows the most popular tourist attractions. And we find the coordinates from [here](https://www.latlong.net/), a coordinate search engine.
 
@@ -262,26 +272,6 @@ Mean_Price_Dist_data %>% filter (mean_price_neig <300) %>% ggplot(.,aes(mean_pri
 
 ```
 
-
-
-
-
-### Pie Plots for Categorical Variables
-
-```{r pie-categorical, message=FALSE}
-```
-
-### Plots for Numerical Variables
-```{r numerical, message=FALSE}
-```
-
-### Hosts with the Most Listings in NYC
-```{r top-hosts, message=FALSE}
-```
-
-### Top 10 Neigbourhood
-```{r top-neig, message=FALSE}
-```
 
 ### Heatmap
 ```{r heatmap, message=FALSE}
