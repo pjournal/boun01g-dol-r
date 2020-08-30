@@ -94,7 +94,11 @@ pie_chart2
 
 ### Plots for Numerical Variables
 ```{r numerical, message=FALSE}
+box_df <- data %>% select(id, neighbourhood_group, price)
 
+box_plot1 <- ggplot(box_df, aes(x=neighbourhood_group, y=price, color=neighbourhood_group)) + geom_boxplot() + scale_y_log10() +labs(x="Neigbourhood Groups", y="Price", title = "Price Ranges across Neigbourhood Groups") + theme(legend.title= element_blank())
+
+box_plot1
 ```
 
 ### Hosts with the Most Listings in NYC
