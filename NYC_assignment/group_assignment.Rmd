@@ -342,13 +342,6 @@ Mean_Price_Dist_data %>% filter (mean_price_neig <300) %>% ggplot(.,aes(mean_pri
 
 ```
 
-
-### Heatmap
-```{r heatmap, message=FALSE}
-#use the picture, x=latitude and y=longitude
-#make shiny app here, slidebar for price and the heatmap changes according to neigbourhood_group or room_type
-```
-
 ## References
 - Dataset: **New York City Airbnb Open Data** from  [*Kaggle*](https://www.kaggle.com/dgomonov/new-york-city-airbnb-open-data). 
 
