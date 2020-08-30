@@ -99,11 +99,7 @@ data <- data %>% mutate(reviews_per_month=ifelse(is.na(reviews_per_month), 0, re
 
 ## Analysis
 Average price per night is `r data %>% summarise(avg_price = round(mean(data$price),2))`.
-There are 3 different types of rooms which are `r unique(data$room_type)` . 
-Average prices per room type  are : 
-```{r room-type-mean, message=FALSE} 
-data %>% select(price, room_type) %>% group_by(room_type)%>% summarise(mean(price))
-``` 
+
 
 ### Summary of Dataset
 There are `r data %>% summarise(count=n())` data points in total.
@@ -121,8 +117,18 @@ top_hosts <- data.frame(top_hosts)
 bar_p <- ggplot(top_hosts, aes(x=Var1, y = Freq, fill = Var1)) + geom_bar(stat = "identity") + labs(x="Host IDs", y="Count of Host Listings", color="Host IDs", title = "Hosts with the most listing in NYC") + theme(axis.text.x = element_text(angle=45,hjust=1,vjust=1), legend.position = "none")
 bar_p
 ```
-### Pie Plots for Categorical Variables
-Lets show the ratios of Room Types and Neigbours with pie charts.
+
+
+### Neigbourhoods
+
+Now we check the number of the neighborhood groups and dispersion among listings. 
+
+```{r neighbourhood_group_count}
+
+data %>% select(neighbourhood_group)  %>% unique() %>% count()
+
+```
+ 
 ```{r pie-categorical, message=FALSE}
 df_neigbour <- data.frame(data$neighbourhood_group)
 df_neigbour <- unlist(df_neigbour)
@@ -131,7 +137,64 @@ pie_chart <- ggplot(df_neigbour) + geom_bar(mapping = aes(x = "", fill=df_neigbo
   theme_void() # remove background, grid, numeric labels
 pie_chart <- pie_chart + labs(x="", fill="Neigbours", title = "Dispersion of Neigbour Groups")
 pie_chart
+``` 
+
+There are 5 groups (boroughs of NYC)
+ 
+ And now we check the number of neighborhoods in each group and top 10 frequent neigbourhoods over all listings.  
+ 
+```{r neighbourhood_count}
+
+neighbor_count <- data %>% select(neighbourhood_group, neighbourhood)  %>% group_by(neighbourhood_group) %>% unique() %>% count() 
+
+neighbor_count
 ```
+
+```{r top-neig, message=FALSE}
+top_neig <- sort(table(data$neighbourhood), decreasing = T)
+
+top_neig <- head(top_neig, 10)
+top_neig <- data.frame(top_neig)
+
+
+bar_p2 <- ggplot(top_neig, aes(x=Var1, y = Freq, fill = Var1)) + geom_bar(stat = "identity") + labs(x="Neigbours", y="Frequency",color= "Neigbours", title = "Top 10 Frequent Neigbours") + theme(axis.text.x = element_text(angle=45,hjust=1,vjust=1), legend.position = "none")
+bar_p2
+```
+
+
+We can see that there are `r    neighbor_count$n %>% sum `  neighbourhoods in NYC.
+
+Lets see the average price in every borough and their distributions with box-plot. 
+
+```{r neighbor_price_average}
+
+data %>% group_by(neighbourhood_group) %>% transmute(mean_price = mean(price)) %>% unique()
+
+```
+
+```{r numerical, message=FALSE, warning= FALSE}
+box_df <- data %>% select(id, neighbourhood_group, price)
+
+box_plot1 <- ggplot(box_df, aes(x=neighbourhood_group, y=price, color=neighbourhood_group)) + geom_boxplot() + scale_y_log10() +labs(x="Neigbourhood Groups", y="Price", title = "Price Ranges across Neigbourhood Groups") + theme(legend.title= element_blank())
+
+box_plot1
+```
+
+
+There seems a huge gap between neighbourhoods. There could be several reasons for this. So we check the effect of the room types.
+
+
+
+### Room Types
+
+There are 3 different types of rooms which are `r unique(data$room_type)` . 
+Mean prices per room type  are : 
+
+```{r room-type-mean, message=FALSE} 
+data %>% select(price, room_type) %>% group_by(room_type)%>% summarise(mean(price))
+``` 
+
+There seems a huge gap between entire home / apartment type and the others. Also it's useful to see the ratio of the room types over the region. 
 
 ```{r pie-categorical2, message=FALSE}
 df_rt <- data.frame(data$room_type)
@@ -143,61 +206,22 @@ pie_chart2 <- pie_chart2 + labs(x="", fill="Room Types", title = "Room Types Rat
 pie_chart2
 ```
 
-### Neigbourhoods
+### Hosts with the Most Listings in NYC
 
-Now we check the number of the neighborhood groups.
+Speaking of hosts, it can give clues about availability througout the year. They can be listed as descending order based on listings. 
 
-```{r neighbourhood_group_count}
+```{r top-hosts, message=FALSE}
 
-data %>% select(neighbourhood_group)  %>% unique() %>% count()
+top_hosts <- sort(table(data$host_id), decreasing = T)
 
-```
- There are 5 groups (boroughs of NYC)
- 
- And now we check the number of neighborhoods in each group.
- 
-```{r neighbourhood_count}
+top_hosts <- head(top_hosts, 10)
+top_hosts <- data.frame(top_hosts)
 
-neighbor_count <- data %>% select(neighbourhood_group, neighbourhood)  %>% group_by(neighbourhood_group) %>% unique() %>% count() 
 
-neighbor_count
-```
-
-We can see that there are `r    neighbor_count$n %>% sum `  neighbourhoods in NYC.
-
-Lets see the average price in every borough.
-
-```{r neighbor_price_average}
-
-data %>% group_by(neighbourhood_group) %>% transmute(mean_price = mean(price)) %>% unique()
+bar_p <- ggplot(top_hosts, aes(x=Var1, y = Freq, fill = Var1)) + geom_bar(stat = "identity") + labs(x="Host IDs", y="Count of Host Listings", color="Host IDs", title = "Hosts with the most listing in NYC") + theme(axis.text.x = element_text(angle=45,hjust=1,vjust=1),legend.position = "none")
+bar_p
 
 ```
-```{r top-neig, message=FALSE}
-top_neig <- sort(table(data$neighbourhood), decreasing = T)
-
-top_neig <- head(top_neig, 10)
-top_neig <- data.frame(top_neig)
-
-
-bar_p2 <- ggplot(top_neig, aes(x=Var1, y = Freq, fill = Var1)) + geom_bar(stat = "identity") + labs(x="Neigbours", y="Frequency",color= "Neigbours", title = "Top 10 Frequent Neigbours") + theme(axis.text.x = element_text(angle=45,hjust=1,vjust=1), legend.position = "none")
-bar_p2
-```
-There seems a huge gap between neighbourhoods. There could be several reasons for this. So we check the effect of the room types.
-
-
-
-### Room Types
-
-Mean price of room types:
-
-```{r room_type_price_average}
-
-data %>% group_by(room_type) %>% transmute(mean_price = mean(price)) %>% unique()
-
-```
-
-There seems a huge gap between entire home / apartment type and the others. 
-
 
 ### Number of Reviews
 
@@ -330,7 +354,9 @@ Mean_Price_Dist_data %>% filter (mean_price_neig <300) %>% ggplot(.,aes(mean_pri
 
 - 20 Top-Rated Tourist Attractions in New York City from
 
-
+- On Kaggle, there are some useful notebooks we benefited from: 
+  - [Understand your data](https://www.kaggle.com/upadorprofzs/understand-your-data-airbnb-reservations)
+  - [Data Exploration on NYC Airbnb](https://www.kaggle.com/dgomonov/data-exploration-on-nyc-airbnb)
 
 <br>To see Group Dol_R's Progress Journal, visit [Progress Journal website](https://pjournal.github.io/boun01g-dol-r/).
 
