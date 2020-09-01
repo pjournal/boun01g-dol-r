@@ -9,22 +9,136 @@ output:
 ---
 
 ## Introduction
-`h2o` is an open source Machine Learning library that can be used in both R and Python. It provides easy and fast solutions for huge datasets. In this tutorial we will demonstrate how to use this package for machine learning.  
+`h2o` is an open source Machine Learning library that can be used in both R and Python. It provides easy and fast solutions for large datasets. It is integrated with R, Python etc. In this tutorial we will demonstrate how to use this package for machine learning.  
 
-## Install and Load the Library
+Normally we follow these steps:
+- Data
+- Train/Test Split
+- Apply Model on Training Set
+- Prediction on Test Set
+- Accuracy
+
+With H2O, we also need to initialize the package and convert data into H2O frame. 
+
+## Setup: Install and Load the Library
+First, copy the code in [h2o website](http://h2o-release.s3.amazonaws.com/h2o/rel-shannon/26/index.html#R) and paste into the console. 
+
 ```{r setup, warning=FALSE, message=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
 #install one time only
 #install.packages("h2o")
+#install bit64, otherwise it gives an error
+#install.packages('bit64', repos = "https://cran.rstudio.com")
+library(bit64)
+library(tidyverse)
+library(ggplot2)
 library(h2o)
+h2o.init()
 ```
 
-## Example Dataset
+## Iris Data
+Iris is a built-in dataset in R. It has 4 numerical independent variables and a categorical independent variable. 
+```{r data}
+data <- iris
+glimpse(data)
+```
 
+```{r frame, results='hide'}
+#H2O Frame
+iris_data <- as.h2o(iris)
+```
+
+```{r descb}
+h2o.describe(iris_data)
+```
+
+
+### Train Test Split
+```{r split}
+# 80% train, 20% test
+# Seed is defined in order to get the same result
+split = h2o.splitFrame(data = iris_data, ratios = 0.8, seed=90)
+train = split[[1]]
+test = split[[2]]
+```
+
+### Model: gbm
+```{r model, results='hide'}
+# x=features, y=target
+gbm_model <- h2o.gbm(x=c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"), y="Species", training_frame = train, seed=90)
+```
+
+```{r perf}
+# Model's performance using test data, includes R^2 and confusion matrix
+perf <- h2o.performance(gbm_model,test)
+perf
+```
+
+## Prostate Data
+
+This data has `r dim(data)[1]` rows and `r dim(data)[2]` columns. Dependent variable is `CAPSULE`.
+
+```{r data2, results='hide'}
+data <- read_csv("https://raw.githubusercontent.com/pjournal/boun01g-dol-r/gh-pages/bonus_h2o_package/prostate.csv")
+prostate_data <- h2o.importFile("https://raw.githubusercontent.com/pjournal/boun01g-dol-r/gh-pages/bonus_h2o_package/prostate.csv")
+```
+
+```{r overview}
+glimpse(data)
+head(prostate_data)
+h2o.describe(prostate_data)
+```
+
+### Data Manipulation
+```{r mani}
+#Dependent Variable is a factor
+prostate_data$CAPSULE <- as.factor(prostate_data$CAPSULE)
+y <- "CAPSULE"
+#Some Independent Variables are factors
+prostate_data$RACE <- as.factor(prostate_data$RACE)
+prostate_data$DCAPS <- as.factor(prostate_data$DCAPS)
+prostate_data$DPROS <- as.factor(prostate_data$DPROS)
+x <- c("AGE", "RACE", "VOL", "GLEASON")
+```
+
+
+### Train Test Split
+```{r split2}
+# 80% train, 20% test
+# Seed is defined in order to get the same result
+split = h2o.splitFrame(prostate_data, ratios = 0.8, seed=90)
+train = split[[1]]
+test = split[[2]]
+h2o.table(train$CAPSULE)
+h2o.table(test$CAPSULE)
+```
+
+
+## Model: Logistic Regression for Binary Classification Problem
+
+```{r model2}
+# Model
+glm_model <- h2o.glm(x = x, y =y, training_frame = train, family = "binomial", compute_p_values = TRUE, lambda = 0)
+glm_model
+# Coefficients, high p-value means not very significant
+glm_model@model$coefficients_table
+```
+
+
+```{r perf2, results='hide'}
+# Model's performance using test data, includes R^2 and confusion matrix
+perf <- h2o.performance(glm_model,test)
+predict <- as.data.frame(h2o.predict(glm_model, test))
+```
+
+```{r table, results='hide'}
+table(predict[1])
+```
 
 
 ## Resources
 - [Cran](https://cran.r-project.org/web/packages/h2o/index.html)
 - [h2o.ai](http://docs.h2o.ai/h2o-tutorials/latest-stable/WhatIsH2O.html)
 - [H2O Documentation](http://docs.h2o.ai/)
-
+- [Kaggle](https://www.kaggle.com/mlg-ulb/creditcardfraud)
+- [Generalized Linear Model(GLM)](https://docs.h2o.ai/h2o/latest-stable/h2o-docs/data-science/glm.html#)

@@ -371,25 +371,294 @@ summary {
 <div id="TOC">
 <ul>
 <li><a href="#introduction">Introduction</a></li>
-<li><a href="#install-and-load-the-library">Install and Load the Library</a></li>
-<li><a href="#example-dataset">Example Dataset</a></li>
+<li><a href="#setup-install-and-load-the-library">Setup: Install and Load the Library</a></li>
+<li><a href="#iris-data">Iris Data</a><ul>
+<li><a href="#train-test-split">Train Test Split</a></li>
+<li><a href="#model-gbm">Model: gbm</a></li>
+</ul></li>
+<li><a href="#prostate-data">Prostate Data</a><ul>
+<li><a href="#data-manipulation">Data Manipulation</a></li>
+<li><a href="#train-test-split-1">Train Test Split</a></li>
+</ul></li>
+<li><a href="#model-logistic-regression-for-binary-classification-problem">Model: Logistic Regression for Binary Classification Problem</a></li>
 <li><a href="#resources">Resources</a></li>
 </ul>
 </div>
 
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p><code>h2o</code> is an open source Machine Learning library that can be used in both R and Python. It provides easy and fast solutions for huge datasets. In this tutorial we will demonstrate how to use this package for machine learning.</p>
+<p><code>h2o</code> is an open source Machine Learning library that can be used in both R and Python. It provides easy and fast solutions for large datasets. It is integrated with R, Python etc. In this tutorial we will demonstrate how to use this package for machine learning.</p>
+<p>Normally we follow these steps: - Data - Train/Test Split - Apply Model on Training Set - Prediction on Test Set - Accuracy</p>
+<p>With H2O, we also need to initialize the package and convert data into H2O frame.</p>
 </div>
-<div id="install-and-load-the-library" class="section level2">
-<h2>Install and Load the Library</h2>
-<pre class="r"><code>knitr::opts_chunk$set(echo = TRUE)
+<div id="setup-install-and-load-the-library" class="section level2">
+<h2>Setup: Install and Load the Library</h2>
+<p>First, copy the code in <a href="http://h2o-release.s3.amazonaws.com/h2o/rel-shannon/26/index.html#R">h2o website</a> and paste into the console.</p>
+<pre class="r"><code>knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
 #install one time only
 #install.packages(&quot;h2o&quot;)
-library(h2o)</code></pre>
+#install bit64, otherwise it gives an error
+#install.packages(&#39;bit64&#39;, repos = &quot;https://cran.rstudio.com&quot;)
+library(bit64)
+library(tidyverse)
+library(ggplot2)
+library(h2o)
+h2o.init()</code></pre>
+<pre><code>##  Connection successful!
+## 
+## R is connected to the H2O cluster: 
+##     H2O cluster uptime:         3 hours 7 minutes 
+##     H2O cluster timezone:       Europe/Istanbul 
+##     H2O data parsing timezone:  UTC 
+##     H2O cluster version:        3.30.1.1 
+##     H2O cluster version age:    22 days  
+##     H2O cluster name:           H2O_started_from_R_ilaydacelenk_dvp184 
+##     H2O cluster total nodes:    1 
+##     H2O cluster total memory:   3.65 GB 
+##     H2O cluster total cores:    8 
+##     H2O cluster allowed cores:  8 
+##     H2O cluster healthy:        TRUE 
+##     H2O Connection ip:          localhost 
+##     H2O Connection port:        54321 
+##     H2O Connection proxy:       NA 
+##     H2O Internal Security:      FALSE 
+##     H2O API Extensions:         Amazon S3, XGBoost, Algos, AutoML, Core V3, TargetEncoder, Core V4 
+##     R Version:                  R version 4.0.1 (2020-06-06)</code></pre>
 </div>
-<div id="example-dataset" class="section level2">
-<h2>Example Dataset</h2>
+<div id="iris-data" class="section level2">
+<h2>Iris Data</h2>
+<p>Iris is a built-in dataset in R. It has 4 numerical independent variables and a categorical independent variable.</p>
+<pre class="r"><code>data &lt;- iris
+glimpse(data)</code></pre>
+<pre><code>## Rows: 150
+## Columns: 5
+## $ Sepal.Length &lt;dbl&gt; 5.1, 4.9, 4.7, 4.6, 5.0, 5.4, 4.6, 5.0, 4.4, 4.9, 5.4, 4…
+## $ Sepal.Width  &lt;dbl&gt; 3.5, 3.0, 3.2, 3.1, 3.6, 3.9, 3.4, 3.4, 2.9, 3.1, 3.7, 3…
+## $ Petal.Length &lt;dbl&gt; 1.4, 1.4, 1.3, 1.5, 1.4, 1.7, 1.4, 1.5, 1.4, 1.5, 1.5, 1…
+## $ Petal.Width  &lt;dbl&gt; 0.2, 0.2, 0.2, 0.2, 0.2, 0.4, 0.3, 0.2, 0.2, 0.1, 0.2, 0…
+## $ Species      &lt;fct&gt; setosa, setosa, setosa, setosa, setosa, setosa, setosa, …</code></pre>
+<pre class="r"><code>#H2O Frame
+iris_data &lt;- as.h2o(iris)</code></pre>
+<pre class="r"><code>h2o.describe(iris_data)</code></pre>
+<pre><code>##          Label Type Missing Zeros PosInf NegInf Min Max     Mean     Sigma
+## 1 Sepal.Length real       0     0      0      0 4.3 7.9 5.843333 0.8280661
+## 2  Sepal.Width real       0     0      0      0 2.0 4.4 3.057333 0.4358663
+## 3 Petal.Length real       0     0      0      0 1.0 6.9 3.758000 1.7652982
+## 4  Petal.Width real       0     0      0      0 0.1 2.5 1.199333 0.7622377
+## 5      Species enum       0    50      0      0 0.0 2.0       NA        NA
+##   Cardinality
+## 1          NA
+## 2          NA
+## 3          NA
+## 4          NA
+## 5           3</code></pre>
+<div id="train-test-split" class="section level3">
+<h3>Train Test Split</h3>
+<pre class="r"><code># 80% train, 20% test
+# Seed is defined in order to get the same result
+split = h2o.splitFrame(data = iris_data, ratios = 0.8, seed=90)
+train = split[[1]]
+test = split[[2]]</code></pre>
+</div>
+<div id="model-gbm" class="section level3">
+<h3>Model: gbm</h3>
+<pre class="r"><code># x=features, y=target
+gbm_model &lt;- h2o.gbm(x=c(&quot;Sepal.Length&quot;, &quot;Sepal.Width&quot;, &quot;Petal.Length&quot;, &quot;Petal.Width&quot;), y=&quot;Species&quot;, training_frame = train, seed=90)</code></pre>
+<pre class="r"><code># Model&#39;s performance using test data, includes R^2 and confusion matrix
+perf &lt;- h2o.performance(gbm_model,test)
+perf</code></pre>
+<pre><code>## H2OMultinomialMetrics: gbm
+## 
+## Test Set Metrics: 
+## =====================
+## 
+## MSE: (Extract with `h2o.mse`) 0.04639463
+## RMSE: (Extract with `h2o.rmse`) 0.2153941
+## Logloss: (Extract with `h2o.logloss`) 0.1819487
+## Mean Per-Class Error: 0.06666667
+## R^2: (Extract with `h2o.r2`) 0.9290584
+## Confusion Matrix: Extract with `h2o.confusionMatrix(&lt;model&gt;, &lt;data&gt;)`)
+## =========================================================================
+## Confusion Matrix: Row labels: Actual class; Column labels: Predicted class
+##            setosa versicolor virginica  Error     Rate
+## setosa         10          0         0 0.0000 = 0 / 10
+## versicolor      0          8         2 0.2000 = 2 / 10
+## virginica       0          0         9 0.0000 =  0 / 9
+## Totals         10          8        11 0.0690 = 2 / 29
+## 
+## Hit Ratio Table: Extract with `h2o.hit_ratio_table(&lt;model&gt;, &lt;data&gt;)`
+## =======================================================================
+## Top-3 Hit Ratios: 
+##   k hit_ratio
+## 1 1  0.931034
+## 2 2  1.000000
+## 3 3  1.000000</code></pre>
+</div>
+</div>
+<div id="prostate-data" class="section level2">
+<h2>Prostate Data</h2>
+<p>This data has 150 rows and 5 columns. Dependent variable is <code>CAPSULE</code>.</p>
+<pre class="r"><code>data &lt;- read_csv(&quot;https://raw.githubusercontent.com/pjournal/boun01g-dol-r/gh-pages/bonus_h2o_package/prostate.csv&quot;)
+prostate_data &lt;- h2o.importFile(&quot;https://raw.githubusercontent.com/pjournal/boun01g-dol-r/gh-pages/bonus_h2o_package/prostate.csv&quot;)</code></pre>
+<pre class="r"><code>glimpse(data)</code></pre>
+<pre><code>## Rows: 380
+## Columns: 9
+## $ ID      &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18…
+## $ CAPSULE &lt;dbl&gt; 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1…
+## $ AGE     &lt;dbl&gt; 65, 72, 70, 76, 69, 71, 68, 61, 69, 68, 68, 72, 72, 65, 75, 7…
+## $ RACE    &lt;dbl&gt; 1, 1, 1, 2, 1, 1, 2, 2, 1, 2, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1…
+## $ DPROS   &lt;dbl&gt; 2, 3, 1, 2, 1, 3, 4, 4, 1, 1, 4, 2, 4, 4, 1, 2, 1, 2, 1, 3, 2…
+## $ DCAPS   &lt;dbl&gt; 1, 2, 2, 1, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2, 1…
+## $ PSA     &lt;dbl&gt; 1.4, 6.7, 4.9, 51.2, 12.3, 3.3, 31.9, 66.7, 3.9, 13.0, 4.0, 2…
+## $ VOL     &lt;dbl&gt; 0.0, 0.0, 0.0, 20.0, 55.9, 0.0, 0.0, 27.2, 24.0, 0.0, 0.0, 0.…
+## $ GLEASON &lt;dbl&gt; 6, 7, 6, 7, 6, 8, 7, 7, 7, 6, 7, 7, 9, 7, 5, 5, 5, 5, 6, 7, 7…</code></pre>
+<pre class="r"><code>head(prostate_data)</code></pre>
+<pre><code>##   ID CAPSULE AGE RACE DPROS DCAPS  PSA  VOL GLEASON
+## 1  1       0  65    1     2     1  1.4  0.0       6
+## 2  2       0  72    1     3     2  6.7  0.0       7
+## 3  3       0  70    1     1     2  4.9  0.0       6
+## 4  4       0  76    2     2     1 51.2 20.0       7
+## 5  5       0  69    1     1     1 12.3 55.9       6
+## 6  6       1  71    1     3     2  3.3  0.0       8</code></pre>
+<pre class="r"><code>h2o.describe(prostate_data)</code></pre>
+<pre><code>##     Label Type Missing Zeros PosInf NegInf  Min   Max        Mean       Sigma
+## 1      ID  int       0     0      0      0  1.0 380.0 190.5000000 109.8407939
+## 2 CAPSULE  int       0   227      0      0  0.0   1.0   0.4026316   0.4910743
+## 3     AGE  int       0     0      0      0 43.0  79.0  66.0394737   6.5270713
+## 4    RACE  int       0     3      0      0  0.0   2.0   1.0868421   0.3087733
+## 5   DPROS  int       0     0      0      0  1.0   4.0   2.2710526   1.0001076
+## 6   DCAPS  int       0     0      0      0  1.0   2.0   1.1078947   0.3106564
+## 7     PSA real       0     0      0      0  0.3 139.7  15.4086316  19.9975727
+## 8     VOL real       0   167      0      0  0.0  97.6  15.8129211  18.3476200
+## 9 GLEASON  int       0     2      0      0  0.0   9.0   6.3842105   1.0919534
+##   Cardinality
+## 1          NA
+## 2          NA
+## 3          NA
+## 4          NA
+## 5          NA
+## 6          NA
+## 7          NA
+## 8          NA
+## 9          NA</code></pre>
+<div id="data-manipulation" class="section level3">
+<h3>Data Manipulation</h3>
+<pre class="r"><code>#Dependent Variable is a factor
+prostate_data$CAPSULE &lt;- as.factor(prostate_data$CAPSULE)
+y &lt;- &quot;CAPSULE&quot;
+#Some Independent Variables are factors
+prostate_data$RACE &lt;- as.factor(prostate_data$RACE)
+prostate_data$DCAPS &lt;- as.factor(prostate_data$DCAPS)
+prostate_data$DPROS &lt;- as.factor(prostate_data$DPROS)
+x &lt;- c(&quot;AGE&quot;, &quot;RACE&quot;, &quot;VOL&quot;, &quot;GLEASON&quot;)</code></pre>
+</div>
+<div id="train-test-split-1" class="section level3">
+<h3>Train Test Split</h3>
+<pre class="r"><code># 80% train, 20% test
+# Seed is defined in order to get the same result
+split = h2o.splitFrame(prostate_data, ratios = 0.8, seed=90)
+train = split[[1]]
+test = split[[2]]
+h2o.table(train$CAPSULE)</code></pre>
+<pre><code>##   CAPSULE Count
+## 1       0   170
+## 2       1   125
+## 
+## [2 rows x 2 columns]</code></pre>
+<pre class="r"><code>h2o.table(test$CAPSULE)</code></pre>
+<pre><code>##   CAPSULE Count
+## 1       0    57
+## 2       1    28
+## 
+## [2 rows x 2 columns]</code></pre>
+</div>
+</div>
+<div id="model-logistic-regression-for-binary-classification-problem" class="section level2">
+<h2>Model: Logistic Regression for Binary Classification Problem</h2>
+<pre class="r"><code># Model
+glm_model &lt;- h2o.glm(x = x, y =y, training_frame = train, family = &quot;binomial&quot;, compute_p_values = TRUE, lambda = 0)</code></pre>
+<pre><code>## 
+  |                                                                            
+  |                                                                      |   0%
+  |                                                                            
+  |======================================================================| 100%</code></pre>
+<pre class="r"><code>glm_model</code></pre>
+<pre><code>## Model Details:
+## ==============
+## 
+## H2OBinomialModel: glm
+## Model ID:  GLM_model_R_1598965103261_41 
+## GLM Model: summary
+##     family  link regularization number_of_predictors_total
+## 1 binomial logit           None                          5
+##   number_of_active_predictors number_of_iterations   training_frame
+## 1                           5                    5 RTMP_sid_8800_13
+## 
+## Coefficients: glm coefficients
+##       names coefficients std_error   z_value  p_value standardized_coefficients
+## 1 Intercept    -7.856740  2.167535 -3.624734 0.000289                  0.030343
+## 2    RACE.1    -0.461115  1.387822 -0.332258 0.739694                 -0.461115
+## 3    RACE.2    -0.455922  1.441878 -0.316200 0.751850                 -0.455922
+## 4       AGE    -0.002634  0.021296 -0.123673 0.901574                 -0.017038
+## 5       VOL    -0.011808  0.008410 -1.404072 0.160297                 -0.210849
+## 6   GLEASON     1.289676  0.178991  7.205265 0.000000                  1.451456
+## 
+## H2OBinomialMetrics: glm
+## ** Reported on training data. **
+## 
+## MSE:  0.1816619
+## RMSE:  0.4262182
+## LogLoss:  0.5400255
+## Mean Per-Class Error:  0.2714118
+## AUC:  0.7862118
+## AUCPR:  0.7326376
+## Gini:  0.5724235
+## R^2:  0.2560409
+## Residual Deviance:  318.615
+## AIC:  330.615
+## 
+## Confusion Matrix (vertical: actual; across: predicted) for F1-optimal threshold:
+##          0   1    Error     Rate
+## 0      109  61 0.358824  =61/170
+## 1       23 102 0.184000  =23/125
+## Totals 132 163 0.284746  =84/295
+## 
+## Maximum Metrics: Maximum metrics at their respective thresholds
+##                         metric threshold      value idx
+## 1                       max f1  0.321162   0.708333 122
+## 2                       max f2  0.200689   0.813008 192
+## 3                 max f0point5  0.526379   0.694228 103
+## 4                 max accuracy  0.526379   0.742373 103
+## 5                max precision  0.959513   1.000000   0
+## 6                   max recall  0.089430   1.000000 228
+## 7              max specificity  0.959513   1.000000   0
+## 8             max absolute_mcc  0.526379   0.474877 103
+## 9   max min_per_class_accuracy  0.425128   0.735294 111
+## 10 max mean_per_class_accuracy  0.526379   0.738353 103
+## 11                     max tns  0.959513 170.000000   0
+## 12                     max fns  0.959513 124.000000   0
+## 13                     max fps  0.000206 170.000000 247
+## 14                     max tps  0.089430 125.000000 228
+## 15                     max tnr  0.959513   1.000000   0
+## 16                     max fnr  0.959513   0.992000   0
+## 17                     max fpr  0.000206   1.000000 247
+## 18                     max tpr  0.089430   1.000000 228
+## 
+## Gains/Lift Table: Extract with `h2o.gainsLift(&lt;model&gt;, &lt;data&gt;)` or `h2o.gainsLift(&lt;model&gt;, valid=&lt;T/F&gt;, xval=&lt;T/F&gt;)`</code></pre>
+<pre class="r"><code># Coefficients, high p-value means not very significant
+glm_model@model$coefficients_table</code></pre>
+<pre><code>## Coefficients: glm coefficients
+##       names coefficients std_error   z_value  p_value standardized_coefficients
+## 1 Intercept    -7.856740  2.167535 -3.624734 0.000289                  0.030343
+## 2    RACE.1    -0.461115  1.387822 -0.332258 0.739694                 -0.461115
+## 3    RACE.2    -0.455922  1.441878 -0.316200 0.751850                 -0.455922
+## 4       AGE    -0.002634  0.021296 -0.123673 0.901574                 -0.017038
+## 5       VOL    -0.011808  0.008410 -1.404072 0.160297                 -0.210849
+## 6   GLEASON     1.289676  0.178991  7.205265 0.000000                  1.451456</code></pre>
+<pre class="r"><code># Model&#39;s performance using test data, includes R^2 and confusion matrix
+perf &lt;- h2o.performance(glm_model,test)
+predict &lt;- as.data.frame(h2o.predict(glm_model, test))</code></pre>
+<pre class="r"><code>table(predict[1])</code></pre>
 </div>
 <div id="resources" class="section level2">
 <h2>Resources</h2>
@@ -397,6 +666,8 @@ library(h2o)</code></pre>
 <li><a href="https://cran.r-project.org/web/packages/h2o/index.html">Cran</a></li>
 <li><a href="http://docs.h2o.ai/h2o-tutorials/latest-stable/WhatIsH2O.html">h2o.ai</a></li>
 <li><a href="http://docs.h2o.ai/">H2O Documentation</a></li>
+<li><a href="https://www.kaggle.com/mlg-ulb/creditcardfraud">Kaggle</a></li>
+<li><a href="https://docs.h2o.ai/h2o/latest-stable/h2o-docs/data-science/glm.html#">Generalized Linear Model(GLM)</a></li>
 </ul>
 </div>
 
