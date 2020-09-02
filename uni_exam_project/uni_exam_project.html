@@ -447,7 +447,7 @@ summary {
 <li><a href="#loading-the-libraries-and-datasets">Loading the Libraries and Datasets</a></li>
 </ul></li>
 <li><a href="#exploratory-data-analysis">Exploratory Data Analysis</a><ul>
-<li><a href="#top-selected-universities">Top Selected Universities</a></li>
+<li><a href="#top-selected-universities-and-departments">Top Selected Universities and Departments</a></li>
 <li><a href="#top-selected-departments">Top Selected Departments</a></li>
 <li><a href="#top-cities">Top Cities</a></li>
 <li><a href="#more">More…</a></li>
@@ -482,7 +482,7 @@ summary {
 <div id="data-preprocessing" class="section level3">
 <h3>Data Preprocessing</h3>
 <p>In order to ease the reading process, functions <code>mani97</code> and <code>mani86</code> are created. These functions remove the columns related to the percentage of change regarding the previous year. They also rename the columns and remove the last empty rows. The raw data for some years have an additional column at the end, therefore two functions were needed.</p>
-<pre class="r"><code>knitr::opts_chunk$set(echo = TRUE) # applies to all chunks
+<pre class="r"><code>knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE) # applies to all chunks
 mani97 &lt;- function(data){
   newdata &lt;- data %&gt;% 
   rename(
@@ -520,7 +520,7 @@ mani86 &lt;- function(data){
   )  %&gt;% select(-number, -difference, -difference_quota) %&gt;% slice_head(n=nrow(data)-9)
   return(newdata)
 }</code></pre>
-<p>After loading the required libraries, we read the .xlsx file from our project repository.</p>
+<p>After loading the required libraries, we download the .xlsx file from our project repository. After reading it, we remove the file.</p>
 <pre class="r"><code>library(tidyverse)
 library(lubridate)
 library(tinytex)
@@ -538,7 +538,7 @@ file.remove(tf)</code></pre>
 </div>
 <div id="loading-the-libraries-and-datasets" class="section level3">
 <h3>Loading the Libraries and Datasets</h3>
-<p>We have 5 datasets, each has 9 columns. All have different number of rows. For example there are 10617 rows in dataset for the year 2020.</p>
+<p>We have 5 datasets for the last 5 years. Each dataset has 9 columns and they all have different number of rows. For example there are 10617 rows in dataset for the year 2020 and 11402 rows in dataset for the year 2019. Some departments or even universities may have been opened or closed.</p>
 <pre class="r"><code>data2020 &lt;- mani97(raw_df20)
 data2020 &lt;- mani97(raw_df20)
 data2019 &lt;- mani97(raw_df19)
@@ -551,25 +551,102 @@ data2020 %&gt;% summarise(exam20=n()) %&gt;% mutate(data2019 %&gt;% summarise(ex
 ##   exam20 exam19 exam18 exam17 exam16
 ##    &lt;int&gt;  &lt;int&gt;  &lt;int&gt;  &lt;int&gt;  &lt;int&gt;
 ## 1  10617  11402  11958  11484  10657</code></pre>
-<p>As an example, let’s observe dataset for the year 2020. Four of the variables are categorical and the rest is numerical.</p>
-<pre class="r"><code>data2020 %&gt;% arrange(desc(highest_score)) %&gt;% glimpse()</code></pre>
-<pre><code>## Rows: 10,617
+<p>As an example, let’s observe dataset for the year 2018. First four variables are categorical and the rest is numerical. We could also see that there are 11958 rows for this year.</p>
+<pre class="r"><code>data2018 %&gt;% arrange(desc(highest_score)) %&gt;% glimpse()</code></pre>
+<pre><code>## Rows: 11,958
 ## Columns: 9
-## $ university      &lt;chr&gt; &quot;KOÇ ÜNİVERSİTESİ&quot;, &quot;BOĞAZİÇİ ÜNİVERSİTESİ&quot;, &quot;BOĞAZİÇ…
-## $ city            &lt;chr&gt; &quot;İSTANBUL&quot;, &quot;İSTANBUL&quot;, &quot;İSTANBUL&quot;, &quot;ANKARA&quot;, &quot;İSTANB…
-## $ department      &lt;chr&gt; &quot;Tıp Fakültesi (İngilizce) (Burslu)&quot;, &quot;Elektrik-Elekt…
-## $ type            &lt;chr&gt; &quot;SAY&quot;, &quot;SAY&quot;, &quot;SAY&quot;, &quot;SAY&quot;, &quot;SAY&quot;, &quot;SAY&quot;, &quot;SAY&quot;, &quot;SAY…
-## $ quota           &lt;dbl&gt; 14, 82, 88, 45, 8, 10, 15, 45, 20, 72, 15, 14, 103, 5…
-## $ accepted_number &lt;dbl&gt; 14, 82, 88, 45, 8, 10, 15, 45, 20, 72, 15, 14, 103, 5…
-## $ lowest_score    &lt;dbl&gt; 553.8035, 542.2315, 546.3472, 541.4214, 525.6764, 554…
-## $ highest_score   &lt;dbl&gt; 571.4231, 567.0095, 564.3493, 562.3470, 561.2876, 559…
-## $ lowest_ranking  &lt;dbl&gt; NA, 905, 486, 996, 3940, NA, 579, 797, 204, 1440, 612…</code></pre>
+## $ university      [3m[90m&lt;chr&gt;[39m[23m &quot;İHSAN DOĞRAMACI BİLKENT ÜNİVERSİTESİ&quot;, &quot;BOĞAZİÇİ ÜNİ…
+## $ city            [3m[90m&lt;chr&gt;[39m[23m &quot;ANKARA&quot;, &quot;İSTANBUL&quot;, &quot;İSTANBUL&quot;, &quot;İSTANBUL&quot;, &quot;İSTANB…
+## $ department      [3m[90m&lt;chr&gt;[39m[23m &quot;Elektrik-Elektronik Mühendisliği (İngilizce) (Burslu…
+## $ type            [3m[90m&lt;chr&gt;[39m[23m &quot;SAY&quot;, &quot;SAY&quot;, &quot;SAY&quot;, &quot;SAY&quot;, &quot;SAY&quot;, &quot;SAY&quot;, &quot;SAY&quot;, &quot;SAY…
+## $ quota           [3m[90m&lt;dbl&gt;[39m[23m 50, 82, 10, 82, 30, 62, 50, 52, 175, 15, 20, 67, 20, …
+## $ accepted_number [3m[90m&lt;dbl&gt;[39m[23m 50, 82, 10, 82, 30, 62, 50, 52, 175, 15, 20, 67, 20, …
+## $ lowest_score    [3m[90m&lt;dbl&gt;[39m[23m 534.3909, 534.6682, 549.1749, 536.7622, 536.4822, 433…
+## $ highest_score   [3m[90m&lt;dbl&gt;[39m[23m 572.3005, 569.5851, 562.9543, 562.2594, 562.0257, 561…
+## $ lowest_ranking  [3m[90m&lt;dbl&gt;[39m[23m 637, 622, 56, 496, 511, 32800, 916, 400, 792, 84, 169…</code></pre>
 </div>
 </div>
 <div id="exploratory-data-analysis" class="section level2">
 <h2>Exploratory Data Analysis</h2>
-<div id="top-selected-universities" class="section level3">
-<h3>Top Selected Universities</h3>
+<p>When the exam procedure changes, the types of grading systems also change. Therefore, there is no point of comparing <code>type</code> variable for different years. But it can be an identifier in each year.</p>
+<div id="top-selected-universities-and-departments" class="section level3">
+<h3>Top Selected Universities and Departments</h3>
+<p>Some universities’ departments may be selected by the participants with highest scores in different types of grading systems. After grouping <code>university</code> and <code>department</code>, we can analyze which university departments are selected.</p>
+<pre class="r"><code>data2016 %&gt;% group_by(university, department) %&gt;% summarise(highest_score=highest_score, lowest_score=lowest_score) %&gt;% arrange(desc(highest_score)) %&gt;% head(10)</code></pre>
+<pre><code>## # A tibble: 10 x 4
+## # Groups:   university, department [10]
+##    university            department                   highest_score lowest_score
+##    &lt;chr&gt;                 &lt;chr&gt;                                &lt;dbl&gt;        &lt;dbl&gt;
+##  1 KOÇ ÜNİVERSİTESİ      Tıp Fakültesi (İngilizce) (…          564.         546.
+##  2 İSTANBUL MEDİPOL ÜNİ… Tıp Fakültesi (İngilizce) (…          559.         502.
+##  3 HACETTEPE ÜNİVERSİTE… Tıp (İngilizce)                       559.         529.
+##  4 KOÇ ÜNİVERSİTESİ      Elektrik-Elektronik Mühendi…          558.         531.
+##  5 KADİR HAS ÜNİVERSİTE… Psikoloji (İngilizce) (Burs…          557.         448.
+##  6 BOĞAZİÇİ ÜNİVERSİTESİ Bilgisayar Mühendisliği (İn…          557.         524.
+##  7 İHSAN DOĞRAMACI BİLK… Elektrik-Elektronik Mühendi…          556.         529.
+##  8 KOÇ ÜNİVERSİTESİ      Bilgisayar Mühendisliği (İn…          555.         526.
+##  9 BOĞAZİÇİ ÜNİVERSİTESİ Elektrik-Elektronik Mühendi…          555.         532.
+## 10 İSTANBUL ÜNİVERSİTESİ Cerrahpaşa Tıp (İngilizce)            555.         534.</code></pre>
+<pre class="r"><code>data2017 %&gt;% group_by(university, department) %&gt;% summarise(highest_score=highest_score, lowest_score=lowest_score) %&gt;% arrange(desc(highest_score)) %&gt;% head(10)</code></pre>
+<pre><code>## # A tibble: 10 x 4
+## # Groups:   university, department [10]
+##    university            department                   highest_score lowest_score
+##    &lt;chr&gt;                 &lt;chr&gt;                                &lt;dbl&gt;        &lt;dbl&gt;
+##  1 BOĞAZİÇİ ÜNİVERSİTESİ Elektrik-Elektronik Mühendi…          575.         530.
+##  2 KOÇ ÜNİVERSİTESİ      Elektrik-Elektronik Mühendi…          569.         541.
+##  3 İHSAN DOĞRAMACI BİLK… Elektrik-Elektronik Mühendi…          566.         527.
+##  4 İSTANBUL ÜNİVERSİTESİ Cerrahpaşa Tıp (İngilizce)            564.         529.
+##  5 BOĞAZİÇİ ÜNİVERSİTESİ Bilgisayar Mühendisliği (İn…          563.         524.
+##  6 BOĞAZİÇİ ÜNİVERSİTESİ İktisat (İngilizce)                   561.         484.
+##  7 İSTANBUL MEDİPOL ÜNİ… Tıp Fakültesi (İngilizce) (…          559.         538.
+##  8 KOÇ ÜNİVERSİTESİ      Hukuk Fakültesi (Burslu)              558.         527.
+##  9 KOÇ ÜNİVERSİTESİ      Tıp Fakültesi (İngilizce) (…          557.         544.
+## 10 GALATASARAY ÜNİVERSİ… Hukuk Fakültesi (Fransızca)           556.         525.</code></pre>
+<pre class="r"><code>data2018 %&gt;% group_by(university, department) %&gt;% summarise(highest_score=highest_score, lowest_score=lowest_score) %&gt;% arrange(desc(highest_score)) %&gt;% head(10)</code></pre>
+<pre><code>## # A tibble: 10 x 4
+## # Groups:   university, department [10]
+##    university              department                 highest_score lowest_score
+##    &lt;chr&gt;                   &lt;chr&gt;                              &lt;dbl&gt;        &lt;dbl&gt;
+##  1 İHSAN DOĞRAMACI BİLKEN… Elektrik-Elektronik Mühen…          572.         534.
+##  2 BOĞAZİÇİ ÜNİVERSİTESİ   Bilgisayar Mühendisliği (…          570.         535.
+##  3 İSTANBUL MEDİPOL ÜNİVE… Tıp Fakültesi (İngilizce)…          563.         549.
+##  4 BOĞAZİÇİ ÜNİVERSİTESİ   Elektrik-Elektronik Mühen…          562.         537.
+##  5 ACIBADEM MEHMET ALİ AY… Tıp Fakültesi (İngilizce)…          562.         536.
+##  6 BOĞAZİÇİ ÜNİVERSİTESİ   Kimya (İngilizce)                   562.         433.
+##  7 İHSAN DOĞRAMACI BİLKEN… Bilgisayar Mühendisliği (…          560.         531.
+##  8 İSTANBUL ÜNİVERSİTESİ-… Cerrahpaşa Tıp (İngilizce)          560.         539.
+##  9 HACETTEPE ÜNİVERSİTESİ  Tıp (İngilizce)                     557.         533.
+## 10 KOÇ ÜNİVERSİTESİ        Tıp Fakültesi (İngilizce)…          556.         548.</code></pre>
+<pre class="r"><code>data2019 %&gt;% group_by(university, department) %&gt;% summarise(highest_score=highest_score, lowest_score=lowest_score) %&gt;% arrange(desc(highest_score)) %&gt;% head(10)</code></pre>
+<pre><code>## # A tibble: 10 x 4
+## # Groups:   university, department [10]
+##    university              department                 highest_score lowest_score
+##    &lt;chr&gt;                   &lt;chr&gt;                              &lt;dbl&gt;        &lt;dbl&gt;
+##  1 BOĞAZİÇİ ÜNİVERSİTESİ   Bilgisayar Mühendisliği (…          582.         539.
+##  2 KOÇ ÜNİVERSİTESİ        Tıp Fakültesi (İngilizce)…          569.         546.
+##  3 BOĞAZİÇİ ÜNİVERSİTESİ   Elektrik-Elektronik Mühen…          564.         537.
+##  4 İSTANBUL ÜNİVERSİTESİ-… Cerrahpaşa Tıp (İngilizce)          563.         541.
+##  5 İSTANBUL MEDİPOL ÜNİVE… Tıp Fakültesi (İngilizce)…          562.         548.
+##  6 BOĞAZİÇİ ÜNİVERSİTESİ   Siyaset Bilimi ve Uluslar…          558.         481.
+##  7 HACETTEPE ÜNİVERSİTESİ  Tıp (İngilizce)                     556.         532.
+##  8 İHSAN DOĞRAMACI BİLKEN… Elektrik-Elektronik Mühen…          555.         536.
+##  9 ACIBADEM MEHMET ALİ AY… Tıp Fakültesi (İngilizce)…          554.         541.
+## 10 GALATASARAY ÜNİVERSİTE… Hukuk Fakültesi (Fransızc…          552.         526.</code></pre>
+<pre class="r"><code>data2020 %&gt;% group_by(university, department) %&gt;% summarise(highest_score=highest_score, lowest_score=lowest_score) %&gt;% arrange(desc(highest_score)) %&gt;% head(10)</code></pre>
+<pre><code>## # A tibble: 10 x 4
+## # Groups:   university, department [10]
+##    university              department                 highest_score lowest_score
+##    &lt;chr&gt;                   &lt;chr&gt;                              &lt;dbl&gt;        &lt;dbl&gt;
+##  1 KOÇ ÜNİVERSİTESİ        Tıp Fakültesi (İngilizce)…          571.         554.
+##  2 BOĞAZİÇİ ÜNİVERSİTESİ   Elektrik-Elektronik Mühen…          567.         542.
+##  3 BOĞAZİÇİ ÜNİVERSİTESİ   Bilgisayar Mühendisliği (…          564.         546.
+##  4 İHSAN DOĞRAMACI BİLKEN… Elektrik-Elektronik Mühen…          562.         541.
+##  5 KOÇ ÜNİVERSİTESİ        Kimya (İngilizce) (Burslu)          561.         526.
+##  6 İSTANBUL MEDİPOL ÜNİVE… Tıp Fakültesi (İngilizce)…          560.         554.
+##  7 KOÇ ÜNİVERSİTESİ        Bilgisayar Mühendisliği (…          559.         545.
+##  8 İHSAN DOĞRAMACI BİLKEN… Bilgisayar Mühendisliği (…          558.         543.
+##  9 ACIBADEM MEHMET ALİ AY… Tıp Fakültesi (İngilizce)…          558.         549.
+## 10 BOĞAZİÇİ ÜNİVERSİTESİ   Endüstri Mühendisliği (İn…          558.         538.</code></pre>
 </div>
 <div id="top-selected-departments" class="section level3">
 <h3>Top Selected Departments</h3>

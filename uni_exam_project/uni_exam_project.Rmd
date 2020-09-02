@@ -3,13 +3,13 @@ title: "Project: University Entrance Exam Analysis"
 author: "Dol_R"
 date: "8/24/2020"
 output: 
-  pdf_document:
-    toc: true
-    toc_depth: 3
   html_document:
     toc: true
     toc_depth: 3
     code_folding: hide
+  pdf_document:
+    toc: true
+    toc_depth: 3
 ---
 
 ## Introduction and Key Takeaways
@@ -47,7 +47,7 @@ Using **University Exam** data from  [*Hacettepe University's Website*](http://w
 ### Data Preprocessing
 In order to ease the reading process, functions `mani97` and `mani86` are created. These functions remove the columns related to the percentage of change regarding the previous year. They also rename the columns and remove the last empty rows. The raw data for some years have an additional column at the end, therefore two functions were needed.
 ```{r manipulation}
-knitr::opts_chunk$set(echo = TRUE) # applies to all chunks
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE) # applies to all chunks
 mani97 <- function(data){
   newdata <- data %>% 
   rename(
@@ -86,8 +86,8 @@ mani86 <- function(data){
   return(newdata)
 }
 ```
-After loading the required libraries, we read the .xlsx file from our project repository.
-```{r setup, results="hide", message=FALSE, warning=FALSE}
+After loading the required libraries, we download the .xlsx file from our project repository. After reading it, we remove the file. 
+```{r setup, results="hide"}
 library(tidyverse)
 library(lubridate)
 library(tinytex)
@@ -105,7 +105,7 @@ file.remove(tf)
 ```
 
 ### Loading the Libraries and Datasets
-We have 5 datasets, each has 9 columns. All have different number of rows. For example there are `r mani97(raw_df20) %>% summarise(exam20=n())` rows in dataset for the year 2020.
+We have 5 datasets for the last 5 years. Each dataset has 9 columns and they all have different number of rows. For example there are `r mani97(raw_df20) %>% summarise(exam20=n())` rows in dataset for the year 2020 and `r mani97(raw_df19) %>% summarise(exam19=n())` rows in dataset for the year 2019. Some departments or even universities may have been opened or closed. 
 
 ```{r datasets}
 data2020 <- mani97(raw_df20)
@@ -118,16 +118,27 @@ data2016 <- mani97(raw_df16)
 data2020 %>% summarise(exam20=n()) %>% mutate(data2019 %>% summarise(exam19=n())) %>% mutate(data2018 %>% summarise(exam18=n())) %>% mutate(data2017 %>% summarise(exam17=n())) %>% mutate(data2016 %>% summarise(exam16=n())) 
 ```
 
-As an example, let's observe dataset for the year 2020. Four of the variables are categorical and the rest is numerical. 
+As an example, let's observe dataset for the year 2018. First four variables are categorical and the rest is numerical. We could also see that there are `r data2018 %>% summarise(exam18=n())` rows for this year.
+
 ```{r ex-dataset}
-data2020 %>% arrange(desc(highest_score)) %>% glimpse()
+data2018 %>% arrange(desc(highest_score)) %>% glimpse()
 ```
 
 ## Exploratory Data Analysis
+When the exam procedure changes, the types of grading systems also change. Therefore, there is no point of comparing `type` variable for different years. But it can be an identifier in each year.
 
-### Top Selected Universities
+### Top Selected Universities and Departments
+Some universities' departments may be selected by the participants with highest scores in different types of grading systems. After grouping `university` and `department`, we can analyze which university departments are selected. 
+```{r uni-dep}
+data2016 %>% group_by(university, department) %>% summarise(highest_score=highest_score, lowest_score=lowest_score) %>% arrange(desc(highest_score)) %>% head(10)
+data2017 %>% group_by(university, department) %>% summarise(highest_score=highest_score, lowest_score=lowest_score) %>% arrange(desc(highest_score)) %>% head(10)
+data2018 %>% group_by(university, department) %>% summarise(highest_score=highest_score, lowest_score=lowest_score) %>% arrange(desc(highest_score)) %>% head(10)
+data2019 %>% group_by(university, department) %>% summarise(highest_score=highest_score, lowest_score=lowest_score) %>% arrange(desc(highest_score)) %>% head(10)
+data2020 %>% group_by(university, department) %>% summarise(highest_score=highest_score, lowest_score=lowest_score) %>% arrange(desc(highest_score)) %>% head(10)
+```
 
 ### Top Selected Departments
+
 
 ### Top Cities
 
