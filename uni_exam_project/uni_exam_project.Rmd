@@ -142,6 +142,35 @@ data2020 %>% group_by(university, department) %>% summarise(highest_score=highes
 
 ### Top Cities
 
+### Quota Informations
+The cities, universities and departments with the highest quotas in recent years can be seen from the tables below.
+
+```{r}
+
+all_years_data<-bind_rows(mutate(data2016,year=2016),
+mutate(data2017,year=2017),
+mutate(data2018,year=2018),
+mutate(data2019,year=2019),
+mutate(data2020,year=2020))
+
+  all_years_data%>%
+  group_by(year,department)%>%
+  summarise(department_quota=sum(quota))%>%
+   arrange(desc(department_quota))%>%head(20) 
+  
+ all_years_data%>%
+  group_by(year,city)%>%
+  summarise(city_quota=sum(quota))%>%
+  arrange(desc(city_quota))%>%head(20)
+    
+
+  all_years_data%>%
+  group_by(year,university)%>%
+  summarise(university_quota=sum(quota))%>%
+  arrange(desc(university_quota))%>%head(20)
+  
+```
+
 ### More...
   
   
