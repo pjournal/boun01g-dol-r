@@ -450,6 +450,7 @@ summary {
 <li><a href="#top-selected-universities-and-departments">Top Selected Universities and Departments</a></li>
 <li><a href="#top-selected-departments">Top Selected Departments</a></li>
 <li><a href="#top-cities">Top Cities</a></li>
+<li><a href="#quota-informations">Quota Informations</a></li>
 <li><a href="#more">More…</a></li>
 </ul></li>
 <li><a href="#conclusion">Conclusion</a></li>
@@ -653,6 +654,100 @@ data2020 %&gt;% summarise(exam20=n()) %&gt;% mutate(data2019 %&gt;% summarise(ex
 </div>
 <div id="top-cities" class="section level3">
 <h3>Top Cities</h3>
+</div>
+<div id="quota-informations" class="section level3">
+<h3>Quota Informations</h3>
+<p>The cities, universities and departments with the highest quotas in recent years can be seen from the tables below.</p>
+<pre class="r"><code>all_years_data&lt;-bind_rows(mutate(data2016,year=2016),
+mutate(data2017,year=2017),
+mutate(data2018,year=2018),
+mutate(data2019,year=2019),
+mutate(data2020,year=2020))
+
+  all_years_data%&gt;%
+  group_by(year,department)%&gt;%
+  summarise(department_quota=sum(quota))%&gt;%
+   arrange(desc(department_quota))%&gt;%head(20) </code></pre>
+<pre><code>## # A tibble: 20 x 3
+## # Groups:   year [5]
+##     year department            department_quota
+##    &lt;dbl&gt; &lt;chr&gt;                            &lt;dbl&gt;
+##  1  2020 Hemşirelik                       12469
+##  2  2019 Hemşirelik                       11994
+##  3  2017 İşletme (Açıköğretim)            11788
+##  4  2018 Hemşirelik                       11629
+##  5  2017 Hemşirelik                       11306
+##  6  2016 Hemşirelik                       10921
+##  7  2020 Tıp Fakültesi                    10702
+##  8  2019 Tıp Fakültesi                    10203
+##  9  2018 Tıp Fakültesi                     9648
+## 10  2017 İşletme                           9628
+## 11  2016 İşletme                           9481
+## 12  2016 İşletme (Açıköğretim)             9226
+## 13  2017 Tıp Fakültesi                     9029
+## 14  2017 İktisat                           8840
+## 15  2019 İlahiyat                          8698
+## 16  2018 İşletme                           8593
+## 17  2016 İktisat                           8591
+## 18  2020 İlahiyat                          8573
+## 19  2018 İlahiyat                          8558
+## 20  2017 İlahiyat                          8501</code></pre>
+<pre class="r"><code> all_years_data%&gt;%
+  group_by(year,city)%&gt;%
+  summarise(city_quota=sum(quota))%&gt;%
+  arrange(desc(city_quota))%&gt;%head(20)</code></pre>
+<pre><code>## # A tibble: 20 x 3
+## # Groups:   year [5]
+##     year city      city_quota
+##    &lt;dbl&gt; &lt;chr&gt;          &lt;dbl&gt;
+##  1  2018 İSTANBUL      112514
+##  2  2020 İSTANBUL      106565
+##  3  2019 İSTANBUL      102296
+##  4  2017 İSTANBUL      101551
+##  5  2016 İSTANBUL       94271
+##  6  2017 ESKİŞEHİR      65815
+##  7  2016 ESKİŞEHİR      52348
+##  8  2020 ANKARA         45092
+##  9  2019 ANKARA         40273
+## 10  2018 ANKARA         40069
+## 11  2018 ESKİŞEHİR      38118
+## 12  2017 ANKARA         37907
+## 13  2016 ANKARA         35065
+## 14  2019 ESKİŞEHİR      29768
+## 15  2020 ESKİŞEHİR      26229
+## 16  2020 İZMİR          23462
+## 17  2019 İZMİR          22564
+## 18  2018 İZMİR          22163
+## 19  2020 ERZURUM        21999
+## 20  2017 İZMİR          19236</code></pre>
+<pre class="r"><code>  all_years_data%&gt;%
+  group_by(year,university)%&gt;%
+  summarise(university_quota=sum(quota))%&gt;%
+  arrange(desc(university_quota))%&gt;%head(20)</code></pre>
+<pre><code>## # A tibble: 20 x 3
+## # Groups:   year [5]
+##     year university            university_quota
+##    &lt;dbl&gt; &lt;chr&gt;                            &lt;dbl&gt;
+##  1  2017 ANADOLU ÜNİVERSİTESİ             61485
+##  2  2016 ANADOLU ÜNİVERSİTESİ             48110
+##  3  2018 ANADOLU ÜNİVERSİTESİ             32351
+##  4  2019 ANADOLU ÜNİVERSİTESİ             24057
+##  5  2018 İSTANBUL ÜNİVERSİTESİ            22687
+##  6  2020 ATATÜRK ÜNİVERSİTESİ             21203
+##  7  2020 ANADOLU ÜNİVERSİTESİ             20939
+##  8  2017 İSTANBUL ÜNİVERSİTESİ            18309
+##  9  2016 İSTANBUL ÜNİVERSİTESİ            18169
+## 10  2018 ATATÜRK ÜNİVERSİTESİ             15735
+## 11  2020 İSTANBUL ÜNİVERSİTESİ            15283
+## 12  2019 İSTANBUL ÜNİVERSİTESİ            15115
+## 13  2016 ATATÜRK ÜNİVERSİTESİ             14239
+## 14  2019 ATATÜRK ÜNİVERSİTESİ             13663
+## 15  2017 ATATÜRK ÜNİVERSİTESİ             13524
+## 16  2017 SELÇUK ÜNİVERSİTESİ               9738
+## 17  2016 SELÇUK ÜNİVERSİTESİ               8364
+## 18  2020 ANKARA ÜNİVERSİTESİ               8196
+## 19  2018 SELÇUK ÜNİVERSİTESİ               8162
+## 20  2017 GAZİ ÜNİVERSİTESİ                 8055</code></pre>
 </div>
 <div id="more" class="section level3">
 <h3>More…</h3>
