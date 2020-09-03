@@ -259,6 +259,32 @@ mutate(data2020,year=2020))
   
 ```
 
+In some cases we would wonder the departments whose quote more increased or decreased. However, there are some highly volatile departments ending with "(Açıköğretim) , (İÖ) or (..indirimli). they may be misleading, so we should eliminate the departments ending with these words in order to get more established departments. 
+Also another criteria can be necessity of being founded at least 4 years ago. So that we can see trends of department quotes. Here is the top 20 departments whose quote increased most and whose decreased most in the last 4 years. 
+
+```{r quota-difference}
+quote_by_dept <- all_years_data%>%
+  group_by(year,department)%>%
+  summarise(department_quota=sum(quota))
+
+quote_by_dept <- data.frame(quote_by_dept) #after group_by we should convert it to df. 
+quote_by_dept <- quote_by_dept %>%
+    group_by(department) %>%
+    mutate(Diff = department_quota - lag(department_quota)) %>% arrange(desc(Diff))
+quote_by_dept <- data.frame(quote_by_dept) # Again convert to df
+
+quote_by_dept <- quote_by_dept %>% subset(!substr(department,nchar(department)-1,nchar(department)) %in% c("i)","m)","Ö)")) # eliminating some departments
+# Also eliminating new founded departments
+quote_by_dept <- quote_by_dept %>% group_by(department) %>% filter(n()>= 4)
+
+quote_by_dept <- data.frame(quote_by_dept) # Again convert to df
+
+quote_by_dept %>% group_by(department) %>% summarise(mean_differnce=mean(Diff,na.rm = T)) %>% arrange(desc(mean_differnce)) %>% head(20)#top 20 dept increased quota
+
+quote_by_dept %>% group_by(department) %>% summarise(mean_differnce=mean(Diff,na.rm = T)) %>% arrange(desc(mean_differnce)) %>% tail(20)#20 dept with most decrease in quota 
+
+```
+
 ### More...
   
   
