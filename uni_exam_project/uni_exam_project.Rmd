@@ -141,6 +141,52 @@ data2020 %>% group_by(university, department) %>% summarise(highest_score=highes
 
 
 ### Top Cities
+```{r}
+total_data <- full_join(data2016,data2017,by=c('university','department','city','type'),suffix = c('.2016','.2017'))%>%
+  full_join(. ,data2018,by=c('university','department','city','type'))%>%
+  full_join(. ,data2019,by=c('university','department','city','type'),suffix = c('.2018','.2019'))%>%
+  full_join(. ,data2020,by=c('university','department','city','type'))
+names(total_data)[names(total_data)=='type']<-'type.2020'
+names(total_data)[names(total_data)=='quota']<-'quota.2020'
+names(total_data)[names(total_data)=='accepted_number']<-'accepted_number.2020'
+names(total_data)[names(total_data)=='lowest_score']<-'lowest_score.2020'
+names(total_data)[names(total_data)=='highest_score']<-'highest_score.2020'
+names(total_data)[names(total_data)=='lowest_ranking']<-'lowest_ranking.2020'
+```
+
+University and city distribution of the first thousand students in the university exam
+
+```{r}
+bin_tr<- total_data%>%
+  filter(lowest_ranking.2020<1000)
+
+tab2<-table(bin_tr$city,bin_tr$type.2020)
+tab2
+
+tab<-table(bin_tr$university,bin_tr$type.2020)
+tab
+```
+University and city distribution of the first five thousand students in the university exam
+```{r}
+besbin_tr<- total_data%>%
+  filter(lowest_ranking.2020<5000)
+
+tab3<-table(besbin_tr$city,besbin_tr$type.2020)
+tab3
+
+  
+tab4<-table(besbin_tr$university,besbin_tr$type.2020)
+tab4
+```
+
+```{r}
+besbin_tr%>%
+  ggplot(aes(x = lowest_ranking.2020, fill = city)) +
+  geom_density(alpha = 0.3)
+  
+```
+
+
 
 ### Quota Informations
 The cities, universities and departments with the highest quotas in recent years can be seen from the tables below.
