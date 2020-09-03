@@ -91,9 +91,9 @@ After loading the required libraries, we download the .xlsx file from our projec
 library(tidyverse)
 library(lubridate)
 library(tinytex)
-library(readxl)
+library(readxl) # read_excel
 library(tidyr)
-library(httr)
+library(httr) # GET
 library(reshape2)
 url<-'https://github.com/pjournal/boun01g-dol-r/blob/gh-pages/uni_exam_project/uni_exam.xlsx?raw=true'
 GET(url, write_disk(tf <- tempfile(fileext = ".xlsx")))

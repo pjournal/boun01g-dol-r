@@ -35,7 +35,6 @@ ui <- fluidPage(
             
         ),
 
-        # Show a plot of the generated distribution
         mainPanel(
             tabsetPanel(
                 tabPanel("Map", plotOutput("plot"), textOutput("options")),
@@ -49,7 +48,6 @@ ui <- fluidPage(
     )
 )
 
-# Define server logic required to draw a histogram
 server <- function(input, output) {
     rv_options <- eventReactive(input$show_options, {
         paste("You have", data %>% filter(data$price>input$price[1] & data$price<input$price[2] & room_type==input$roomtype & neighbourhood_group==input$neigb_g) %>% summarise(count=n()), "options.")
@@ -81,5 +79,4 @@ server <- function(input, output) {
     })
 }
 
-# Run the application 
 shinyApp(ui = ui, server = server)
