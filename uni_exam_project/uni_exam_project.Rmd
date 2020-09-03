@@ -94,6 +94,7 @@ library(tinytex)
 library(readxl)
 library(tidyr)
 library(httr)
+library(reshape2)
 url<-'https://github.com/pjournal/boun01g-dol-r/blob/gh-pages/uni_exam_project/uni_exam.xlsx?raw=true'
 GET(url, write_disk(tf <- tempfile(fileext = ".xlsx")))
 raw_df20 <- read_excel(tf, sheet="20", skip=21)
@@ -128,14 +129,60 @@ data2018 %>% arrange(desc(highest_score)) %>% glimpse()
 When the exam procedure changes, the types of grading systems also change. Therefore, there is no point of comparing `type` variable for different years. But it can be an identifier in each year.
 
 ### Top Selected Universities and Departments
-Some universities' departments may be selected by the participants with highest scores in different types of grading systems. After grouping `university` and `department`, we can analyze which university departments are selected. 
-```{r uni-dep}
-data2016 %>% group_by(university, department) %>% summarise(highest_score=highest_score, lowest_score=lowest_score) %>% arrange(desc(highest_score)) %>% head(10)
-data2017 %>% group_by(university, department) %>% summarise(highest_score=highest_score, lowest_score=lowest_score) %>% arrange(desc(highest_score)) %>% head(10)
-data2018 %>% group_by(university, department) %>% summarise(highest_score=highest_score, lowest_score=lowest_score) %>% arrange(desc(highest_score)) %>% head(10)
-data2019 %>% group_by(university, department) %>% summarise(highest_score=highest_score, lowest_score=lowest_score) %>% arrange(desc(highest_score)) %>% head(10)
-data2020 %>% group_by(university, department) %>% summarise(highest_score=highest_score, lowest_score=lowest_score) %>% arrange(desc(highest_score)) %>% head(10)
+Some universities' departments may be selected by the participants with highest scores in different types of grading systems. After grouping by `university` and `department`, we can order according to highest score and look at the first 10 rows. These are the universities and departments selected by the top participants. Let's see how they changed over the years. 
+
+To do this, we count unique values and use `full_join`. Finally, we replace `NULL` values with zero, which means for that specific year, that university or department was not selected by the top 10 participants. 
+
+```{r fnc, results="hide"}
+score <- function(data){
+  data %>% group_by(university, department) %>% select(-type, -city) %>% arrange(desc(highest_score)) %>% head(10) %>% mutate(department=replace(department, str_detect(department,"Tıp"), "Tıp")) %>% mutate(department=str_replace(department, "Burslu", "")) %>% mutate(department=str_replace(department, "İngilizce", "")) %>% mutate(department=str_replace(department, " \\([^()]{0,}\\)", "")) %>% mutate(department=str_replace(department, " \\([^()]{0,}\\)", "")) %>% ungroup()
+}
+dept <- function(data){
+  data %>% count(department) %>% arrange(desc(n))
+}
+uni <- function(data){
+  data %>% count(university) %>% arrange(desc(n))
+}
+
 ```
+
+
+```{r uni-dep}
+top_uni <- full_join(uni(score(data2016)), uni(score(data2017)), by="university", suffix=c(".2016", ".2017")) %>% full_join(., uni(score(data2018)), by="university", suffix=c(".2016", ".2018"))
+top_uni <- full_join(top_uni, uni(score(data2019)), by="university", suffix=c(".2018", ".2019"))
+top_uni <- full_join(top_uni, uni(score(data2020)), by="university", suffix=c(".2019", ".2020"))
+names(top_uni)[names(top_uni)=='n.2016']<-'year2016'
+names(top_uni)[names(top_uni)=='n.2017']<-'year2017'
+names(top_uni)[names(top_uni)=='n.2018']<-'year2018'
+names(top_uni)[names(top_uni)=='n.2019']<-'year2019'
+names(top_uni)[names(top_uni)=='n']<-'year2020'
+
+top_dept <- full_join(dept(score(data2016)), dept(score(data2017)), by="department", suffix=c(".2016", ".2017")) %>% full_join(., dept(score(data2018)), by="department", suffix=c(".2016", ".2018"))
+top_dept <- full_join(top_dept, dept(score(data2019)), by="department", suffix=c(".2018", ".2019"))
+top_dept <- full_join(top_dept, dept(score(data2020)), by="department", suffix=c(".2019", ".2020"))
+names(top_dept)[names(top_dept)=='n.2016']<-'year2016'
+names(top_dept)[names(top_dept)=='n.2017']<-'year2017'
+names(top_dept)[names(top_dept)=='n.2018']<-'year2018'
+names(top_dept)[names(top_dept)=='n.2019']<-'year2019'
+names(top_dept)[names(top_dept)=='n']<-'year2020'
+```
+
+```{r uni-dep-ggplot}
+top_uni <- top_uni %>% replace_na(list(year2016 = 0, year2017 = 0, year2018 = 0, year2019 = 0, year2020 = 0))
+top_dept <- top_dept %>% replace_na(list(year2016 = 0, year2017 = 0, year2018 = 0, year2019 = 0, year2020 = 0))
+
+top_uni.long <- melt(top_uni)
+plot_uni <- ggplot(top_uni.long, aes(x=value, y=university, col=variable)) +
+  geom_point() + stat_smooth() + ggtitle("Top Universities") + xlab("Number of Participants") + ylab("Universities") + theme(plot.caption=element_text(hjust = 0.5))
+plot_uni
+
+top_dept.long <- melt(top_dept)
+plot_dept <- ggplot(top_dept.long, aes(x=value, y=department, col=variable)) +
+  geom_point() + stat_smooth() + ggtitle("Top Departments") + xlab("Number of Participants") + ylab("Departments") + theme(plot.caption=element_text(hjust = 0.5))
+plot_dept
+```
+
+
 
 ### Top Selected Departments
 
