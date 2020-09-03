@@ -33,11 +33,14 @@ library(bit64)
 library(tidyverse)
 library(ggplot2)
 library(h2o)
+## Initialize h2o cluster
 h2o.init()
 ```
 
 ## Iris Data
-Iris is a built-in dataset in R. It has 4 numerical independent variables and a categorical independent variable. 
+Iris is a built-in dataset in R. It has 4 numerical independent variables and a categorical independent variable.
+This data has `r dim(iris)[1]` rows and `r dim(iris)[2]` columns. Dependent variable is `Species`.
+
 ```{r data}
 data <- iris
 glimpse(data)
@@ -45,8 +48,13 @@ data %>% count(Species)
 ```
 
 ```{r frame, results='hide'}
-#H2O Frame
+# Convert data to h2o frame
 iris_data <- as.h2o(iris)
+# Identify target and features
+y <- "Species"
+x <- setdiff(colnames(iris_data), y)
+# For classification target should be a factor
+iris_data[, y] <- as.factor(iris_data[, y])
 ```
 
 ```{r descb}
@@ -66,76 +74,33 @@ test = split[[2]]
 ### Model: gbm
 ```{r model, results='hide'}
 # x=features, y=target
-gbm_model <- h2o.gbm(x=c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"), y="Species", training_frame = train, seed=90)
+gbm_model <- h2o.gbm(x=x, y=y, training_frame = train, seed=90)
 ```
 
-```{r perf}
+```{r perf,  warning=FALSE}
 # Model's performance using test data, includes R^2 and confusion matrix
 perf <- h2o.performance(gbm_model,test)
 perf
 ```
 
-## Prostate Data
-
-This data has `r dim(data)[1]` rows and `r dim(data)[2]` columns. Dependent variable is `CAPSULE`.
-
-```{r data2, results='hide'}
-data <- read_csv("https://raw.githubusercontent.com/pjournal/boun01g-dol-r/gh-pages/bonus_h2o_package/prostate.csv")
-prostate_data <- h2o.importFile("https://raw.githubusercontent.com/pjournal/boun01g-dol-r/gh-pages/bonus_h2o_package/prostate.csv")
+### Model2: Random Forest
+```{r model2, results='hide'}
+# x=features, y=target
+random_forest_model <- h2o.randomForest(x=c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"), y="Species", training_frame = train, seed=90)
 ```
 
-```{r overview}
-glimpse(data)
-head(prostate_data)
-h2o.describe(prostate_data)
-```
-
-### Data Manipulation
-```{r mani}
-#Dependent Variable is a factor
-prostate_data$CAPSULE <- as.factor(prostate_data$CAPSULE)
-y <- "CAPSULE"
-#Some Independent Variables are factors
-prostate_data$RACE <- as.factor(prostate_data$RACE)
-prostate_data$DCAPS <- as.factor(prostate_data$DCAPS)
-prostate_data$DPROS <- as.factor(prostate_data$DPROS)
-x <- c("AGE", "RACE", "VOL", "GLEASON")
-```
-
-
-### Train Test Split
-```{r split2}
-# 80% train, 20% test
-# Seed is defined in order to get the same result
-split = h2o.splitFrame(prostate_data, ratios = 0.8, seed=90)
-train = split[[1]]
-test = split[[2]]
-h2o.table(train$CAPSULE)
-h2o.table(test$CAPSULE)
-```
-
-
-## Model: Logistic Regression for Binary Classification Problem
-
-```{r model2}
-# Model
-glm_model <- h2o.glm(x = x, y =y, training_frame = train, family = "binomial", compute_p_values = TRUE, lambda = 0)
-glm_model
-# Coefficients, high p-value means not very significant
-glm_model@model$coefficients_table
-```
-
-
-```{r perf2, results='hide'}
+```{r perf2}
 # Model's performance using test data, includes R^2 and confusion matrix
-perf <- h2o.performance(glm_model,test)
-predict <- as.data.frame(h2o.predict(glm_model, test))
+perf2 <- h2o.performance(random_forest_model,test)
+perf2
 ```
 
-```{r table, results='hide'}
-table(predict[1])
-```
+We got very similar results. 
 
+## GBM Hyperparameters
+
+```{r }
+```
 
 ## Resources
 - [Cran](https://cran.r-project.org/web/packages/h2o/index.html)
@@ -143,3 +108,4 @@ table(predict[1])
 - [H2O Documentation](http://docs.h2o.ai/)
 - [Kaggle](https://www.kaggle.com/mlg-ulb/creditcardfraud)
 - [Generalized Linear Model(GLM)](https://docs.h2o.ai/h2o/latest-stable/h2o-docs/data-science/glm.html#)
+- [Datacamp](https://campus.datacamp.com/courses/hyperparameter-tuning-in-r/hyperparameter-tuning-with-h2o?ex=1)
