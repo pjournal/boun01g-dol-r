@@ -261,6 +261,7 @@ mutate(data2020,year=2020))
 
 In some cases we would wonder the departments whose quote more increased or decreased. However, there are some highly volatile departments ending with "(Açıköğretim) , (İÖ) or (..indirimli). they may be misleading, so we should eliminate the departments ending with these words in order to get more established departments. 
 Also another criteria can be necessity of being founded at least 4 years ago. So that we can see trends of department quotes. Here is the top 20 departments whose quote increased most and whose decreased most in the last 4 years. 
+Note: Ranked by taking mean quote differences of last 4 years. 
 
 ```{r quota-difference}
 quote_by_dept <- all_years_data%>%
