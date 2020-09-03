@@ -182,11 +182,6 @@ plot_dept <- ggplot(top_dept.long, aes(x=value, y=department, col=variable)) +
 plot_dept
 ```
 
-
-
-### Top Selected Departments
-
-
 ### Top Cities
 ```{r}
 total_data <- full_join(data2016,data2017,by=c('university','department','city','type'),suffix = c('.2016','.2017'))%>%
