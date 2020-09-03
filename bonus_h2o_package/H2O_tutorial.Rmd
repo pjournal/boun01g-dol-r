@@ -41,6 +41,7 @@ Iris is a built-in dataset in R. It has 4 numerical independent variables and a 
 ```{r data}
 data <- iris
 glimpse(data)
+data %>% count(Species)
 ```
 
 ```{r frame, results='hide'}
