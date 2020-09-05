@@ -19,9 +19,8 @@ In Turkey, every year millions of students take the university entrance exam. Af
 
 **Key Takeaways:**
 
-* We analyzed University Exam Entrance data
-* We explored the popularity trends of the universities and departments over the years
-* We compared top selected universities and departments
+* Medicine maintained its popularity over the years.
+* Koç University has a significantly higher popularity. 
 
 
 ## Summary of the Data and Explanations
@@ -39,10 +38,11 @@ Using **University Exam** data from  [*Hacettepe University's Website*](http://w
 
 **Objectives:**
 
+* Analyze University Exam Entrance data
 * Cleaning and manipulation of datasets
 * Exploration of the popularity trends of the universities and departments
 * Comparison by visualization
-* Finding top selected universities and departments
+* Finding top universities and departments
 
 ### Data Preprocessing
 In order to ease the reading process, functions `mani97` and `mani86` are created. These functions remove the columns related to the percentage of change regarding the previous year. They also rename the columns and remove the last empty rows. The raw data for some years have an additional column at the end, therefore two functions were needed.
@@ -95,6 +95,7 @@ library(readxl) # read_excel
 library(tidyr)
 library(httr) # GET
 library(reshape2)
+library(ggforce) # circle data points
 url<-'https://github.com/pjournal/boun01g-dol-r/blob/gh-pages/uni_exam_project/uni_exam.xlsx?raw=true'
 GET(url, write_disk(tf <- tempfile(fileext = ".xlsx")))
 raw_df20 <- read_excel(tf, sheet="20", skip=21)
@@ -122,20 +123,20 @@ data2020 %>% summarise(exam20=n()) %>% mutate(data2019 %>% summarise(exam19=n())
 As an example, let's observe dataset for the year 2018. First four variables are categorical and the rest is numerical. We could also see that there are `r data2018 %>% summarise(exam18=n())` rows for this year.
 
 ```{r ex-dataset}
-data2018 %>% arrange(desc(highest_score)) %>% glimpse()
+data2018 %>% arrange(desc(lowest_score)) %>% glimpse()
 ```
 
 ## Exploratory Data Analysis
 When the exam procedure changes, the types of grading systems also change. Therefore, there is no point of comparing `type` variable for different years. But it can be an identifier in each year.
 
-### Top Selected Universities and Departments
-Some universities' departments may be selected by the participants with highest scores in different types of grading systems. After grouping by `university` and `department`, we can order according to highest score and look at the first 10 rows. These are the universities and departments selected by the top participants. Let's see how they changed over the years. 
+### Top Universities and Departments
+Some universities' departments may be selected by the participants with lowest scores in different types of grading systems. After grouping by `university` and `department`, lowest score column is put in decreasing order. Lowest score is the last entering person's score to a specific university and department. By putting it into decreasing order, we get the highest scores of last entering people. Let's see how the top 10 departments changed over the years. 
 
-To do this, we count unique values and use `full_join`. Finally, we replace `NULL` values with zero, which means for that specific year, that university or department was not selected by the top 10 participants. 
+To do this, we count unique values and use `full_join`. Finally, we replace `NULL` values with zero, which means this university or department was not in top 10 for that specific year. 
 
 ```{r fnc, results="hide"}
 score <- function(data){
-  data %>% group_by(university, department) %>% select(-type, -city) %>% arrange(desc(highest_score)) %>% head(10) %>% mutate(department=replace(department, str_detect(department,"Tıp"), "Tıp")) %>% mutate(department=str_replace(department, "Burslu", "")) %>% mutate(department=str_replace(department, "İngilizce", "")) %>% mutate(department=str_replace(department, " \\([^()]{0,}\\)", "")) %>% mutate(department=str_replace(department, " \\([^()]{0,}\\)", "")) %>% ungroup()
+  data %>% group_by(university, department) %>% select(-type, -city) %>% arrange(desc(lowest_score)) %>% head(10) %>% mutate(department=replace(department, str_detect(department,"Tıp"), "Tıp")) %>% mutate(department=str_replace(department, "Burslu", "")) %>% mutate(department=str_replace(department, "İngilizce", "")) %>% mutate(department=str_replace(department, " \\([^()]{0,}\\)", "")) %>% mutate(department=str_replace(department, " \\([^()]{0,}\\)", "")) %>% ungroup()
 }
 dept <- function(data){
   data %>% count(department) %>% arrange(desc(n))
@@ -172,13 +173,11 @@ top_uni <- top_uni %>% replace_na(list(year2016 = 0, year2017 = 0, year2018 = 0,
 top_dept <- top_dept %>% replace_na(list(year2016 = 0, year2017 = 0, year2018 = 0, year2019 = 0, year2020 = 0))
 
 top_uni.long <- melt(top_uni)
-plot_uni <- ggplot(top_uni.long, aes(x=value, y=university, col=variable)) +
-  geom_point() + stat_smooth() + ggtitle("Top Universities") + xlab("Number of Participants") + ylab("Universities") + theme(plot.caption=element_text(hjust = 0.5))
+plot_uni <- ggplot(top_uni.long, aes(x=value, y=university, col=variable)) + geom_jitter(width=0.1, height=0.1)  + stat_smooth() + ggtitle("Top Universities") + xlab("Number of Participants") + ylab("Universities") + theme(plot.caption=element_text(hjust = 0.5))
 plot_uni
 
 top_dept.long <- melt(top_dept)
-plot_dept <- ggplot(top_dept.long, aes(x=value, y=department, col=variable)) +
-  geom_point() + stat_smooth() + ggtitle("Top Departments") + xlab("Number of Participants") + ylab("Departments") + theme(plot.caption=element_text(hjust = 0.5))
+plot_dept <- ggplot(top_dept.long, aes(x=value, y=department, col=variable)) + geom_jitter(width=0.1, height=0.1) + stat_smooth() + ggtitle("Top Departments") + xlab("Number of Participants") + ylab("Departments") + theme(plot.caption=element_text(hjust = 0.5))
 plot_dept
 ```
 
@@ -227,7 +226,6 @@ besbin_tr%>%
   geom_density(alpha = 0.3)
   
 ```
-
 
 
 ### Quota Informations
@@ -285,13 +283,6 @@ quote_by_dept %>% group_by(department) %>% summarise(mean_differnce=mean(Diff,na
 quote_by_dept %>% group_by(department) %>% summarise(mean_differnce=mean(Diff,na.rm = T)) %>% arrange(desc(mean_differnce)) %>% tail(20)#20 dept with most decrease in quota 
 
 ```
-
-### More...
-  
-  
-
-## Conclusion
-
 
 
 ## References
