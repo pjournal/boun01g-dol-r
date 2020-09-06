@@ -118,7 +118,6 @@ data2019 <- mani97(raw_df19)
 data2018 <- mani86(raw_df18)
 data2017 <- mani97(raw_df17)
 data2016 <- mani97(raw_df16)
-
 data2020 %>% summarise(exam20=n()) %>% mutate(data2019 %>% summarise(exam19=n())) %>% mutate(data2018 %>% summarise(exam18=n())) %>% mutate(data2017 %>% summarise(exam17=n())) %>% mutate(data2016 %>% summarise(exam16=n())) 
 ```
 
@@ -146,7 +145,6 @@ dept <- function(data){
 uni <- function(data){
   data %>% count(university) %>% arrange(desc(n))
 }
-
 ```
 
 
@@ -159,7 +157,6 @@ names(top_uni)[names(top_uni)=='n.2017']<-'year2017'
 names(top_uni)[names(top_uni)=='n.2018']<-'year2018'
 names(top_uni)[names(top_uni)=='n.2019']<-'year2019'
 names(top_uni)[names(top_uni)=='n']<-'year2020'
-
 top_dept <- full_join(dept(score(data2016)), dept(score(data2017)), by="department", suffix=c(".2016", ".2017")) %>% full_join(., dept(score(data2018)), by="department", suffix=c(".2016", ".2018"))
 top_dept <- full_join(top_dept, dept(score(data2019)), by="department", suffix=c(".2018", ".2019"))
 top_dept <- full_join(top_dept, dept(score(data2020)), by="department", suffix=c(".2019", ".2020"))
@@ -173,14 +170,12 @@ names(top_dept)[names(top_dept)=='n']<-'year2020'
 ```{r uni-dep-ggplot}
 top_uni <- top_uni %>% replace_na(list(year2016 = 0, year2017 = 0, year2018 = 0, year2019 = 0, year2020 = 0))
 top_dept <- top_dept %>% replace_na(list(year2016 = 0, year2017 = 0, year2018 = 0, year2019 = 0, year2020 = 0))
-
 top_uni.long <- melt(top_uni)
-plot_uni <- ggplot(top_uni.long, aes(x=value, y=university, col=variable)) + geom_jitter(width=0.1, height=0.1)  + stat_smooth() + ggtitle("Top Universities") + xlab("Number of Participants") + ylab("Universities") + theme(plot.caption=element_text(hjust = 0.5))
+plot_uni <- ggplot(top_uni.long, aes(x=value, y=university, col=variable)) + geom_jitter(width=0.1, height=0.1)  + stat_smooth() + ggtitle("Top Universities") + xlab("Number of Participants") + ylab("Universities") + theme(plot.caption=element_text(hjust = 0.5))+theme_bw()
 plot_uni
-
 top_dept.long <- melt(top_dept)
 plot_dept <- ggplot(top_dept.long, aes(x=value, y=department, col=variable)) + geom_jitter(width=0.1, height=0.1) + stat_smooth() + ggtitle("Top Departments") + xlab("Number of Participants") + ylab("Departments") + theme(plot.caption=element_text(hjust = 0.5))
-plot_dept
+plot_dept+theme_bw()
 ```
 
 ### Top Cities
@@ -197,35 +192,33 @@ names(total_data)[names(total_data)=='highest_score']<-'highest_score.2020'
 names(total_data)[names(total_data)=='lowest_ranking']<-'lowest_ranking.2020'
 ```
 
-University and city distribution of the first thousand students in the university exam
+#### University and City Distribution of the First Thousand Students in the University Exam
 
 ```{r}
 bin_tr<- total_data%>%
   filter(lowest_ranking.2020<1000)
-
 tab2<-table(bin_tr$city,bin_tr$type.2020)
-tab2
-
+knitr::kable(tab2,caption = "Table.1. City  Distribution of the First Thousand Students")
 tab<-table(bin_tr$university,bin_tr$type.2020)
-tab
+knitr::kable(tab,caption = "Table.2. University Distribution of the First Thousand Students ")
 ```
-University and city distribution of the first five thousand students in the university exam
+
+#### University and City Distribution of the First Five Thousand Students in the University Exam
+
 ```{r}
 besbin_tr<- total_data%>%
   filter(lowest_ranking.2020<5000)
-
 tab3<-table(besbin_tr$city,besbin_tr$type.2020)
-tab3
-
+knitr::kable(tab3,caption = "Table.3. City Distribution of the First Five Thousand Students")
   
 tab4<-table(besbin_tr$university,besbin_tr$type.2020)
-tab4
+knitr::kable(tab4,caption = "Table.4. University Distribution of the First Five Thousand Students")
 ```
 
 ```{r}
 besbin_tr%>%
   ggplot(aes(x = lowest_ranking.2020, fill = city)) +
-  geom_density(alpha = 0.3)
+  geom_density(alpha = 0.3)+theme_bw()
   
 ```
 
@@ -233,29 +226,27 @@ besbin_tr%>%
 The cities, universities and departments with the highest quotas in recent years can be seen from the tables below.
 
 ```{r}
-
 all_years_data<-bind_rows(mutate(data2016,year=2016),
 mutate(data2017,year=2017),
 mutate(data2018,year=2018),
 mutate(data2019,year=2019),
 mutate(data2020,year=2020))
-
-  all_years_data%>%
+  dep<-all_years_data%>%
   group_by(year,department)%>%
   summarise(department_quota=sum(quota))%>%
-   arrange(desc(department_quota))%>%head(20) 
+   arrange(desc(department_quota))%>%head(20)
+  knitr::kable(dep,caption = "Table.5. Department Quotas in Recent Years")
   
- all_years_data%>%
+city_tab<- all_years_data%>%
   group_by(year,city)%>%
   summarise(city_quota=sum(quota))%>%
   arrange(desc(city_quota))%>%head(20)
-    
-
-  all_years_data%>%
+  knitr::kable(city_tab,caption = "Table.6. City Quotas in Recent Years") 
+ uni<- all_years_data%>%
   group_by(year,university)%>%
   summarise(university_quota=sum(quota))%>%
   arrange(desc(university_quota))%>%head(20)
-  
+  knitr::kable(uni,caption = "Table.7. University Quotas in Recent Years")
 ```
 
 In some cases we would wonder the departments whose quote more increased or decreased. However, there are some highly volatile departments ending with "(Açıköğretim) , (İÖ) or (..indirimli). they may be misleading, so we should eliminate the departments ending with these words in order to get more established departments. 
@@ -266,23 +257,19 @@ Note: Ranked by taking mean quote differences of last 4 years.
 quote_by_dept <- all_years_data%>%
   group_by(year,department)%>%
   summarise(department_quota=sum(quota))
-
 quote_by_dept <- data.frame(quote_by_dept) #after group_by we should convert it to df. 
 quote_by_dept <- quote_by_dept %>%
     group_by(department) %>%
     mutate(Diff = department_quota - lag(department_quota)) %>% arrange(desc(Diff))
 quote_by_dept <- data.frame(quote_by_dept) # Again convert to df
-
 quote_by_dept <- quote_by_dept %>% subset(!substr(department,nchar(department)-1,nchar(department)) %in% c("i)","m)","Ö)")) # eliminating some departments
 # Also eliminating new founded departments
 quote_by_dept <- quote_by_dept %>% group_by(department) %>% filter(n()>= 4)
-
 quote_by_dept <- data.frame(quote_by_dept) # Again convert to df
-
-quote_by_dept %>% group_by(department) %>% summarise(mean_differnce=mean(Diff,na.rm = T)) %>% arrange(desc(mean_differnce)) %>% head(20)#top 20 dept increased quota
-
-quote_by_dept %>% group_by(department) %>% summarise(mean_differnce=mean(Diff,na.rm = T)) %>% arrange(desc(mean_differnce)) %>% tail(20)#20 dept with most decrease in quota 
-
+increase<-quote_by_dept %>% group_by(department) %>% summarise(mean_difference=mean(Diff,na.rm = T)) %>% arrange(desc(mean_difference)) %>% head(20)#top 20 dept increased quota
+knitr::kable(increase,caption = "Table.7. Deparments which Their Quotas Increased Most in Recent Years")
+decrease<-quote_by_dept %>% group_by(department) %>% summarise(mean_difference=mean(Diff,na.rm = T)) %>% arrange(desc(mean_difference)) %>% tail(20)#20 dept with most decrease in quota 
+knitr::kable(decrease,digits = 2,caption = "Table.8. Deparments which Their Quotas Decreased Most in Recent Years")
 ```
 
 ### Popularity of Different Engineering Departments
@@ -305,7 +292,6 @@ ggplot(meanRanking,aes(x=year,y=mean_ranking,color=department))+geom_line(size=1
 cmpe<-all_years_data%>%
   select(year,university,department,lowest_ranking)%>%
   filter(university%in%c("ORTA DOĞU TEKNİK ÜNİVERSİTESİ","BOĞAZİÇİ ÜNİVERSİTESİ","İSTANBUL TEKNİK ÜNİVERSİTESİ"),department=="Bilgisayar Mühendisliği (İngilizce)")
-
 ggplot(cmpe,aes(x=year,y=lowest_ranking,color=university))+geom_line(size=1.3)+scale_y_reverse()+labs(x="Year",y="Lowest Ranking",color="Computer Engineering Rankings")+theme_bw()+ggtitle("Popularity of Computer Engineering")
 ```
 
@@ -313,7 +299,6 @@ ggplot(cmpe,aes(x=year,y=lowest_ranking,color=university))+geom_line(size=1.3)+s
 ce<-all_years_data%>%
   select(year,university,department,lowest_ranking)%>%
   filter(university%in%c("ORTA DOĞU TEKNİK ÜNİVERSİTESİ","BOĞAZİÇİ ÜNİVERSİTESİ","İSTANBUL TEKNİK ÜNİVERSİTESİ"),department=="İnşaat Mühendisliği (İngilizce)")
-
 ggplot(ce,aes(x=year,y=lowest_ranking,color=university))+geom_line(size=1.3)+scale_y_reverse()+labs(x="Year",y="Lowest Ranking",color="Civil Engineering Rankings")+theme_bw()+ggtitle("Popularity of Civil Engineering")
 ```
 
@@ -323,5 +308,3 @@ ggplot(ce,aes(x=year,y=lowest_ranking,color=university))+geom_line(size=1.3)+sca
 
 ## References
 - [*Hacettepe University's Website*](http://web.ee.hacettepe.edu.tr/osym/).
-
-
