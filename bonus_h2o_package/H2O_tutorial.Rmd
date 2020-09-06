@@ -38,7 +38,7 @@ h2o.init()
 ```
 
 ## Iris Data
-Iris is a built-in dataset in R. It has 4 numerical independent variables and a categorical independent variable.
+Iris is a built-in dataset in R. It has 4 numerical independent variables and a categorical independent variable. Therefore this is a classification problem, not a regression.
 This data has `r dim(iris)[1]` rows and `r dim(iris)[2]` columns. Dependent variable is `Species`.
 
 ```{r data}
@@ -74,7 +74,7 @@ test = split[[2]]
 ### Model: gbm
 ```{r model, results='hide'}
 # x=features, y=target
-gbm_model <- h2o.gbm(x=x, y=y, training_frame = train, seed=90)
+gbm_model <- h2o.gbm(x=x, y=y, training_frame = train, seed=90, family = "multinomial")
 ```
 
 ```{r perf,  warning=FALSE}
@@ -95,12 +95,19 @@ perf2 <- h2o.performance(random_forest_model,test)
 perf2
 ```
 
-We got very similar results. 
+## Comparison of the Models
+Let's look at confusion matrices for model predictions on test dataset. 
+```{r comparison}
+# Use confusion matrix
+prediction_gbm = h2o.predict(gbm_model, test)
+prediction_randomforest = h2o.predict(random_forest_model, test)
+matrix_gbm = h2o.confusionMatrix(object=gbm_model, newdata=test$Species)
+matrix_randomforest = h2o.confusionMatrix(object=random_forest_model, newdata=test$Species)
 
-## GBM Hyperparameters
-
-```{r }
 ```
+
+
+
 
 ## Resources
 - [Cran](https://cran.r-project.org/web/packages/h2o/index.html)
