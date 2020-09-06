@@ -1,16 +1,23 @@
 ---
-title: "Project: University Entrance Exam Analysis"
+title: 'Project: University Entrance Exam Analysis'
 author: "Dol_R"
 date: "8/24/2020"
-output: 
+output:
+    xaringan::moon_reader:
+    nature:
+      highlightStyle: github
+  html_document:
+    toc: yes
+    toc_float: yes
+    toc_depth: 3
+    code_folding: hide
+    df_print: kable
   pdf_document:
     toc: true
     toc_depth: 3
-  html_document:
-    toc: true
-    toc_float: true
-    toc_depth: 3
-    code_folding: hide
+  word_document:
+    toc_depth: '3'
+
 ---
 
 ## Introduction and Key Takeaways
@@ -25,8 +32,12 @@ In Turkey, every year millions of students take the university entrance exam. Af
 * Computer Engineering has gained popularity over the years.
 * Civil Engineering has lost its popularity over the years.
 
+---
+
 ## Summary of the Data and Explanations
 Using **University Exam** data from  [*Hacettepe University's Website*](http://web.ee.hacettepe.edu.tr/osym), we obtained university results of years 2016-2020. Each year is on a separate Excel spreadsheet. Since every year some departments are opened and some are shut down, datasets will have different number of rows. There are 9 variables and more than 10000 rows for each dataset.
+
+---
 
 **university**: Name of the university
 <br>**city**: University's location 
@@ -38,6 +49,8 @@ Using **University Exam** data from  [*Hacettepe University's Website*](http://w
 <br>**highest_score**: Highest score of the accepted participant's scores
 <br>**lowest_ranking**: Lowest ranking of the accepted participant's scores, last accepted person's ranking
 
+---
+
 **Objectives:**
 
 * Analyze University Exam Entrance data
@@ -45,6 +58,8 @@ Using **University Exam** data from  [*Hacettepe University's Website*](http://w
 * Exploration of the popularity trends of the universities and departments
 * Comparison by visualization
 * Finding top universities and departments
+
+---
 
 ### Data Preprocessing
 In order to ease the reading process, functions `mani97` and `mani86` are created. These functions remove the columns related to the percentage of change regarding the previous year. They also rename the columns and remove the last empty rows. The raw data for some years have an additional column at the end, therefore two functions were needed.
@@ -98,6 +113,7 @@ library(tidyr)
 library(httr) # GET
 library(reshape2)
 library(ggforce) # circle data points
+library(xaringan)
 url<-'https://github.com/pjournal/boun01g-dol-r/blob/gh-pages/uni_exam_project/uni_exam.xlsx?raw=true'
 GET(url, write_disk(tf <- tempfile(fileext = ".xlsx")))
 raw_df20 <- read_excel(tf, sheet="20", skip=21)

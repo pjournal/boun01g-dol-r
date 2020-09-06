@@ -32,6 +32,6 @@ This is group Dol_R's [Progress Journal website](https://pjournal.github.io/boun
 <br> [PDF Format](https://pjournal.github.io/boun01g-dol-r/uni_exam_project/uni_exam_project_final.pdf)
 - Shiny App: [University Exams in Turkey](https://ilaydacelenk.shinyapps.io/uni_exam_project/)
 - Source code for the Shiny app: [Code](uni_exam_project/app.R)
-- Presentation: 
+- Presentation using Xaringan: [Presentation](https://pjournal.github.io/boun01g-dol-r/uni_exam_project/uni_exam_project_final_presentation.html)
 - Datasets: [*Hacettepe University's Website*](http://web.ee.hacettepe.edu.tr/osym)
 

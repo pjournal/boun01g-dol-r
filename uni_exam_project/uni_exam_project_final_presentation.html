@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Project: University Entrance Exam Analysis</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Dol_R" />
+    <link href="uni_exam_project_final_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="uni_exam_project_final_files/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Project: University Entrance Exam Analysis
+### Dol_R
+### 8/24/2020
+
+---
+
+
+## Introduction and Key Takeaways
+In Turkey, every year millions of students take the university entrance exam. After the announcement of results, participants list their university and department choices and they are placed according to their ranks.
+
+&lt;br&gt;This analysis focuses on universities and departments popularity over the years. Hopefully, it would help future participants in their decision making process.
+
+**Key Takeaways:**
+
+* Medicine maintained its popularity over the years.
+* Koç University has a significantly higher popularity. 
+* Computer Engineering has gained popularity over the years.
+* Civil Engineering has lost its popularity over the years.
+
+---
+
+## Summary of the Data and Explanations
+Using **University Exam** data from  [*Hacettepe University's Website*](http://web.ee.hacettepe.edu.tr/osym), we obtained university results of years 2016-2020. Each year is on a separate Excel spreadsheet. Since every year some departments are opened and some are shut down, datasets will have different number of rows. There are 9 variables and more than 10000 rows for each dataset.
+
+---
+
+**university**: Name of the university
+&lt;br&gt;**city**: University's location 
+&lt;br&gt;**department**: Name of the department
+&lt;br&gt;**type**: Type of the exam
+&lt;br&gt;**quota**: Maximum number of participants to be accepted, upper bound for accepted_number
+&lt;br&gt;**accepted_number**: Accepted number of participants to the selected university's selected department
+&lt;br&gt;**lowest_score**: Lowest score of the accepted participant's scores
+&lt;br&gt;**highest_score**: Highest score of the accepted participant's scores
+&lt;br&gt;**lowest_ranking**: Lowest ranking of the accepted participant's scores, last accepted person's ranking
+
+---
+
+**Objectives:**
+
+* Analyze University Exam Entrance data
+* Cleaning and manipulation of datasets
+* Exploration of the popularity trends of the universities and departments
+* Comparison by visualization
+* Finding top universities and departments
+
+---
+
+### Data Preprocessing
+In order to ease the reading process, functions `mani97` and `mani86` are created. These functions remove the columns related to the percentage of change regarding the previous year. They also rename the columns and remove the last empty rows. The raw data for some years have an additional column at the end, therefore two functions were needed.
+
+```r
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE) # applies to all chunks
+mani97 &lt;- function(data){
+  newdata &lt;- data %&gt;% 
+  rename(
+    number = c(1),
+    difference = c(2),
+    university = c(3),
+    city = c(4),
+    department = c(5),
+    type = c(6),
+    quota = c(7),
+    difference_quota = c(8),
+    accepted_number = c(9),
+    lowest_score = c(10),
+    highest_score = c(11),
+    lowest_ranking = c(12),
+    difference_ranking = c(13)
+  )  %&gt;% select(-number, -difference, -difference_quota, -difference_ranking) %&gt;% slice_head(n=nrow(data)-9)
+  return(newdata)
+}
+mani86 &lt;- function(data){
+  newdata &lt;- data %&gt;% 
+  rename(
+    number = c(1),
+    difference = c(2),
+    university = c(3),
+    city = c(4),
+    department = c(5),
+    type = c(6),
+    quota = c(7),
+    difference_quota = c(8),
+    accepted_number = c(9),
+    lowest_score = c(10),
+    highest_score = c(11),
+    lowest_ranking = c(12)
+  )  %&gt;% select(-number, -difference, -difference_quota) %&gt;% slice_head(n=nrow(data)-9)
+  return(newdata)
+}
+```
+After loading the required libraries, we download the .xlsx file from our project repository. After reading it, we remove the file. 
+
+```r
+library(tidyverse)
+library(lubridate)
+library(tinytex)
+library(readxl) # read_excel
+library(tidyr)
+library(httr) # GET
+library(reshape2)
+library(ggforce) # circle data points
+library(xaringan)
+url&lt;-'https://github.com/pjournal/boun01g-dol-r/blob/gh-pages/uni_exam_project/uni_exam.xlsx?raw=true'
+GET(url, write_disk(tf &lt;- tempfile(fileext = ".xlsx")))
+```
+
+```r
+raw_df20 &lt;- read_excel(tf, sheet="20", skip=21)
+raw_df19 &lt;- read_excel(tf, sheet="19", skip=21)
+raw_df18 &lt;- read_excel(tf, sheet="18", skip=21)
+raw_df17 &lt;- read_excel(tf, sheet="17", skip=21)
+raw_df16 &lt;- read_excel(tf, sheet="16", skip=21)
+file.remove(tf)
+```
+
+### Loading the Libraries and Datasets
+We have 5 datasets for the last 5 years. Each dataset has 9 columns and they all have different number of rows. For example there are 10617 rows in dataset for the year 2020 and 11402 rows in dataset for the year 2019. Some departments or even universities may have been opened or closed. 
+
+
+```r
+data2020 &lt;- mani97(raw_df20)
+data2020 &lt;- mani97(raw_df20)
+data2019 &lt;- mani97(raw_df19)
+data2018 &lt;- mani86(raw_df18)
+data2017 &lt;- mani97(raw_df17)
+data2016 &lt;- mani97(raw_df16)
+data2020 %&gt;% summarise(exam20=n()) %&gt;% mutate(data2019 %&gt;% summarise(exam19=n())) %&gt;% mutate(data2018 %&gt;% summarise(exam18=n())) %&gt;% mutate(data2017 %&gt;% summarise(exam17=n())) %&gt;% mutate(data2016 %&gt;% summarise(exam16=n())) 
+```
+
+```
+## # A tibble: 1 x 5
+##   exam20 exam19 exam18 exam17 exam16
+##    &lt;int&gt;  &lt;int&gt;  &lt;int&gt;  &lt;int&gt;  &lt;int&gt;
+## 1  10617  11402  11958  11484  10657
+```
+
+As an example, let's observe dataset for the year 2018. First four variables are categorical and the rest is numerical. We could also see that there are 11958 rows for this year.
+
+
+```r
+data2018 %&gt;% arrange(desc(lowest_score)) %&gt;% glimpse()
+```
+
+```
+## Rows: 11,958
+## Columns: 9
+## $ university      [3m[90m&lt;chr&gt;[39m[23m "İSTANBUL MEDİPOL ÜNİVERSİTESİ", "KOÇ ÜNİVERSİTESİ", …
+## $ city            [3m[90m&lt;chr&gt;[39m[23m "İSTANBUL", "İSTANBUL", "İSTANBUL", "İSTANBUL", "İSTA…
+## $ department      [3m[90m&lt;chr&gt;[39m[23m "Tıp Fakültesi (İngilizce) (Burslu)", "Tıp Fakültesi …
+## $ type            [3m[90m&lt;chr&gt;[39m[23m "SAY", "SAY", "SAY", "SAY", "SAY", "SAY", "SAY", "SAY…
+## $ quota           [3m[90m&lt;dbl&gt;[39m[23m 10, 15, 8, 11, 52, 82, 11, 30, 82, 50, 9, 175, 50, 12…
+## $ accepted_number [3m[90m&lt;dbl&gt;[39m[23m 10, 15, 8, 11, 52, 82, 11, 30, 82, 50, 9, 175, 50, 12…
+## $ lowest_score    [3m[90m&lt;dbl&gt;[39m[23m 549.1749, 548.1738, 543.2350, 542.8008, 538.5325, 536…
+## $ highest_score   [3m[90m&lt;dbl&gt;[39m[23m 562.9543, 556.2859, 546.1979, 548.5940, 559.5140, 562…
+## $ lowest_ranking  [3m[90m&lt;dbl&gt;[39m[23m 56, 84, 207, 221, 400, 496, 510, 511, 622, 637, 739, …
+```
+
+## Exploratory Data Analysis
+When the exam procedure changes, the types of grading systems also change. Therefore, there is no point of comparing `type` variable for different years. But it can be an identifier in each year.
+
+### Top Universities and Departments
+Some universities' departments may be selected by the participants with lowest scores in different types of grading systems. After grouping by `university` and `department`, lowest score column is put in decreasing order. Lowest score is the last entering person's score to a specific university and department. By putting it into decreasing order, we get the highest scores of last entering people. Let's see how the top 10 departments changed over the years. 
+
+To do this, we count unique values and use `full_join`. Finally, we replace `NULL` values with zero, which means this university or department was not in top 10 for that specific year. 
+
+
+```r
+score &lt;- function(data){
+  data %&gt;% group_by(university, department) %&gt;% select(-type, -city) %&gt;% arrange(desc(lowest_score)) %&gt;% head(10) %&gt;% mutate(department=replace(department, str_detect(department,"Tıp"), "Tıp")) %&gt;% mutate(department=str_replace(department, "Burslu", "")) %&gt;% mutate(department=str_replace(department, "İngilizce", "")) %&gt;% mutate(department=str_replace(department, " \\([^()]{0,}\\)", "")) %&gt;% mutate(department=str_replace(department, " \\([^()]{0,}\\)", "")) %&gt;% ungroup()
+}
+dept &lt;- function(data){
+  data %&gt;% count(department) %&gt;% arrange(desc(n))
+}
+uni &lt;- function(data){
+  data %&gt;% count(university) %&gt;% arrange(desc(n))
+}
+```
+
+
+
+```r
+top_uni &lt;- full_join(uni(score(data2016)), uni(score(data2017)), by="university", suffix=c(".2016", ".2017")) %&gt;% full_join(., uni(score(data2018)), by="university", suffix=c(".2016", ".2018"))
+top_uni &lt;- full_join(top_uni, uni(score(data2019)), by="university", suffix=c(".2018", ".2019"))
+top_uni &lt;- full_join(top_uni, uni(score(data2020)), by="university", suffix=c(".2019", ".2020"))
+names(top_uni)[names(top_uni)=='n.2016']&lt;-'year2016'
+names(top_uni)[names(top_uni)=='n.2017']&lt;-'year2017'
+names(top_uni)[names(top_uni)=='n.2018']&lt;-'year2018'
+names(top_uni)[names(top_uni)=='n.2019']&lt;-'year2019'
+names(top_uni)[names(top_uni)=='n']&lt;-'year2020'
+top_dept &lt;- full_join(dept(score(data2016)), dept(score(data2017)), by="department", suffix=c(".2016", ".2017")) %&gt;% full_join(., dept(score(data2018)), by="department", suffix=c(".2016", ".2018"))
+top_dept &lt;- full_join(top_dept, dept(score(data2019)), by="department", suffix=c(".2018", ".2019"))
+top_dept &lt;- full_join(top_dept, dept(score(data2020)), by="department", suffix=c(".2019", ".2020"))
+names(top_dept)[names(top_dept)=='n.2016']&lt;-'year2016'
+names(top_dept)[names(top_dept)=='n.2017']&lt;-'year2017'
+names(top_dept)[names(top_dept)=='n.2018']&lt;-'year2018'
+names(top_dept)[names(top_dept)=='n.2019']&lt;-'year2019'
+names(top_dept)[names(top_dept)=='n']&lt;-'year2020'
+```
+
+
+```r
+top_uni &lt;- top_uni %&gt;% replace_na(list(year2016 = 0, year2017 = 0, year2018 = 0, year2019 = 0, year2020 = 0))
+top_dept &lt;- top_dept %&gt;% replace_na(list(year2016 = 0, year2017 = 0, year2018 = 0, year2019 = 0, year2020 = 0))
+top_uni.long &lt;- melt(top_uni)
+plot_uni &lt;- ggplot(top_uni.long, aes(x=value, y=university, col=variable)) + geom_jitter(width=0.1, height=0.1)  + stat_smooth() + ggtitle("Top Universities") + xlab("Number of Participants") + ylab("Universities") + theme(plot.caption=element_text(hjust = 0.5))+theme_bw()
+plot_uni
+```
+
+![](uni_exam_project_final_files/figure-html/uni-dep-ggplot-1.png)&lt;!-- --&gt;
+
+```r
+top_dept.long &lt;- melt(top_dept)
+plot_dept &lt;- ggplot(top_dept.long, aes(x=value, y=department, col=variable)) + geom_jitter(width=0.1, height=0.1) + stat_smooth() + ggtitle("Top Departments") + xlab("Number of Participants") + ylab("Departments") + theme(plot.caption=element_text(hjust = 0.5))
+plot_dept+theme_bw()
+```
+
+![](uni_exam_project_final_files/figure-html/uni-dep-ggplot-2.png)&lt;!-- --&gt;
+
+### Top Cities
+
+```r
+total_data &lt;- full_join(data2016,data2017,by=c('university','department','city','type'),suffix = c('.2016','.2017'))%&gt;%
+  full_join(. ,data2018,by=c('university','department','city','type'))%&gt;%
+  full_join(. ,data2019,by=c('university','department','city','type'),suffix = c('.2018','.2019'))%&gt;%
+  full_join(. ,data2020,by=c('university','department','city','type'))
+names(total_data)[names(total_data)=='type']&lt;-'type.2020'
+names(total_data)[names(total_data)=='quota']&lt;-'quota.2020'
+names(total_data)[names(total_data)=='accepted_number']&lt;-'accepted_number.2020'
+names(total_data)[names(total_data)=='lowest_score']&lt;-'lowest_score.2020'
+names(total_data)[names(total_data)=='highest_score']&lt;-'highest_score.2020'
+names(total_data)[names(total_data)=='lowest_ranking']&lt;-'lowest_ranking.2020'
+```
+
+#### University and City Distribution of the First Thousand Students in the University Exam
+
+
+```r
+bin_tr&lt;- total_data%&gt;%
+  filter(lowest_ranking.2020&lt;1000)
+tab2&lt;-table(bin_tr$city,bin_tr$type.2020)
+knitr::kable(tab2,caption = "Table.1. City  Distribution of the First Thousand Students")
+```
+
+
+
+Table: Table.1. City  Distribution of the First Thousand Students
+
+|         | DİL| EA| SAY| SÖZ|
+|:--------|---:|--:|---:|---:|
+|ANKARA   |   0|  4|   2|   1|
+|İSTANBUL |   1| 15|   8|   5|
+
+```r
+tab&lt;-table(bin_tr$university,bin_tr$type.2020)
+knitr::kable(tab,caption = "Table.2. University Distribution of the First Thousand Students ")
+```
+
+
+
+Table: Table.2. University Distribution of the First Thousand Students 
+
+|                                          | DİL| EA| SAY| SÖZ|
+|:-----------------------------------------|---:|--:|---:|---:|
+|ACIBADEM MEHMET ALİ AYDINLAR ÜNİVERSİTESİ |   0|  0|   2|   0|
+|BOĞAZİÇİ ÜNİVERSİTESİ                     |   0|  3|   2|   1|
+|GALATASARAY ÜNİVERSİTESİ                  |   0|  1|   0|   0|
+|İHSAN DOĞRAMACI BİLKENT ÜNİVERSİTESİ      |   0|  3|   2|   0|
+|İSTANBUL 29 MAYIS ÜNİVERSİTESİ            |   0|  0|   0|   1|
+|İSTANBUL MEDİPOL ÜNİVERSİTESİ             |   0|  0|   1|   0|
+|İSTANBUL ÜNİVERSİTESİ                     |   0|  1|   0|   0|
+|İSTANBUL ÜNİVERSİTESİ-CERRAHPAŞA          |   0|  0|   1|   0|
+|KOÇ ÜNİVERSİTESİ                          |   1|  6|   2|   2|
+|ÖZYEĞİN ÜNİVERSİTESİ                      |   0|  1|   0|   1|
+|SABANCI ÜNİVERSİTESİ                      |   0|  2|   0|   0|
+|TOBB EKONOMİ VE TEKNOLOJİ ÜNİVERSİTESİ    |   0|  1|   0|   1|
+|YEDİTEPE ÜNİVERSİTESİ                     |   0|  1|   0|   0|
+
+#### University and City Distribution of the First Five Thousand Students in the University Exam
+
+
+```r
+besbin_tr&lt;- total_data%&gt;%
+  filter(lowest_ranking.2020&lt;5000)
+tab3&lt;-table(besbin_tr$city,besbin_tr$type.2020)
+knitr::kable(tab3,caption = "Table.3. City Distribution of the First Five Thousand Students")
+```
+
+
+
+Table: Table.3. City Distribution of the First Five Thousand Students
+
+|          | DİL| EA| SAY| SÖZ|
+|:---------|---:|--:|---:|---:|
+|ANKARA    |   9| 19|  21|  10|
+|ESKİŞEHİR |   0|  0|   1|   0|
+|İSTANBUL  |  14| 42|  35|  47|
+|İZMİR     |   2|  0|   1|   2|
+
+```r
+tab4&lt;-table(besbin_tr$university,besbin_tr$type.2020)
+knitr::kable(tab4,caption = "Table.4. University Distribution of the First Five Thousand Students")
+```
+
+
+
+Table: Table.4. University Distribution of the First Five Thousand Students
+
+|                                          | DİL| EA| SAY| SÖZ|
+|:-----------------------------------------|---:|--:|---:|---:|
+|ACIBADEM MEHMET ALİ AYDINLAR ÜNİVERSİTESİ |   0|  0|   2|   0|
+|ANKARA ÜNİVERSİTESİ                       |   0|  1|   2|   0|
+|BAHÇEŞEHİR ÜNİVERSİTESİ                   |   0|  2|   1|   7|
+|BAŞKENT ÜNİVERSİTESİ                      |   1|  0|   2|   1|
+|BEYKENT ÜNİVERSİTESİ                      |   0|  0|   0|   1|
+|BEZM-İ ÂLEM VAKIF ÜNİVERSİTESİ            |   0|  0|   1|   0|
+|BOĞAZİÇİ ÜNİVERSİTESİ                     |   4|  7|   4|   3|
+|EGE ÜNİVERSİTESİ                          |   0|  0|   1|   0|
+|ESKİŞEHİR TEKNİK ÜNİVERSİTESİ             |   0|  0|   1|   0|
+|GALATASARAY ÜNİVERSİTESİ                  |   1|  5|   0|   1|
+|GAZİ ÜNİVERSİTESİ                         |   0|  0|   2|   0|
+|HACETTEPE ÜNİVERSİTESİ                    |   2|  1|   2|   2|
+|İBN HALDUN ÜNİVERSİTESİ                   |   0|  0|   0|   3|
+|İHSAN DOĞRAMACI BİLKENT ÜNİVERSİTESİ      |   3|  8|   7|   1|
+|İSTANBUL 29 MAYIS ÜNİVERSİTESİ            |   1|  0|   0|   4|
+|İSTANBUL BİLGİ ÜNİVERSİTESİ               |   2|  2|   0|   6|
+|İSTANBUL MEDİPOL ÜNİVERSİTESİ             |   0|  0|   1|   0|
+|İSTANBUL OKAN ÜNİVERSİTESİ                |   1|  0|   0|   0|
+|İSTANBUL SABAHATTİN ZAİM ÜNİVERSİTESİ     |   0|  0|   0|   2|
+|İSTANBUL TEKNİK ÜNİVERSİTESİ              |   0|  1|   3|   0|
+|İSTANBUL ÜNİVERSİTESİ                     |   1|  2|   2|   0|
+|İSTANBUL ÜNİVERSİTESİ-CERRAHPAŞA          |   0|  0|   2|   0|
+|İSTİNYE ÜNİVERSİTESİ                      |   0|  0|   2|   0|
+|İZMİR EKONOMİ ÜNİVERSİTESİ                |   1|  0|   0|   2|
+|KADİR HAS ÜNİVERSİTESİ                    |   0|  0|   0|   3|
+|KOÇ ÜNİVERSİTESİ                          |   2| 10|  11|   3|
+|MALTEPE ÜNİVERSİTESİ                      |   0|  0|   0|   1|
+|MARMARA ÜNİVERSİTESİ                      |   0|  0|   1|   1|
+|ORTA DOĞU TEKNİK ÜNİVERSİTESİ             |   2|  3|   2|   2|
+|ÖZYEĞİN ÜNİVERSİTESİ                      |   0|  9|   3|   2|
+|SABANCI ÜNİVERSİTESİ                      |   0|  2|   1|   0|
+|TED ÜNİVERSİTESİ                          |   0|  0|   0|   1|
+|TOBB EKONOMİ VE TEKNOLOJİ ÜNİVERSİTESİ    |   1|  6|   4|   3|
+|YAŞAR ÜNİVERSİTESİ                        |   1|  0|   0|   0|
+|YEDİTEPE ÜNİVERSİTESİ                     |   2|  2|   1|  10|
+
+
+```r
+besbin_tr%&gt;%
+  ggplot(aes(x = lowest_ranking.2020, fill = city)) +
+  geom_density(alpha = 0.3)+theme_bw()
+```
+
+![](uni_exam_project_final_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+
+### Quota Informations
+The cities, universities and departments with the highest quotas in recent years can be seen from the tables below.
+
+
+```r
+all_years_data&lt;-bind_rows(mutate(data2016,year=2016),
+mutate(data2017,year=2017),
+mutate(data2018,year=2018),
+mutate(data2019,year=2019),
+mutate(data2020,year=2020))
+  dep&lt;-all_years_data%&gt;%
+  group_by(year,department)%&gt;%
+  summarise(department_quota=sum(quota))%&gt;%
+   arrange(desc(department_quota))%&gt;%head(20)
+  knitr::kable(dep,caption = "Table.5. Department Quotas in Recent Years")
+```
+
+
+
+Table: Table.5. Department Quotas in Recent Years
+
+| year|department            | department_quota|
+|----:|:---------------------|----------------:|
+| 2020|Hemşirelik            |            12469|
+| 2019|Hemşirelik            |            11994|
+| 2017|İşletme (Açıköğretim) |            11788|
+| 2018|Hemşirelik            |            11629|
+| 2017|Hemşirelik            |            11306|
+| 2016|Hemşirelik            |            10921|
+| 2020|Tıp Fakültesi         |            10702|
+| 2019|Tıp Fakültesi         |            10203|
+| 2018|Tıp Fakültesi         |             9648|
+| 2017|İşletme               |             9628|
+| 2016|İşletme               |             9481|
+| 2016|İşletme (Açıköğretim) |             9226|
+| 2017|Tıp Fakültesi         |             9029|
+| 2017|İktisat               |             8840|
+| 2019|İlahiyat              |             8698|
+| 2018|İşletme               |             8593|
+| 2016|İktisat               |             8591|
+| 2020|İlahiyat              |             8573|
+| 2018|İlahiyat              |             8558|
+| 2017|İlahiyat              |             8501|
+
+```r
+city_tab&lt;- all_years_data%&gt;%
+  group_by(year,city)%&gt;%
+  summarise(city_quota=sum(quota))%&gt;%
+  arrange(desc(city_quota))%&gt;%head(20)
+  knitr::kable(city_tab,caption = "Table.6. City Quotas in Recent Years") 
+```
+
+
+
+Table: Table.6. City Quotas in Recent Years
+
+| year|city      | city_quota|
+|----:|:---------|----------:|
+| 2018|İSTANBUL  |     112514|
+| 2020|İSTANBUL  |     106565|
+| 2019|İSTANBUL  |     102296|
+| 2017|İSTANBUL  |     101551|
+| 2016|İSTANBUL  |      94271|
+| 2017|ESKİŞEHİR |      65815|
+| 2016|ESKİŞEHİR |      52348|
+| 2020|ANKARA    |      45092|
+| 2019|ANKARA    |      40273|
+| 2018|ANKARA    |      40069|
+| 2018|ESKİŞEHİR |      38118|
+| 2017|ANKARA    |      37907|
+| 2016|ANKARA    |      35065|
+| 2019|ESKİŞEHİR |      29768|
+| 2020|ESKİŞEHİR |      26229|
+| 2020|İZMİR     |      23462|
+| 2019|İZMİR     |      22564|
+| 2018|İZMİR     |      22163|
+| 2020|ERZURUM   |      21999|
+| 2017|İZMİR     |      19236|
+
+```r
+ uni&lt;- all_years_data%&gt;%
+  group_by(year,university)%&gt;%
+  summarise(university_quota=sum(quota))%&gt;%
+  arrange(desc(university_quota))%&gt;%head(20)
+  knitr::kable(uni,caption = "Table.7. University Quotas in Recent Years")
+```
+
+
+
+Table: Table.7. University Quotas in Recent Years
+
+| year|university            | university_quota|
+|----:|:---------------------|----------------:|
+| 2017|ANADOLU ÜNİVERSİTESİ  |            61485|
+| 2016|ANADOLU ÜNİVERSİTESİ  |            48110|
+| 2018|ANADOLU ÜNİVERSİTESİ  |            32351|
+| 2019|ANADOLU ÜNİVERSİTESİ  |            24057|
+| 2018|İSTANBUL ÜNİVERSİTESİ |            22687|
+| 2020|ATATÜRK ÜNİVERSİTESİ  |            21203|
+| 2020|ANADOLU ÜNİVERSİTESİ  |            20939|
+| 2017|İSTANBUL ÜNİVERSİTESİ |            18309|
+| 2016|İSTANBUL ÜNİVERSİTESİ |            18169|
+| 2018|ATATÜRK ÜNİVERSİTESİ  |            15735|
+| 2020|İSTANBUL ÜNİVERSİTESİ |            15283|
+| 2019|İSTANBUL ÜNİVERSİTESİ |            15115|
+| 2016|ATATÜRK ÜNİVERSİTESİ  |            14239|
+| 2019|ATATÜRK ÜNİVERSİTESİ  |            13663|
+| 2017|ATATÜRK ÜNİVERSİTESİ  |            13524|
+| 2017|SELÇUK ÜNİVERSİTESİ   |             9738|
+| 2016|SELÇUK ÜNİVERSİTESİ   |             8364|
+| 2020|ANKARA ÜNİVERSİTESİ   |             8196|
+| 2018|SELÇUK ÜNİVERSİTESİ   |             8162|
+| 2017|GAZİ ÜNİVERSİTESİ     |             8055|
+
+In some cases we would wonder the departments whose quote more increased or decreased. However, there are some highly volatile departments ending with "(Açıköğretim) , (İÖ) or (..indirimli). they may be misleading, so we should eliminate the departments ending with these words in order to get more established departments. 
+Also another criteria can be necessity of being founded at least 4 years ago. So that we can see trends of department quotes. Here is the top 20 departments whose quote increased most and whose decreased most in the last 4 years. 
+Note: Ranked by taking mean quote differences of last 4 years. 
+
+
+```r
+quote_by_dept &lt;- all_years_data%&gt;%
+  group_by(year,department)%&gt;%
+  summarise(department_quota=sum(quota))
+quote_by_dept &lt;- data.frame(quote_by_dept) #after group_by we should convert it to df. 
+quote_by_dept &lt;- quote_by_dept %&gt;%
+    group_by(department) %&gt;%
+    mutate(Diff = department_quota - lag(department_quota)) %&gt;% arrange(desc(Diff))
+quote_by_dept &lt;- data.frame(quote_by_dept) # Again convert to df
+quote_by_dept &lt;- quote_by_dept %&gt;% subset(!substr(department,nchar(department)-1,nchar(department)) %in% c("i)","m)","Ö)")) # eliminating some departments
+# Also eliminating new founded departments
+quote_by_dept &lt;- quote_by_dept %&gt;% group_by(department) %&gt;% filter(n()&gt;= 4)
+quote_by_dept &lt;- data.frame(quote_by_dept) # Again convert to df
+increase&lt;-quote_by_dept %&gt;% group_by(department) %&gt;% summarise(mean_difference=mean(Diff,na.rm = T)) %&gt;% arrange(desc(mean_difference)) %&gt;% head(20)#top 20 dept increased quota
+knitr::kable(increase,caption = "Table.7. Deparments which Their Quotas Increased Most in Recent Years")
+```
+
+
+
+Table: Table.7. Deparments which Their Quotas Increased Most in Recent Years
+
+|department                            | mean_difference|
+|:-------------------------------------|---------------:|
+|Tıp Fakültesi                         |          577.50|
+|Psikoloji                             |          464.25|
+|Diş Hekimliği Fakültesi               |          461.75|
+|Sağlık Yönetimi                       |          460.75|
+|Finans ve Bankacılık                  |          454.50|
+|Gastronomi ve Mutfak Sanatları        |          424.50|
+|İslami İlimler                        |          391.25|
+|Bilgisayar Mühendisliği               |          388.00|
+|Hemşirelik                            |          387.00|
+|Mimarlık                              |          370.25|
+|Beslenme ve Diyetetik                 |          343.50|
+|Fizyoterapi ve Rehabilitasyon         |          342.00|
+|Radyo, Televizyon ve Sinema           |          316.75|
+|İngiliz Dili ve Edebiyatı (İngilizce) |          294.00|
+|Rehberlik ve Psikolojik Danışmanlık   |          293.00|
+|Sosyal Hizmet                         |          282.50|
+|Siyaset Bilimi ve Kamu Yönetimi       |          265.75|
+|Matematik                             |          257.25|
+|Türk Dili ve Edebiyatı                |          235.50|
+|Hukuk Fakültesi                       |          223.50|
+
+```r
+decrease&lt;-quote_by_dept %&gt;% group_by(department) %&gt;% summarise(mean_difference=mean(Diff,na.rm = T)) %&gt;% arrange(desc(mean_difference)) %&gt;% tail(20)#20 dept with most decrease in quota 
+knitr::kable(decrease,digits = 2,caption = "Table.8. Deparments which Their Quotas Decreased Most in Recent Years")
+```
+
+
+
+Table: Table.8. Deparments which Their Quotas Decreased Most in Recent Years
+
+|department                                       | mean_difference|
+|:------------------------------------------------|---------------:|
+|Kimya Mühendisliği                               |          -88.00|
+|İmalat Mühendisliği                              |          -90.50|
+|Sosyal Bilgiler Öğretmenliği                     |          -92.50|
+|Jeoloji Mühendisliği                             |          -94.75|
+|Turizm İşletmeciliği ve Otelcilik                |          -97.67|
+|Ekonometri                                       |         -100.00|
+|Makine Mühendisliği                              |         -105.00|
+|Konaklama İşletmeciliği                          |         -158.67|
+|Metalurji ve Malzeme Mühendisliği                |         -171.50|
+|Uluslararası Ticaret                             |         -185.25|
+|Enerji Sistemleri Mühendisliği                   |         -191.50|
+|Kamu Yönetimi                                    |         -216.00|
+|Arkeoloji                                        |         -219.00|
+|Sınıf Öğretmenliği                               |         -237.25|
+|Çevre Mühendisliği                               |         -416.75|
+|Gıda Mühendisliği                                |         -450.00|
+|Fen Bilgisi Öğretmenliği                         |         -457.00|
+|Bilgisayar ve Öğretim Teknolojileri Öğretmenliği |         -577.00|
+|İktisat                                          |         -736.50|
+|İşletme                                          |         -789.50|
+
+### Popularity of Different Engineering Departments
+ In this part of the project, the two most popular state universities' data are taken into account. 6 different engineering departments that exist in both Boğaziçi University and Middle East Technical University are choosen to make a comparison their popularities over the years.  Data shows that computer engineering gains popularity and civil engineering lose its popularity in the recent years. Other engineering branches such as industrial enginnering and electrical&amp;electronics engineering have relatively stable popularities.
+ 
+
+```r
+meanRanking&lt;-all_years_data%&gt;%
+  filter(department%in%c("İnşaat Mühendisliği (İngilizce)","Bilgisayar Mühendisliği (İngilizce)","Endüstri Mühendisliği (İngilizce)","Elektrik-Elektronik Mühendisliği (İngilizce)","Makine Mühendisliği (İngilizce)","Kimya Mühendisliği (İngilizce)"))%&gt;%filter(university%in%c("BOĞAZİÇİ ÜNİVERSİTESİ","ORTA DOĞU TEKNİK ÜNİVERSİTESİ"))%&gt;%
+  group_by(year,department)%&gt;%
+  summarise(mean_ranking=mean(lowest_ranking))
+ggplot(meanRanking,aes(x=year,y=mean_ranking,color=department))+geom_line(size=1.3)+labs(x="Year",y="Average Lowest Ranking",color="Departments")+scale_y_log10()+theme_bw()+ggtitle("Popularity of Different Engineering Departments")
+```
+
+![](uni_exam_project_final_files/figure-html/unnamed-chunk-6-1.png)&lt;!-- --&gt;
+
+#### Popularities of Computer Engineering and Civil Engineering
+ 
+ Popularities of computer engineering and civil engineering in the top 3 state universities can be shown in plots below. There is an increasing trend of choosing computer engineering but negative trend of choosing civil engineering in the recent years.
+
+
+
+```r
+cmpe&lt;-all_years_data%&gt;%
+  select(year,university,department,lowest_ranking)%&gt;%
+  filter(university%in%c("ORTA DOĞU TEKNİK ÜNİVERSİTESİ","BOĞAZİÇİ ÜNİVERSİTESİ","İSTANBUL TEKNİK ÜNİVERSİTESİ"),department=="Bilgisayar Mühendisliği (İngilizce)")
+ggplot(cmpe,aes(x=year,y=lowest_ranking,color=university))+geom_line(size=1.3)+scale_y_reverse()+labs(x="Year",y="Lowest Ranking",color="Computer Engineering Rankings")+theme_bw()+ggtitle("Popularity of Computer Engineering")
+```
+
+![](uni_exam_project_final_files/figure-html/unnamed-chunk-7-1.png)&lt;!-- --&gt;
+
+
+```r
+ce&lt;-all_years_data%&gt;%
+  select(year,university,department,lowest_ranking)%&gt;%
+  filter(university%in%c("ORTA DOĞU TEKNİK ÜNİVERSİTESİ","BOĞAZİÇİ ÜNİVERSİTESİ","İSTANBUL TEKNİK ÜNİVERSİTESİ"),department=="İnşaat Mühendisliği (İngilizce)")
+ggplot(ce,aes(x=year,y=lowest_ranking,color=university))+geom_line(size=1.3)+scale_y_reverse()+labs(x="Year",y="Lowest Ranking",color="Civil Engineering Rankings")+theme_bw()+ggtitle("Popularity of Civil Engineering")
+```
+
+![](uni_exam_project_final_files/figure-html/unnamed-chunk-8-1.png)&lt;!-- --&gt;
+
+
+## Conclusion
+
+
+## References
+- [*Hacettepe University's Website*](http://web.ee.hacettepe.edu.tr/osym/).
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
