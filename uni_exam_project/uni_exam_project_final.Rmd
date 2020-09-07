@@ -195,6 +195,9 @@ plot_dept+theme_bw()
 ```
 
 ### Top Cities
+
+Cities play a key role while selecting university, in the first table below, we calculated how many listings of cities appeared in the first thousand ranking. Similarly, the second table shows the distribution of universities listed in the first thousand. 
+
 ```{r}
 total_data <- full_join(data2016,data2017,by=c('university','department','city','type'),suffix = c('.2016','.2017'))%>%
   full_join(. ,data2018,by=c('university','department','city','type'))%>%
