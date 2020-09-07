@@ -231,6 +231,8 @@ tab4<-table(besbin_tr$university,besbin_tr$type.2020)
 knitr::kable(tab4,caption = "Table.4. University Distribution of the First Five Thousand Students")
 ```
 
+We can monitor the density of cities for first five thousand ranking. Obviously, Istanbul has dominated the first five thousand while Izmir starts to attract students from three thousand. Ankara is somewhere in between and mostly left-skewed. 
+
 ```{r}
 besbin_tr%>%
   ggplot(aes(x = lowest_ranking.2020, fill = city)) +
@@ -239,6 +241,7 @@ besbin_tr%>%
 ```
 
 ### Quota Informations
+In 2020, the occupancy rate in quotas is `r round(100 * (sum(data2020$accepted_number)/sum(data2020$quota) ), digits=2)` %. Which is greater than 2019 value (`r round(100 * (sum(data2019$accepted_number)/sum(data2019$quota) ), digits=2)` % ). 
 The cities, universities and departments with the highest quotas in recent years can be seen from the tables below.
 
 ```{r}
