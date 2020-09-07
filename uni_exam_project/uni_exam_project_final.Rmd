@@ -27,8 +27,8 @@ In Turkey, every year millions of students take the university entrance exam. Af
 
 **Key Takeaways:**
 
-* Medicine maintained its popularity over the years.
-* Koç University has a significantly higher popularity. 
+* Medicine maintained its popularity over the years and added mean of 577 more quotas every year.
+* Koç University has a significantly higher popularity with its scholarship options. 
 * Computer Engineering has gained popularity over the years.
 * Civil Engineering has lost its popularity over the years.
 
@@ -42,7 +42,7 @@ Using **University Exam** data from  [*Hacettepe University's Website*](http://w
 **university**: Name of the university
 <br>**city**: University's location 
 <br>**department**: Name of the department
-<br>**type**: Type of the exam
+<br>**type**: Type of the exam points. 
 <br>**quota**: Maximum number of participants to be accepted, upper bound for accepted_number
 <br>**accepted_number**: Accepted number of participants to the selected university's selected department
 <br>**lowest_score**: Lowest score of the accepted participant's scores
@@ -234,7 +234,7 @@ knitr::kable(tab4,caption = "Table.4. University Distribution of the First Five 
 ```{r}
 besbin_tr%>%
   ggplot(aes(x = lowest_ranking.2020, fill = city)) +
-  geom_density(alpha = 0.3)+theme_bw()
+  geom_density(alpha = 0.3)+theme_bw() + + labs(x='Lowest Ranking in 2020', y= 'Density', fill='City' )
   
 ```
 
