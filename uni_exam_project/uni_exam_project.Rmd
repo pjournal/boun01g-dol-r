@@ -280,7 +280,7 @@ quote_by_dept <- data.frame(quote_by_dept) # Again convert to df
 
 quote_by_dept %>% group_by(department) %>% summarise(mean_differnce=mean(Diff,na.rm = T)) %>% arrange(desc(mean_differnce)) %>% head(20)#top 20 dept increased quota
 
-quote_by_dept %>% group_by(department) %>% summarise(mean_differnce=mean(Diff,na.rm = T)) %>% arrange(desc(mean_differnce)) %>% tail(20)#20 dept with most decrease in quota 
+quote_by_dept %>% group_by(department) %>% summarise(mean_differnce=mean(Diff,na.rm = T)) %>% arrange(mean_differnce) %>% head(20)#20 dept with most decrease in quota 
 
 ```
 

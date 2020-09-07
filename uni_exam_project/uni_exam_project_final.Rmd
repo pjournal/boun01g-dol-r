@@ -234,7 +234,7 @@ knitr::kable(tab4,caption = "Table.4. University Distribution of the First Five 
 ```{r}
 besbin_tr%>%
   ggplot(aes(x = lowest_ranking.2020, fill = city)) +
-  geom_density(alpha = 0.3)+theme_bw() + + labs(x='Lowest Ranking in 2020', y= 'Density', fill='City' )
+  geom_density(alpha = 0.3)+theme_bw() + labs(x='Lowest Ranking in 2020', y= 'Density', fill='City' )
   
 ```
 
@@ -265,6 +265,7 @@ city_tab<- all_years_data%>%
   knitr::kable(uni,caption = "Table.7. University Quotas in Recent Years")
 ```
 
+#### Quota Differences
 In some cases we would wonder the departments whose quote more increased or decreased. However, there are some highly volatile departments ending with "(Açıköğretim) , (İÖ) or (..indirimli). they may be misleading, so we should eliminate the departments ending with these words in order to get more established departments. 
 Also another criteria can be necessity of being founded at least 4 years ago. So that we can see trends of department quotes. Here is the top 20 departments whose quote increased most and whose decreased most in the last 4 years. 
 Note: Ranked by taking mean quote differences of last 4 years. 
@@ -284,7 +285,7 @@ quote_by_dept <- quote_by_dept %>% group_by(department) %>% filter(n()>= 4)
 quote_by_dept <- data.frame(quote_by_dept) # Again convert to df
 increase<-quote_by_dept %>% group_by(department) %>% summarise(mean_difference=mean(Diff,na.rm = T)) %>% arrange(desc(mean_difference)) %>% head(20)#top 20 dept increased quota
 knitr::kable(increase,caption = "Table.7. Deparments which Their Quotas Increased Most in Recent Years")
-decrease<-quote_by_dept %>% group_by(department) %>% summarise(mean_difference=mean(Diff,na.rm = T)) %>% arrange(desc(mean_difference)) %>% tail(20)#20 dept with most decrease in quota 
+decrease<-quote_by_dept %>% group_by(department) %>% summarise(mean_difference=mean(Diff,na.rm = T)) %>% arrange(mean_difference) %>% head(20)#20 dept with most decrease in quota 
 knitr::kable(decrease,digits = 2,caption = "Table.8. Deparments which Their Quotas Decreased Most in Recent Years")
 ```
 
