@@ -6,6 +6,8 @@
     <meta name="author" content="Dol_R" />
     <link href="uni_exam_project_final_files/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="uni_exam_project_final_files/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+    <script src="uni_exam_project_final_files/kePrint-0.0.1/kePrint.js"></script>
+    <link href="uni_exam_project_final_files/lightable-0.0.1/lightable.css" rel="stylesheet" />
   </head>
   <body>
     <textarea id="source">
@@ -25,8 +27,8 @@ In Turkey, every year millions of students take the university entrance exam. Af
 
 **Key Takeaways:**
 
-* Medicine maintained its popularity over the years.
-* Koç University has a significantly higher popularity. 
+* Medicine maintained its popularity over the years and added mean of 577 more quotas every year.
+* Koç University has a significantly higher popularity with its scholarship options. 
 * Computer Engineering has gained popularity over the years.
 * Civil Engineering has lost its popularity over the years.
 
@@ -35,12 +37,10 @@ In Turkey, every year millions of students take the university entrance exam. Af
 ## Summary of the Data and Explanations
 Using **University Exam** data from  [*Hacettepe University's Website*](http://web.ee.hacettepe.edu.tr/osym), we obtained university results of years 2016-2020. Each year is on a separate Excel spreadsheet. Since every year some departments are opened and some are shut down, datasets will have different number of rows. There are 9 variables and more than 10000 rows for each dataset.
 
----
-
 **university**: Name of the university
 &lt;br&gt;**city**: University's location 
 &lt;br&gt;**department**: Name of the department
-&lt;br&gt;**type**: Type of the exam
+&lt;br&gt;**type**: Type of the exam points. 
 &lt;br&gt;**quota**: Maximum number of participants to be accepted, upper bound for accepted_number
 &lt;br&gt;**accepted_number**: Accepted number of participants to the selected university's selected department
 &lt;br&gt;**lowest_score**: Lowest score of the accepted participant's scores
@@ -57,89 +57,20 @@ Using **University Exam** data from  [*Hacettepe University's Website*](http://w
 * Comparison by visualization
 * Finding top universities and departments
 
----
-
 ### Data Preprocessing
 In order to ease the reading process, functions `mani97` and `mani86` are created. These functions remove the columns related to the percentage of change regarding the previous year. They also rename the columns and remove the last empty rows. The raw data for some years have an additional column at the end, therefore two functions were needed.
 
-```r
-knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE) # applies to all chunks
-mani97 &lt;- function(data){
-  newdata &lt;- data %&gt;% 
-  rename(
-    number = c(1),
-    difference = c(2),
-    university = c(3),
-    city = c(4),
-    department = c(5),
-    type = c(6),
-    quota = c(7),
-    difference_quota = c(8),
-    accepted_number = c(9),
-    lowest_score = c(10),
-    highest_score = c(11),
-    lowest_ranking = c(12),
-    difference_ranking = c(13)
-  )  %&gt;% select(-number, -difference, -difference_quota, -difference_ranking) %&gt;% slice_head(n=nrow(data)-9)
-  return(newdata)
-}
-mani86 &lt;- function(data){
-  newdata &lt;- data %&gt;% 
-  rename(
-    number = c(1),
-    difference = c(2),
-    university = c(3),
-    city = c(4),
-    department = c(5),
-    type = c(6),
-    quota = c(7),
-    difference_quota = c(8),
-    accepted_number = c(9),
-    lowest_score = c(10),
-    highest_score = c(11),
-    lowest_ranking = c(12)
-  )  %&gt;% select(-number, -difference, -difference_quota) %&gt;% slice_head(n=nrow(data)-9)
-  return(newdata)
-}
-```
-After loading the required libraries, we download the .xlsx file from our project repository. After reading it, we remove the file. 
-
-```r
-library(tidyverse)
-library(lubridate)
-library(tinytex)
-library(readxl) # read_excel
-library(tidyr)
-library(httr) # GET
-library(reshape2)
-library(ggforce) # circle data points
-library(xaringan)
-url&lt;-'https://github.com/pjournal/boun01g-dol-r/blob/gh-pages/uni_exam_project/uni_exam.xlsx?raw=true'
-GET(url, write_disk(tf &lt;- tempfile(fileext = ".xlsx")))
-```
-
-```r
-raw_df20 &lt;- read_excel(tf, sheet="20", skip=21)
-raw_df19 &lt;- read_excel(tf, sheet="19", skip=21)
-raw_df18 &lt;- read_excel(tf, sheet="18", skip=21)
-raw_df17 &lt;- read_excel(tf, sheet="17", skip=21)
-raw_df16 &lt;- read_excel(tf, sheet="16", skip=21)
-file.remove(tf)
-```
 
 ### Loading the Libraries and Datasets
+After loading the required libraries, we download the .xlsx file from our project repository. After reading it, we remove the file. 
+
+
+
+
+---
+
 We have 5 datasets for the last 5 years. Each dataset has 9 columns and they all have different number of rows. For example there are 10617 rows in dataset for the year 2020 and 11402 rows in dataset for the year 2019. Some departments or even universities may have been opened or closed. 
 
-
-```r
-data2020 &lt;- mani97(raw_df20)
-data2020 &lt;- mani97(raw_df20)
-data2019 &lt;- mani97(raw_df19)
-data2018 &lt;- mani86(raw_df18)
-data2017 &lt;- mani97(raw_df17)
-data2016 &lt;- mani97(raw_df16)
-data2020 %&gt;% summarise(exam20=n()) %&gt;% mutate(data2019 %&gt;% summarise(exam19=n())) %&gt;% mutate(data2018 %&gt;% summarise(exam18=n())) %&gt;% mutate(data2017 %&gt;% summarise(exam17=n())) %&gt;% mutate(data2016 %&gt;% summarise(exam16=n())) 
-```
 
 ```
 ## # A tibble: 1 x 5
@@ -150,10 +81,6 @@ data2020 %&gt;% summarise(exam20=n()) %&gt;% mutate(data2019 %&gt;% summarise(ex
 
 As an example, let's observe dataset for the year 2018. First four variables are categorical and the rest is numerical. We could also see that there are 11958 rows for this year.
 
-
-```r
-data2018 %&gt;% arrange(desc(lowest_score)) %&gt;% glimpse()
-```
 
 ```
 ## Rows: 11,958
@@ -169,443 +96,1138 @@ data2018 %&gt;% arrange(desc(lowest_score)) %&gt;% glimpse()
 ## $ lowest_ranking  [3m[90m&lt;dbl&gt;[39m[23m 56, 84, 207, 221, 400, 496, 510, 511, 622, 637, 739, …
 ```
 
+---
+
 ## Exploratory Data Analysis
 When the exam procedure changes, the types of grading systems also change. Therefore, there is no point of comparing `type` variable for different years. But it can be an identifier in each year.
 
 ### Top Universities and Departments
 Some universities' departments may be selected by the participants with lowest scores in different types of grading systems. After grouping by `university` and `department`, lowest score column is put in decreasing order. Lowest score is the last entering person's score to a specific university and department. By putting it into decreasing order, we get the highest scores of last entering people. Let's see how the top 10 departments changed over the years. 
 
-To do this, we count unique values and use `full_join`. Finally, we replace `NULL` values with zero, which means this university or department was not in top 10 for that specific year. 
+---
 
-
-```r
-score &lt;- function(data){
-  data %&gt;% group_by(university, department) %&gt;% select(-type, -city) %&gt;% arrange(desc(lowest_score)) %&gt;% head(10) %&gt;% mutate(department=replace(department, str_detect(department,"Tıp"), "Tıp")) %&gt;% mutate(department=str_replace(department, "Burslu", "")) %&gt;% mutate(department=str_replace(department, "İngilizce", "")) %&gt;% mutate(department=str_replace(department, " \\([^()]{0,}\\)", "")) %&gt;% mutate(department=str_replace(department, " \\([^()]{0,}\\)", "")) %&gt;% ungroup()
-}
-dept &lt;- function(data){
-  data %&gt;% count(department) %&gt;% arrange(desc(n))
-}
-uni &lt;- function(data){
-  data %&gt;% count(university) %&gt;% arrange(desc(n))
-}
-```
+To do this, we count unique values and use `full_join` on all of the datasets. Finally, we replace `NULL` values with zero, which means this university or department was not in top 10 for that specific year. 
 
 
 
-```r
-top_uni &lt;- full_join(uni(score(data2016)), uni(score(data2017)), by="university", suffix=c(".2016", ".2017")) %&gt;% full_join(., uni(score(data2018)), by="university", suffix=c(".2016", ".2018"))
-top_uni &lt;- full_join(top_uni, uni(score(data2019)), by="university", suffix=c(".2018", ".2019"))
-top_uni &lt;- full_join(top_uni, uni(score(data2020)), by="university", suffix=c(".2019", ".2020"))
-names(top_uni)[names(top_uni)=='n.2016']&lt;-'year2016'
-names(top_uni)[names(top_uni)=='n.2017']&lt;-'year2017'
-names(top_uni)[names(top_uni)=='n.2018']&lt;-'year2018'
-names(top_uni)[names(top_uni)=='n.2019']&lt;-'year2019'
-names(top_uni)[names(top_uni)=='n']&lt;-'year2020'
-top_dept &lt;- full_join(dept(score(data2016)), dept(score(data2017)), by="department", suffix=c(".2016", ".2017")) %&gt;% full_join(., dept(score(data2018)), by="department", suffix=c(".2016", ".2018"))
-top_dept &lt;- full_join(top_dept, dept(score(data2019)), by="department", suffix=c(".2018", ".2019"))
-top_dept &lt;- full_join(top_dept, dept(score(data2020)), by="department", suffix=c(".2019", ".2020"))
-names(top_dept)[names(top_dept)=='n.2016']&lt;-'year2016'
-names(top_dept)[names(top_dept)=='n.2017']&lt;-'year2017'
-names(top_dept)[names(top_dept)=='n.2018']&lt;-'year2018'
-names(top_dept)[names(top_dept)=='n.2019']&lt;-'year2019'
-names(top_dept)[names(top_dept)=='n']&lt;-'year2020'
-```
+This plot shows how many times a university occurred in our top 10 calculation in each year. For example, Bilkent University occurred one time each year and Koç University has the highest number of occurrences. 
+
+![](uni_exam_project_final_files/figure-html/uni-ggplot-1.png)&lt;!-- --&gt;
+
+---
+This plot shows how many times a department occurred in our top 10 calculation in each year.For departments we remove "(Burslu)" and "(İngilizce)" information in order to count them correctly.
 
 
-```r
-top_uni &lt;- top_uni %&gt;% replace_na(list(year2016 = 0, year2017 = 0, year2018 = 0, year2019 = 0, year2020 = 0))
-top_dept &lt;- top_dept %&gt;% replace_na(list(year2016 = 0, year2017 = 0, year2018 = 0, year2019 = 0, year2020 = 0))
-top_uni.long &lt;- melt(top_uni)
-plot_uni &lt;- ggplot(top_uni.long, aes(x=value, y=university, col=variable)) + geom_jitter(width=0.1, height=0.1)  + stat_smooth() + ggtitle("Top Universities") + xlab("Number of Participants") + ylab("Universities") + theme(plot.caption=element_text(hjust = 0.5))+theme_bw()
-plot_uni
-```
+![](uni_exam_project_final_files/figure-html/dept-ggplot-1.png)&lt;!-- --&gt;
 
-![](uni_exam_project_final_files/figure-html/uni-dep-ggplot-1.png)&lt;!-- --&gt;
-
-```r
-top_dept.long &lt;- melt(top_dept)
-plot_dept &lt;- ggplot(top_dept.long, aes(x=value, y=department, col=variable)) + geom_jitter(width=0.1, height=0.1) + stat_smooth() + ggtitle("Top Departments") + xlab("Number of Participants") + ylab("Departments") + theme(plot.caption=element_text(hjust = 0.5))
-plot_dept+theme_bw()
-```
-
-![](uni_exam_project_final_files/figure-html/uni-dep-ggplot-2.png)&lt;!-- --&gt;
+---
 
 ### Top Cities
 
-```r
-total_data &lt;- full_join(data2016,data2017,by=c('university','department','city','type'),suffix = c('.2016','.2017'))%&gt;%
-  full_join(. ,data2018,by=c('university','department','city','type'))%&gt;%
-  full_join(. ,data2019,by=c('university','department','city','type'),suffix = c('.2018','.2019'))%&gt;%
-  full_join(. ,data2020,by=c('university','department','city','type'))
-names(total_data)[names(total_data)=='type']&lt;-'type.2020'
-names(total_data)[names(total_data)=='quota']&lt;-'quota.2020'
-names(total_data)[names(total_data)=='accepted_number']&lt;-'accepted_number.2020'
-names(total_data)[names(total_data)=='lowest_score']&lt;-'lowest_score.2020'
-names(total_data)[names(total_data)=='highest_score']&lt;-'highest_score.2020'
-names(total_data)[names(total_data)=='lowest_ranking']&lt;-'lowest_ranking.2020'
-```
+Cities play a key role while selecting university, in the first table below, we calculated how many listings of cities appeared in the first thousand ranking. Similarly, the second table shows the distribution of universities listed in the first thousand. 
+
+
 
 #### University and City Distribution of the First Thousand Students in the University Exam
 
+&lt;table&gt;
+&lt;caption&gt;Table.1. City  Distribution of the First Thousand Students&lt;/caption&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; DİL &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; EA &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; SAY &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; SÖZ &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; ANKARA &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; İSTANBUL &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 15 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
 
-```r
-bin_tr&lt;- total_data%&gt;%
-  filter(lowest_ranking.2020&lt;1000)
-tab2&lt;-table(bin_tr$city,bin_tr$type.2020)
-knitr::kable(tab2,caption = "Table.1. City  Distribution of the First Thousand Students")
-```
+---
 
+&lt;table class="table" style="font-size: 10px; margin-left: auto; margin-right: auto;"&gt;
+&lt;caption style="font-size: initial !important;"&gt;Table.2. University Distribution of the First Thousand Students &lt;/caption&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; DİL &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; EA &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; SAY &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; SÖZ &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; ACIBADEM MEHMET ALİ AYDINLAR ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; BOĞAZİÇİ ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; GALATASARAY ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; İHSAN DOĞRAMACI BİLKENT ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; İSTANBUL 29 MAYIS ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; İSTANBUL MEDİPOL ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; İSTANBUL ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; İSTANBUL ÜNİVERSİTESİ-CERRAHPAŞA &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; KOÇ ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; ÖZYEĞİN ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; SABANCI ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; TOBB EKONOMİ VE TEKNOLOJİ ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; YEDİTEPE ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
 
-
-Table: Table.1. City  Distribution of the First Thousand Students
-
-|         | DİL| EA| SAY| SÖZ|
-|:--------|---:|--:|---:|---:|
-|ANKARA   |   0|  4|   2|   1|
-|İSTANBUL |   1| 15|   8|   5|
-
-```r
-tab&lt;-table(bin_tr$university,bin_tr$type.2020)
-knitr::kable(tab,caption = "Table.2. University Distribution of the First Thousand Students ")
-```
-
-
-
-Table: Table.2. University Distribution of the First Thousand Students 
-
-|                                          | DİL| EA| SAY| SÖZ|
-|:-----------------------------------------|---:|--:|---:|---:|
-|ACIBADEM MEHMET ALİ AYDINLAR ÜNİVERSİTESİ |   0|  0|   2|   0|
-|BOĞAZİÇİ ÜNİVERSİTESİ                     |   0|  3|   2|   1|
-|GALATASARAY ÜNİVERSİTESİ                  |   0|  1|   0|   0|
-|İHSAN DOĞRAMACI BİLKENT ÜNİVERSİTESİ      |   0|  3|   2|   0|
-|İSTANBUL 29 MAYIS ÜNİVERSİTESİ            |   0|  0|   0|   1|
-|İSTANBUL MEDİPOL ÜNİVERSİTESİ             |   0|  0|   1|   0|
-|İSTANBUL ÜNİVERSİTESİ                     |   0|  1|   0|   0|
-|İSTANBUL ÜNİVERSİTESİ-CERRAHPAŞA          |   0|  0|   1|   0|
-|KOÇ ÜNİVERSİTESİ                          |   1|  6|   2|   2|
-|ÖZYEĞİN ÜNİVERSİTESİ                      |   0|  1|   0|   1|
-|SABANCI ÜNİVERSİTESİ                      |   0|  2|   0|   0|
-|TOBB EKONOMİ VE TEKNOLOJİ ÜNİVERSİTESİ    |   0|  1|   0|   1|
-|YEDİTEPE ÜNİVERSİTESİ                     |   0|  1|   0|   0|
+---
 
 #### University and City Distribution of the First Five Thousand Students in the University Exam
 
-
-```r
-besbin_tr&lt;- total_data%&gt;%
-  filter(lowest_ranking.2020&lt;5000)
-tab3&lt;-table(besbin_tr$city,besbin_tr$type.2020)
-knitr::kable(tab3,caption = "Table.3. City Distribution of the First Five Thousand Students")
-```
-
-
-
-Table: Table.3. City Distribution of the First Five Thousand Students
-
-|          | DİL| EA| SAY| SÖZ|
-|:---------|---:|--:|---:|---:|
-|ANKARA    |   9| 19|  21|  10|
-|ESKİŞEHİR |   0|  0|   1|   0|
-|İSTANBUL  |  14| 42|  35|  47|
-|İZMİR     |   2|  0|   1|   2|
-
-```r
-tab4&lt;-table(besbin_tr$university,besbin_tr$type.2020)
-knitr::kable(tab4,caption = "Table.4. University Distribution of the First Five Thousand Students")
-```
-
-
-
-Table: Table.4. University Distribution of the First Five Thousand Students
-
-|                                          | DİL| EA| SAY| SÖZ|
-|:-----------------------------------------|---:|--:|---:|---:|
-|ACIBADEM MEHMET ALİ AYDINLAR ÜNİVERSİTESİ |   0|  0|   2|   0|
-|ANKARA ÜNİVERSİTESİ                       |   0|  1|   2|   0|
-|BAHÇEŞEHİR ÜNİVERSİTESİ                   |   0|  2|   1|   7|
-|BAŞKENT ÜNİVERSİTESİ                      |   1|  0|   2|   1|
-|BEYKENT ÜNİVERSİTESİ                      |   0|  0|   0|   1|
-|BEZM-İ ÂLEM VAKIF ÜNİVERSİTESİ            |   0|  0|   1|   0|
-|BOĞAZİÇİ ÜNİVERSİTESİ                     |   4|  7|   4|   3|
-|EGE ÜNİVERSİTESİ                          |   0|  0|   1|   0|
-|ESKİŞEHİR TEKNİK ÜNİVERSİTESİ             |   0|  0|   1|   0|
-|GALATASARAY ÜNİVERSİTESİ                  |   1|  5|   0|   1|
-|GAZİ ÜNİVERSİTESİ                         |   0|  0|   2|   0|
-|HACETTEPE ÜNİVERSİTESİ                    |   2|  1|   2|   2|
-|İBN HALDUN ÜNİVERSİTESİ                   |   0|  0|   0|   3|
-|İHSAN DOĞRAMACI BİLKENT ÜNİVERSİTESİ      |   3|  8|   7|   1|
-|İSTANBUL 29 MAYIS ÜNİVERSİTESİ            |   1|  0|   0|   4|
-|İSTANBUL BİLGİ ÜNİVERSİTESİ               |   2|  2|   0|   6|
-|İSTANBUL MEDİPOL ÜNİVERSİTESİ             |   0|  0|   1|   0|
-|İSTANBUL OKAN ÜNİVERSİTESİ                |   1|  0|   0|   0|
-|İSTANBUL SABAHATTİN ZAİM ÜNİVERSİTESİ     |   0|  0|   0|   2|
-|İSTANBUL TEKNİK ÜNİVERSİTESİ              |   0|  1|   3|   0|
-|İSTANBUL ÜNİVERSİTESİ                     |   1|  2|   2|   0|
-|İSTANBUL ÜNİVERSİTESİ-CERRAHPAŞA          |   0|  0|   2|   0|
-|İSTİNYE ÜNİVERSİTESİ                      |   0|  0|   2|   0|
-|İZMİR EKONOMİ ÜNİVERSİTESİ                |   1|  0|   0|   2|
-|KADİR HAS ÜNİVERSİTESİ                    |   0|  0|   0|   3|
-|KOÇ ÜNİVERSİTESİ                          |   2| 10|  11|   3|
-|MALTEPE ÜNİVERSİTESİ                      |   0|  0|   0|   1|
-|MARMARA ÜNİVERSİTESİ                      |   0|  0|   1|   1|
-|ORTA DOĞU TEKNİK ÜNİVERSİTESİ             |   2|  3|   2|   2|
-|ÖZYEĞİN ÜNİVERSİTESİ                      |   0|  9|   3|   2|
-|SABANCI ÜNİVERSİTESİ                      |   0|  2|   1|   0|
-|TED ÜNİVERSİTESİ                          |   0|  0|   0|   1|
-|TOBB EKONOMİ VE TEKNOLOJİ ÜNİVERSİTESİ    |   1|  6|   4|   3|
-|YAŞAR ÜNİVERSİTESİ                        |   1|  0|   0|   0|
-|YEDİTEPE ÜNİVERSİTESİ                     |   2|  2|   1|  10|
+&lt;table&gt;
+&lt;caption&gt;Table.3. City Distribution of the First Five Thousand Students&lt;/caption&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; DİL &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; EA &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; SAY &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; SÖZ &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; ANKARA &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 19 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 21 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 10 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; ESKİŞEHİR &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; İSTANBUL &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 14 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 42 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 35 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 47 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; İZMİR &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
 
 
-```r
-besbin_tr%&gt;%
-  ggplot(aes(x = lowest_ranking.2020, fill = city)) +
-  geom_density(alpha = 0.3)+theme_bw()
-```
+---
 
-![](uni_exam_project_final_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+&lt;table class="table" style="font-size: 10px; margin-left: auto; margin-right: auto;"&gt;
+&lt;caption style="font-size: initial !important;"&gt;Table.4. University Distribution of the First Five Thousand Students&lt;/caption&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; DİL &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; EA &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; SAY &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; SÖZ &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; ACIBADEM MEHMET ALİ AYDINLAR ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; ANKARA ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; BAHÇEŞEHİR ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 7 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; BAŞKENT ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; BEYKENT ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; BEZM-İ ÂLEM VAKIF ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; BOĞAZİÇİ ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 7 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; EGE ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; ESKİŞEHİR TEKNİK ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; GALATASARAY ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; GAZİ ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; HACETTEPE ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; İBN HALDUN ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; İHSAN DOĞRAMACI BİLKENT ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 7 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; İSTANBUL 29 MAYIS ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; İSTANBUL BİLGİ ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; İSTANBUL MEDİPOL ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; İSTANBUL OKAN ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; İSTANBUL SABAHATTİN ZAİM ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; İSTANBUL TEKNİK ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; İSTANBUL ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; İSTANBUL ÜNİVERSİTESİ-CERRAHPAŞA &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; İSTİNYE ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; İZMİR EKONOMİ ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; KADİR HAS ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; KOÇ ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 11 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; MALTEPE ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; MARMARA ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; ORTA DOĞU TEKNİK ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; ÖZYEĞİN ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; SABANCI ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; TED ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; TOBB EKONOMİ VE TEKNOLOJİ ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; YAŞAR ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; YEDİTEPE ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 10 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+
+We can monitor the density of cities for first five thousand ranking. Obviously, Istanbul has dominated the first five thousand while Izmir starts to attract students from three thousand. Ankara is somewhere in between and mostly left-skewed. 
+
+![](uni_exam_project_final_files/figure-html/unnamed-chunk-6-1.png)&lt;!-- --&gt;
+
+---
 
 ### Quota Informations
+In 2020, the occupancy rate in quotas is 92.63 %. Which is greater than 2019 value (90.64 % ). 
 The cities, universities and departments with the highest quotas in recent years can be seen from the tables below.
 
+&lt;table class="table" style="font-size: 10px; margin-left: auto; margin-right: auto;"&gt;
+&lt;caption style="font-size: initial !important;"&gt;Table.5. Department Quotas in Recent Years&lt;/caption&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; year &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; department &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; department_quota &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2020 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Hemşirelik &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 12469 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2019 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Hemşirelik &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 11994 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2017 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; İşletme (Açıköğretim) &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 11788 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2018 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Hemşirelik &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 11629 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2017 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Hemşirelik &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 11306 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2016 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Hemşirelik &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 10921 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2020 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Tıp Fakültesi &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 10702 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2019 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Tıp Fakültesi &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 10203 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2018 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Tıp Fakültesi &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 9648 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2017 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; İşletme &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 9628 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2016 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; İşletme &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 9481 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2016 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; İşletme (Açıköğretim) &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 9226 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2017 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Tıp Fakültesi &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 9029 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2017 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; İktisat &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 8840 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2019 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; İlahiyat &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 8698 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2018 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; İşletme &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 8593 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2016 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; İktisat &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 8591 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2020 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; İlahiyat &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 8573 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2018 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; İlahiyat &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 8558 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2017 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; İlahiyat &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 8501 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
 
-```r
-all_years_data&lt;-bind_rows(mutate(data2016,year=2016),
-mutate(data2017,year=2017),
-mutate(data2018,year=2018),
-mutate(data2019,year=2019),
-mutate(data2020,year=2020))
-  dep&lt;-all_years_data%&gt;%
-  group_by(year,department)%&gt;%
-  summarise(department_quota=sum(quota))%&gt;%
-   arrange(desc(department_quota))%&gt;%head(20)
-  knitr::kable(dep,caption = "Table.5. Department Quotas in Recent Years")
-```
+---
 
+&lt;table class="table" style="font-size: 10px; margin-left: auto; margin-right: auto;"&gt;
+&lt;caption style="font-size: initial !important;"&gt;Table.6. City Quotas in Recent Years&lt;/caption&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; year &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; city &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; city_quota &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2018 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; İSTANBUL &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 112514 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2020 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; İSTANBUL &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 106565 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2019 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; İSTANBUL &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 102296 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2017 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; İSTANBUL &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 101551 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2016 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; İSTANBUL &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 94271 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2017 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ESKİŞEHİR &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 65815 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2016 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ESKİŞEHİR &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 52348 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2020 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ANKARA &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 45092 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2019 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ANKARA &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 40273 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2018 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ANKARA &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 40069 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2018 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ESKİŞEHİR &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 38118 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2017 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ANKARA &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 37907 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2016 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ANKARA &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 35065 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2019 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ESKİŞEHİR &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 29768 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2020 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ESKİŞEHİR &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 26229 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2020 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; İZMİR &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 23462 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2019 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; İZMİR &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 22564 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2018 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; İZMİR &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 22163 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2020 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ERZURUM &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 21999 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2017 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; İZMİR &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 19236 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
 
+---
 
-Table: Table.5. Department Quotas in Recent Years
+&lt;table class="table" style="font-size: 10px; margin-left: auto; margin-right: auto;"&gt;
+&lt;caption style="font-size: initial !important;"&gt;Table.7. University Quotas in Recent Years&lt;/caption&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; year &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; university &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; university_quota &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2017 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ANADOLU ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 61485 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2016 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ANADOLU ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 48110 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2018 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ANADOLU ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 32351 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2019 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ANADOLU ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 24057 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2018 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; İSTANBUL ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 22687 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2020 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ATATÜRK ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 21203 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2020 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ANADOLU ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 20939 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2017 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; İSTANBUL ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 18309 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2016 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; İSTANBUL ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 18169 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2018 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ATATÜRK ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 15735 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2020 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; İSTANBUL ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 15283 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2019 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; İSTANBUL ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 15115 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2016 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ATATÜRK ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 14239 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2019 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ATATÜRK ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 13663 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2017 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ATATÜRK ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 13524 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2017 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; SELÇUK ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 9738 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2016 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; SELÇUK ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 8364 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2020 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ANKARA ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 8196 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2018 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; SELÇUK ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 8162 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2017 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; GAZİ ÜNİVERSİTESİ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 8055 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
 
-| year|department            | department_quota|
-|----:|:---------------------|----------------:|
-| 2020|Hemşirelik            |            12469|
-| 2019|Hemşirelik            |            11994|
-| 2017|İşletme (Açıköğretim) |            11788|
-| 2018|Hemşirelik            |            11629|
-| 2017|Hemşirelik            |            11306|
-| 2016|Hemşirelik            |            10921|
-| 2020|Tıp Fakültesi         |            10702|
-| 2019|Tıp Fakültesi         |            10203|
-| 2018|Tıp Fakültesi         |             9648|
-| 2017|İşletme               |             9628|
-| 2016|İşletme               |             9481|
-| 2016|İşletme (Açıköğretim) |             9226|
-| 2017|Tıp Fakültesi         |             9029|
-| 2017|İktisat               |             8840|
-| 2019|İlahiyat              |             8698|
-| 2018|İşletme               |             8593|
-| 2016|İktisat               |             8591|
-| 2020|İlahiyat              |             8573|
-| 2018|İlahiyat              |             8558|
-| 2017|İlahiyat              |             8501|
+---
 
-```r
-city_tab&lt;- all_years_data%&gt;%
-  group_by(year,city)%&gt;%
-  summarise(city_quota=sum(quota))%&gt;%
-  arrange(desc(city_quota))%&gt;%head(20)
-  knitr::kable(city_tab,caption = "Table.6. City Quotas in Recent Years") 
-```
-
-
-
-Table: Table.6. City Quotas in Recent Years
-
-| year|city      | city_quota|
-|----:|:---------|----------:|
-| 2018|İSTANBUL  |     112514|
-| 2020|İSTANBUL  |     106565|
-| 2019|İSTANBUL  |     102296|
-| 2017|İSTANBUL  |     101551|
-| 2016|İSTANBUL  |      94271|
-| 2017|ESKİŞEHİR |      65815|
-| 2016|ESKİŞEHİR |      52348|
-| 2020|ANKARA    |      45092|
-| 2019|ANKARA    |      40273|
-| 2018|ANKARA    |      40069|
-| 2018|ESKİŞEHİR |      38118|
-| 2017|ANKARA    |      37907|
-| 2016|ANKARA    |      35065|
-| 2019|ESKİŞEHİR |      29768|
-| 2020|ESKİŞEHİR |      26229|
-| 2020|İZMİR     |      23462|
-| 2019|İZMİR     |      22564|
-| 2018|İZMİR     |      22163|
-| 2020|ERZURUM   |      21999|
-| 2017|İZMİR     |      19236|
-
-```r
- uni&lt;- all_years_data%&gt;%
-  group_by(year,university)%&gt;%
-  summarise(university_quota=sum(quota))%&gt;%
-  arrange(desc(university_quota))%&gt;%head(20)
-  knitr::kable(uni,caption = "Table.7. University Quotas in Recent Years")
-```
-
-
-
-Table: Table.7. University Quotas in Recent Years
-
-| year|university            | university_quota|
-|----:|:---------------------|----------------:|
-| 2017|ANADOLU ÜNİVERSİTESİ  |            61485|
-| 2016|ANADOLU ÜNİVERSİTESİ  |            48110|
-| 2018|ANADOLU ÜNİVERSİTESİ  |            32351|
-| 2019|ANADOLU ÜNİVERSİTESİ  |            24057|
-| 2018|İSTANBUL ÜNİVERSİTESİ |            22687|
-| 2020|ATATÜRK ÜNİVERSİTESİ  |            21203|
-| 2020|ANADOLU ÜNİVERSİTESİ  |            20939|
-| 2017|İSTANBUL ÜNİVERSİTESİ |            18309|
-| 2016|İSTANBUL ÜNİVERSİTESİ |            18169|
-| 2018|ATATÜRK ÜNİVERSİTESİ  |            15735|
-| 2020|İSTANBUL ÜNİVERSİTESİ |            15283|
-| 2019|İSTANBUL ÜNİVERSİTESİ |            15115|
-| 2016|ATATÜRK ÜNİVERSİTESİ  |            14239|
-| 2019|ATATÜRK ÜNİVERSİTESİ  |            13663|
-| 2017|ATATÜRK ÜNİVERSİTESİ  |            13524|
-| 2017|SELÇUK ÜNİVERSİTESİ   |             9738|
-| 2016|SELÇUK ÜNİVERSİTESİ   |             8364|
-| 2020|ANKARA ÜNİVERSİTESİ   |             8196|
-| 2018|SELÇUK ÜNİVERSİTESİ   |             8162|
-| 2017|GAZİ ÜNİVERSİTESİ     |             8055|
-
+#### Quota Differences
 In some cases we would wonder the departments whose quote more increased or decreased. However, there are some highly volatile departments ending with "(Açıköğretim) , (İÖ) or (..indirimli). they may be misleading, so we should eliminate the departments ending with these words in order to get more established departments. 
 Also another criteria can be necessity of being founded at least 4 years ago. So that we can see trends of department quotes. Here is the top 20 departments whose quote increased most and whose decreased most in the last 4 years. 
 Note: Ranked by taking mean quote differences of last 4 years. 
 
+&lt;table class="table" style="font-size: 10px; margin-left: auto; margin-right: auto;"&gt;
+&lt;caption style="font-size: initial !important;"&gt;Table.7. Deparments which Their Quotas Increased Most in Recent Years&lt;/caption&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; department &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; mean_difference &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Tıp Fakültesi &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 577.50 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Psikoloji &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 464.25 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Diş Hekimliği Fakültesi &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 461.75 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Sağlık Yönetimi &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 460.75 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Finans ve Bankacılık &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 454.50 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Gastronomi ve Mutfak Sanatları &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 424.50 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; İslami İlimler &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 391.25 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Bilgisayar Mühendisliği &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 388.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Hemşirelik &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 387.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Mimarlık &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 370.25 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Beslenme ve Diyetetik &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 343.50 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Fizyoterapi ve Rehabilitasyon &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 342.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Radyo, Televizyon ve Sinema &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 316.75 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; İngiliz Dili ve Edebiyatı (İngilizce) &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 294.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Rehberlik ve Psikolojik Danışmanlık &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 293.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Sosyal Hizmet &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 282.50 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Siyaset Bilimi ve Kamu Yönetimi &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 265.75 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Matematik &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 257.25 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Türk Dili ve Edebiyatı &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 235.50 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Hukuk Fakültesi &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 223.50 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
 
-```r
-quote_by_dept &lt;- all_years_data%&gt;%
-  group_by(year,department)%&gt;%
-  summarise(department_quota=sum(quota))
-quote_by_dept &lt;- data.frame(quote_by_dept) #after group_by we should convert it to df. 
-quote_by_dept &lt;- quote_by_dept %&gt;%
-    group_by(department) %&gt;%
-    mutate(Diff = department_quota - lag(department_quota)) %&gt;% arrange(desc(Diff))
-quote_by_dept &lt;- data.frame(quote_by_dept) # Again convert to df
-quote_by_dept &lt;- quote_by_dept %&gt;% subset(!substr(department,nchar(department)-1,nchar(department)) %in% c("i)","m)","Ö)")) # eliminating some departments
-# Also eliminating new founded departments
-quote_by_dept &lt;- quote_by_dept %&gt;% group_by(department) %&gt;% filter(n()&gt;= 4)
-quote_by_dept &lt;- data.frame(quote_by_dept) # Again convert to df
-increase&lt;-quote_by_dept %&gt;% group_by(department) %&gt;% summarise(mean_difference=mean(Diff,na.rm = T)) %&gt;% arrange(desc(mean_difference)) %&gt;% head(20)#top 20 dept increased quota
-knitr::kable(increase,caption = "Table.7. Deparments which Their Quotas Increased Most in Recent Years")
-```
+&lt;table class="table" style="font-size: 10px; margin-left: auto; margin-right: auto;"&gt;
+&lt;caption style="font-size: initial !important;"&gt;Table.8. Deparments which Their Quotas Decreased Most in Recent Years&lt;/caption&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; department &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; mean_difference &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; İşletme &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -789.50 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; İktisat &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -736.50 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Bilgisayar ve Öğretim Teknolojileri Öğretmenliği &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -577.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Fen Bilgisi Öğretmenliği &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -457.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Gıda Mühendisliği &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -450.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Çevre Mühendisliği &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -416.75 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Sınıf Öğretmenliği &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -237.25 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Arkeoloji &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -219.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Kamu Yönetimi &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -216.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Enerji Sistemleri Mühendisliği &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -191.50 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Uluslararası Ticaret &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -185.25 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Metalurji ve Malzeme Mühendisliği &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -171.50 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Konaklama İşletmeciliği &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -158.67 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Makine Mühendisliği &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -105.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Ekonometri &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -100.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Turizm İşletmeciliği ve Otelcilik &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -97.67 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Jeoloji Mühendisliği &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -94.75 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Sosyal Bilgiler Öğretmenliği &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -92.50 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; İmalat Mühendisliği &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -90.50 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Kimya Mühendisliği &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -88.00 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
 
-
-
-Table: Table.7. Deparments which Their Quotas Increased Most in Recent Years
-
-|department                            | mean_difference|
-|:-------------------------------------|---------------:|
-|Tıp Fakültesi                         |          577.50|
-|Psikoloji                             |          464.25|
-|Diş Hekimliği Fakültesi               |          461.75|
-|Sağlık Yönetimi                       |          460.75|
-|Finans ve Bankacılık                  |          454.50|
-|Gastronomi ve Mutfak Sanatları        |          424.50|
-|İslami İlimler                        |          391.25|
-|Bilgisayar Mühendisliği               |          388.00|
-|Hemşirelik                            |          387.00|
-|Mimarlık                              |          370.25|
-|Beslenme ve Diyetetik                 |          343.50|
-|Fizyoterapi ve Rehabilitasyon         |          342.00|
-|Radyo, Televizyon ve Sinema           |          316.75|
-|İngiliz Dili ve Edebiyatı (İngilizce) |          294.00|
-|Rehberlik ve Psikolojik Danışmanlık   |          293.00|
-|Sosyal Hizmet                         |          282.50|
-|Siyaset Bilimi ve Kamu Yönetimi       |          265.75|
-|Matematik                             |          257.25|
-|Türk Dili ve Edebiyatı                |          235.50|
-|Hukuk Fakültesi                       |          223.50|
-
-```r
-decrease&lt;-quote_by_dept %&gt;% group_by(department) %&gt;% summarise(mean_difference=mean(Diff,na.rm = T)) %&gt;% arrange(desc(mean_difference)) %&gt;% tail(20)#20 dept with most decrease in quota 
-knitr::kable(decrease,digits = 2,caption = "Table.8. Deparments which Their Quotas Decreased Most in Recent Years")
-```
-
-
-
-Table: Table.8. Deparments which Their Quotas Decreased Most in Recent Years
-
-|department                                       | mean_difference|
-|:------------------------------------------------|---------------:|
-|Kimya Mühendisliği                               |          -88.00|
-|İmalat Mühendisliği                              |          -90.50|
-|Sosyal Bilgiler Öğretmenliği                     |          -92.50|
-|Jeoloji Mühendisliği                             |          -94.75|
-|Turizm İşletmeciliği ve Otelcilik                |          -97.67|
-|Ekonometri                                       |         -100.00|
-|Makine Mühendisliği                              |         -105.00|
-|Konaklama İşletmeciliği                          |         -158.67|
-|Metalurji ve Malzeme Mühendisliği                |         -171.50|
-|Uluslararası Ticaret                             |         -185.25|
-|Enerji Sistemleri Mühendisliği                   |         -191.50|
-|Kamu Yönetimi                                    |         -216.00|
-|Arkeoloji                                        |         -219.00|
-|Sınıf Öğretmenliği                               |         -237.25|
-|Çevre Mühendisliği                               |         -416.75|
-|Gıda Mühendisliği                                |         -450.00|
-|Fen Bilgisi Öğretmenliği                         |         -457.00|
-|Bilgisayar ve Öğretim Teknolojileri Öğretmenliği |         -577.00|
-|İktisat                                          |         -736.50|
-|İşletme                                          |         -789.50|
+---
 
 ### Popularity of Different Engineering Departments
- In this part of the project, the two most popular state universities' data are taken into account. 6 different engineering departments that exist in both Boğaziçi University and Middle East Technical University are choosen to make a comparison their popularities over the years.  Data shows that computer engineering gains popularity and civil engineering lose its popularity in the recent years. Other engineering branches such as industrial enginnering and electrical&amp;electronics engineering have relatively stable popularities.
+ In this part of the project, the two most popular state universities' data are taken into account. 6 different engineering departments that exist in both Boğaziçi University and Middle East Technical University are chosen to make a comparison their popularity over the years.  Data shows that computer engineering gains popularity and civil engineering lose its popularity in the recent years. Other engineering branches such as industrial engineering and electrical&amp;electronics engineering have relatively stable popularity.
  
+![](uni_exam_project_final_files/figure-html/unnamed-chunk-10-1.png)&lt;!-- --&gt;
 
-```r
-meanRanking&lt;-all_years_data%&gt;%
-  filter(department%in%c("İnşaat Mühendisliği (İngilizce)","Bilgisayar Mühendisliği (İngilizce)","Endüstri Mühendisliği (İngilizce)","Elektrik-Elektronik Mühendisliği (İngilizce)","Makine Mühendisliği (İngilizce)","Kimya Mühendisliği (İngilizce)"))%&gt;%filter(university%in%c("BOĞAZİÇİ ÜNİVERSİTESİ","ORTA DOĞU TEKNİK ÜNİVERSİTESİ"))%&gt;%
-  group_by(year,department)%&gt;%
-  summarise(mean_ranking=mean(lowest_ranking))
-ggplot(meanRanking,aes(x=year,y=mean_ranking,color=department))+geom_line(size=1.3)+labs(x="Year",y="Average Lowest Ranking",color="Departments")+scale_y_log10()+theme_bw()+ggtitle("Popularity of Different Engineering Departments")
-```
+---
 
-![](uni_exam_project_final_files/figure-html/unnamed-chunk-6-1.png)&lt;!-- --&gt;
-
-#### Popularities of Computer Engineering and Civil Engineering
+#### Popularity of Computer Engineering and Civil Engineering
  
- Popularities of computer engineering and civil engineering in the top 3 state universities can be shown in plots below. There is an increasing trend of choosing computer engineering but negative trend of choosing civil engineering in the recent years.
+Popularity of computer engineering and civil engineering in the top 3 state universities can be shown in plots below. There is an increasing trend of choosing computer engineering but negative trend of choosing civil engineering in the recent years.
+
+
+![](uni_exam_project_final_files/figure-html/unnamed-chunk-11-1.png)&lt;!-- --&gt;
+
+---
+
+![](uni_exam_project_final_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
+
+---
+
+#### Equivalence of rankings to score in years 2018, 2019 and 2020
+
+Among university exam applicants one of the biggest curiosity is the equivalence of exam score to rankings. Calculating possible exam scores is possible with the equations published by ÖSYM or via websites but ranking equivalence change every year by the toughness of the exam. Also another problem of the equivalence is ÖSYM does not publish the year by year equivalence of scores to rankings. The only indicator we have is the lowest ranking and lowest score equivalence table. So we aim to find the correlation between the scores and the ranking with the data we have and forecast possible minimum score to enter different ranking intervals. We only use 2018, 2019, 2020 data since before the ranking system was different.
 
 
 
-```r
-cmpe&lt;-all_years_data%&gt;%
-  select(year,university,department,lowest_ranking)%&gt;%
-  filter(university%in%c("ORTA DOĞU TEKNİK ÜNİVERSİTESİ","BOĞAZİÇİ ÜNİVERSİTESİ","İSTANBUL TEKNİK ÜNİVERSİTESİ"),department=="Bilgisayar Mühendisliği (İngilizce)")
-ggplot(cmpe,aes(x=year,y=lowest_ranking,color=university))+geom_line(size=1.3)+scale_y_reverse()+labs(x="Year",y="Lowest Ranking",color="Computer Engineering Rankings")+theme_bw()+ggtitle("Popularity of Computer Engineering")
-```
+![](uni_exam_project_final_files/figure-html/unnamed-chunk-14-1.png)&lt;!-- --&gt;
 
-![](uni_exam_project_final_files/figure-html/unnamed-chunk-7-1.png)&lt;!-- --&gt;
+---
 
 
-```r
-ce&lt;-all_years_data%&gt;%
-  select(year,university,department,lowest_ranking)%&gt;%
-  filter(university%in%c("ORTA DOĞU TEKNİK ÜNİVERSİTESİ","BOĞAZİÇİ ÜNİVERSİTESİ","İSTANBUL TEKNİK ÜNİVERSİTESİ"),department=="İnşaat Mühendisliği (İngilizce)")
-ggplot(ce,aes(x=year,y=lowest_ranking,color=university))+geom_line(size=1.3)+scale_y_reverse()+labs(x="Year",y="Lowest Ranking",color="Civil Engineering Rankings")+theme_bw()+ggtitle("Popularity of Civil Engineering")
-```
+From this graph we can observe that in top 100000 students, effect of the score on the ranking decreases. Also we can guess the effect of people's choises on rankings. In 2018 students with most ranking of 400,000 enter SAY departments but in 2020 it rises up to 700,000. The SAY quotas were 192792 in 2018 and 191155 in 2020. There is a decrease in quotas but it can be seen that people with higher rankings prefer SAY departments in 2020. 
 
-![](uni_exam_project_final_files/figure-html/unnamed-chunk-8-1.png)&lt;!-- --&gt;
+Also in from 2018 to 2020 people prefer SÖZ departments more and the lowest rankings decrease. The SÖZ quotas were 105445 in 2018 and 113362 in 2020. The quota increase by 8% but the rankings got lower.
 
+DIL departments show really small fluctuations. There is slight change in those three years.
+
+
+
+
+---
+
+Even though there are significant fluctuations in the higher ranking area, the top 100,000 ranking shows stable behavior. In the university exam students mostly aim three ranking depends on their work and potential. These rankings are 100,000, 50,000 and 10,000. 
+
+We wanted to create a small guideline for future students to see their possible interval with their potential scores. We take the average of scores in three years with selecting an interval around the selected rankings. This interval is 9k to 11k in 10,000 ranking, 47.5k and 52.5k in 50,000 ranking and 95k and 105k in 100,000 ranking.
+
+&lt;table class="table" style="font-size: 15px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Ranking &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; DİL &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; EA &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; SAY &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; SÖZ &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 10,000 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 418.772 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 427.827 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 494.556 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 404.704 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 50,000 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 278.34 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 375.578 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 424.469 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 359.692 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 100,000 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; - &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 347.141 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 365.983 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 335.743 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
 
 ## Conclusion
+
+In Turkey, every year millions of students take the university entrance exam and enter university. Every year rankings of departments and universities change due to popularity and this affect the results significantly. We made analyses on the university entrance exam data and observe the outcomes. The data ww used was not in a clean form therefore we started with cleaning and manipulating the data. 
+
+We found the top universities and departments along with the most preferred cities. We knew the importance of the quota information so we observe the changes in the department quotas. Using both the ranking and quota information leads us to understand the cities and departments with the highest demand among entrants. We observe correlation between the quota and the ranking changes in several departments.
+
+We observe the change in popularity of engineering departments and wanted go into detail in the popularity of engineering departments. We found out significant changes in the rankings of engineering departments such as Civil and Computer Engineering. 
+
+Furthermore we defined the correlation of scores with rankings and create a ranking-score table to be used as a guide by prospective students. 
+
+---
+
+## Shiny App
+We also have a Shiny App called [University Exams in Turkey](https://ilaydacelenk.shinyapps.io/uni_exam_project/).
 
 
 ## References
 - [*Hacettepe University's Website*](http://web.ee.hacettepe.edu.tr/osym/).
+- [*Xaringan Tutorial*](https://slides.yihui.org/xaringan/#1)
+- [*Stack Overflow*](https://stackoverflow.com/)
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
