@@ -223,7 +223,7 @@ tab4
 ```{r}
 besbin_tr%>%
   ggplot(aes(x = lowest_ranking.2020, fill = city)) +
-  geom_density(alpha = 0.3)
+  geom_density(alpha = 0.3) + labs(x='Lowest Ranking in 2020', y= 'Density', fill='City' )
   
 ```
 
