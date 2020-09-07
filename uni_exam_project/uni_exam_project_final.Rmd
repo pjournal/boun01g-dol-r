@@ -16,6 +16,9 @@ output:
   pdf_document:
     toc: true
     toc_depth: 3
+
+always_allow_html: yes
+
 ---
 
 ## Introduction and Key Takeaways
@@ -111,6 +114,8 @@ library(reshape2)
 library(ggforce) # circle data points
 library(xaringan)
 library(kableExtra)
+library(webshot)
+library(knitr)
 ```
 
 ```{r setup_data, results="hide"}
