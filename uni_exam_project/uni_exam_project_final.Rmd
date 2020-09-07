@@ -401,15 +401,25 @@ temp_df <-  as.tibble(temp_vec)
 names(temp_df)=c("DİL","EA","SAY","SÖZ")
 Table <- temp_df %>% mutate("Ranking" = c("10,000","50,000","100,000")) %>% select("Ranking","DİL","EA","SAY","SÖZ")
 
-
-knitr::kable(Table)
-
-
 ```
 
+Even though there are significant fluctuations in the higher ranking area, the top 100,000 ranking shows stable behaviour. In the university exam students mostly aim three ranking depends on their work and potential. These rankings are 100,000, 50,000 and 10,000. 
+
+We wanted to create a small guideline for future students to see their possible interval with their potential scores. We take the average of scores in three years with selecting an interval around the selected rankings. This interval is 9k to 11k in 10,000 ranking, 47.5k and 52.5k in 50,000 ranking and 95k and 105k in 100,000 ranking.
+
+```{r}
+knitr::kable(Table)
+```
 
 ## Conclusion
 
+In Turkey, every year millions of students take the university entrance exam and enter university. Every year rankings of departments and universities change due to popularity and this affect the results significantly. We made analyses on the university enterance exam data and observe the outcomes. The data ww used was not in a clean form therefore we started with cleaning and manuplating the data. 
+
+We found the top universities and departments along with the most preferred cities. We knew the importance of the quota information so we observe the changes in the department quotas. Using both the ranking and quota information leads us to understand the cities and departments with the highest demand among enterants. We observe correlation between the quota and the ranking changes in several departments.
+
+We observe the change in popularity of engineering departments and wanted go into detail in the popularity of engineering departments. We found out significant changes in the rankings of engineering departments such as Civil and Computer Engineering. 
+
+Furthermore we defined the correlation of scores with rankings and create a ranking-score table to be used as a quide by prospective students. 
 
 ## References
 - [*Hacettepe University's Website*](http://web.ee.hacettepe.edu.tr/osym/).
