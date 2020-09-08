@@ -9,16 +9,6 @@ output:
     toc_depth: 3
     code_folding: hide
 
-  xaringan::moon_reader:
-    nature:
-      highlightStyle: github
-    
-  pdf_document:
-    toc: true
-    toc_depth: 3
-
-always_allow_html: yes
-
 ---
 
 ## Introduction and Key Takeaways
@@ -193,6 +183,7 @@ plot_uni
 ```
 
 ---
+
 This plot shows how many times a department occurred in our top 10 calculation in each year.For departments we remove "(Burslu)" and "(İngilizce)" information in order to count them correctly.
 
 

@@ -107,7 +107,7 @@ ui <- fluidPage(
             pickerInput("uni5", 
                         "Select at Most 5 Universities to Compare:",
                         choices=unis,
-                        selected="BOĞAZİÇİ ÜNİVERSİTESİ", 
+                        selected=c("BOĞAZİÇİ ÜNİVERSİTESİ", "İSTANBUL TEKNİK ÜNİVERSİTESİ", "ORTA DOĞU TEKNİK ÜNİVERSİTESİ"),
                         multiple = TRUE, options = pickerOptions(actionsBox = TRUE, maxOptions=5) ),
             pickerInput("dept1", 
                         "Select a Department to Compare:",
@@ -145,8 +145,8 @@ server <- function(input, output) {
           filter(university%in%input$uni5, department%in%input$dept1)
         ggplot(data,aes(x=year,y=lowest_ranking,color=university)) + 
           geom_line(size=1.3) + scale_y_reverse() + 
-          labs(x="Year",y="Lowest Ranking",color="Universities") + 
-          theme_bw() + ggtitle("Lowest Ranking vs Department")
+          labs(x="Years",y="Lowest Ranking",color="Universities") + 
+          theme_bw() + ggtitle("Lowest Ranking vs Year")
         
       } else {
         shiny::showModal(modalDialog(
