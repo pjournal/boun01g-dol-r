@@ -330,10 +330,14 @@ quote_by_dept <- quote_by_dept %>% subset(!substr(department,nchar(department)-1
 quote_by_dept <- quote_by_dept %>% group_by(department) %>% filter(n()>= 4)
 quote_by_dept <- data.frame(quote_by_dept) # Again convert to df
 increase<-quote_by_dept %>% group_by(department) %>% summarise(mean_difference=mean(Diff,na.rm = T)) %>% arrange(desc(mean_difference)) %>% head(20)#top 20 dept increased quota
-knitr::kable(increase,caption = "Table.7. Deparments which Their Quotas Increased Most in Recent Years")%>%
+knitr::kable(increase,caption = "Table.8. Deparments which Their Quotas Increased Most in Recent Years")%>%
   kable_styling(font_size = 10)
+```
+---
+
+```{r quota-difference2}
 decrease<-quote_by_dept %>% group_by(department) %>% summarise(mean_difference=mean(Diff,na.rm = T)) %>% arrange(mean_difference) %>% head(20)#20 dept with most decrease in quota 
-knitr::kable(decrease,digits = 2,caption = "Table.8. Deparments which Their Quotas Decreased Most in Recent Years")%>%
+knitr::kable(decrease,digits = 2,caption = "Table.9. Deparments which Their Quotas Decreased Most in Recent Years")%>%
   kable_styling(font_size = 10)
 ```
 
