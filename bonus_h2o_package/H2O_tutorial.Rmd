@@ -92,11 +92,6 @@ data %>% count(Species)
 iris_data <- as.h2o(iris)
 ```
 
-```{r colnames}
-# Column names of data
-colnames(iris_data)
-```
-
 
 ```{r descb}
 h2o.describe(iris_data)
