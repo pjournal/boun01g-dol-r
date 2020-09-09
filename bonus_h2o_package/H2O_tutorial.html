@@ -371,20 +371,27 @@ summary {
 <div id="TOC">
 <ul>
 <li><a href="#introduction">Introduction</a></li>
+<li><a href="#h2o-open-source-automl">H2O Open Source AutoML</a></li>
 <li><a href="#setup-install-and-load-the-library">Setup: Install and Load the Library</a></li>
 <li><a href="#iris-data">Iris Data</a><ul>
 <li><a href="#train-test-split">Train Test Split</a></li>
 <li><a href="#model-gbm">Model: gbm</a></li>
 <li><a href="#model2-random-forest">Model2: Random Forest</a></li>
 </ul></li>
-<li><a href="#gbm-hyperparameters">GBM Hyperparameters</a></li>
+<li><a href="#comparison-of-the-models">Comparison of the Models</a></li>
 <li><a href="#resources">Resources</a></li>
 </ul>
 </div>
 
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p><code>h2o</code> is an open source Machine Learning library that can be used in both R and Python. It provides easy and fast solutions for large datasets. It is integrated with R, Python etc. In this tutorial we will demonstrate how to use this package for machine learning.</p>
+<p><code>H2O</code> is a fully open source, distributed in-memory machine learning platform with linear scalability. H2O supports the most widely used statistical &amp; machine learning algorithms including gradient boosted machines, generalized linear models, deep learning and more. H2O also has an industry leading AutoML functionality that automatically runs through all the algorithms and their hyperparameters to produce a leaderboard of the best models. The H2O platform is used by over 18,000 organizations globally and is extremely popular in both the R &amp; Python communities.</p>
+<p>##Leading Algorithms</p>
+<p>Algorithms developed from the ground up for distributed computing and for both supervised and unsupervised approaches including Random Forest, GLM, GBM, XGBoost, GLRM, Word2Vec and many more.</p>
+</div>
+<div id="h2o-open-source-automl" class="section level2">
+<h2>H2O Open Source AutoML</h2>
+<p>Train the best model in the least amount of time to save human hours. Reduce the need for expertise in machine learning by reducing the manual code-writing time. Improve the performance of machine learning models. Increase reproducibility and establish a baseline for scientific research or applications. Scales training data set to clusters (Hadoop, Spark, Kubernetes)</p>
 <p>Normally we follow these steps: - Data - Train/Test Split - Apply Model on Training Set - Prediction on Test Set - Accuracy</p>
 <p>With H2O, we also need to initialize the package and convert data into H2O frame.</p>
 </div>
@@ -405,11 +412,11 @@ h2o.init()</code></pre>
 <pre><code>##  Connection successful!
 ## 
 ## R is connected to the H2O cluster: 
-##     H2O cluster uptime:         2 days 6 hours 
+##     H2O cluster uptime:         7 days 19 hours 
 ##     H2O cluster timezone:       Europe/Istanbul 
 ##     H2O data parsing timezone:  UTC 
 ##     H2O cluster version:        3.30.1.1 
-##     H2O cluster version age:    24 days  
+##     H2O cluster version age:    29 days  
 ##     H2O cluster name:           H2O_started_from_R_ilaydacelenk_dvp184 
 ##     H2O cluster total nodes:    1 
 ##     H2O cluster total memory:   3.65 GB 
@@ -425,7 +432,7 @@ h2o.init()</code></pre>
 </div>
 <div id="iris-data" class="section level2">
 <h2>Iris Data</h2>
-<p>Iris is a built-in dataset in R. It has 4 numerical independent variables and a categorical independent variable. This data has 150 rows and 5 columns. Dependent variable is <code>Species</code>.</p>
+<p>Iris is a built-in dataset in R. It has 4 numerical independent variables and a categorical independent variable. Therefore this is a classification problem, not a regression. This data has 150 rows and 5 columns. Dependent variable is <code>Species</code>.</p>
 <pre class="r"><code>data &lt;- iris
 glimpse(data)</code></pre>
 <pre><code>## Rows: 150
@@ -535,11 +542,26 @@ perf2</code></pre>
 ## 1 1  0.931034
 ## 2 2  1.000000
 ## 3 3  1.000000</code></pre>
-<p>We got very similar results.</p>
 </div>
 </div>
-<div id="gbm-hyperparameters" class="section level2">
-<h2>GBM Hyperparameters</h2>
+<div id="comparison-of-the-models" class="section level2">
+<h2>Comparison of the Models</h2>
+<p>Let’s look at confusion matrices for model predictions on test dataset.</p>
+<pre class="r"><code># Use confusion matrix
+prediction_gbm = h2o.predict(gbm_model, test)</code></pre>
+<pre><code>## 
+  |                                                                            
+  |                                                                      |   0%
+  |                                                                            
+  |======================================================================| 100%</code></pre>
+<pre class="r"><code>prediction_randomforest = h2o.predict(random_forest_model, test)</code></pre>
+<pre><code>## 
+  |                                                                            
+  |                                                                      |   0%
+  |                                                                            
+  |======================================================================| 100%</code></pre>
+<pre class="r"><code>matrix_gbm = h2o.confusionMatrix(object=gbm_model, newdata=test$Species)
+matrix_randomforest = h2o.confusionMatrix(object=random_forest_model, newdata=test$Species)</code></pre>
 </div>
 <div id="resources" class="section level2">
 <h2>Resources</h2>

@@ -89,7 +89,7 @@ test = split[[2]]
 ### Model: gbm
 ```{r model, results='hide'}
 # x=features, y=target
-gbm_model <- h2o.gbm(x=x, y=y, training_frame = train, seed=90, family = "multinomial")
+gbm_model <- h2o.gbm(x=x, y=y, training_frame = train, seed=90)
 ```
 
 ```{r perf,  warning=FALSE}
