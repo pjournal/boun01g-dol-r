@@ -27,16 +27,17 @@ Scales training data set to clusters (Hadoop, Spark, Kubernetes)
 
 
 Normally we follow these steps:
-- Data
-- Train/Test Split
-- Apply Model on Training Set
-- Prediction on Test Set
-- Accuracy
 
-With H2O, we also need to initialize the package and convert data into H2O frame. 
+* Data
+* Train/Test Split
+* Apply Model on Training Set
+* Prediction on Test Set
+* Accuracy
+
+With H2O, we have additional steps to initialize the package and convert data into H2O frame. 
 
 ## Setup: Install and Load the Library
-First, copy the code in [h2o website](http://h2o-release.s3.amazonaws.com/h2o/rel-shannon/26/index.html#R) and paste into the console. 
+First, copy the code in [h2o website](http://h2o-release.s3.amazonaws.com/h2o/rel-shannon/26/index.html#R) and paste it into the console. 
 
 ```{r setup, warning=FALSE, message=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
@@ -48,13 +49,37 @@ library(bit64)
 library(tidyverse)
 library(ggplot2)
 library(h2o)
-## Initialize h2o cluster
+# Initialize h2o cluster
 h2o.init()
+# To connect to an established H2O cluster
+# h2o.init(ip = "123.45.67.89", port = 54321)
+
+# Cluster info
+h2o.clusterInfo()
 ```
 
-## Iris Data
+## Data Preparation
+Data preparation/manipulation can be made using the methods available in h2o package.
+
+* `as.data.frame()`: Converts H2O data frame into R data frame
+* `as.h2o()`: Transfers data from R to the H2O instance
+* `str.H2OFrame()`: Returns the elements of the new object
+* `h2o.describe()` : Returns information about column types
+
+## Models
+
+Some of the models H2O supports:
+
+* Generalized Linear Models (GLM)
+* Gradient Boosting Machine (GBM)
+* Distributed Random Forest (DRF)
+* Principal Components Analysis (PCA)
+* Deep Learning
+* K-means
+
+## Example: Iris Data
 Iris is a built-in dataset in R. It has 4 numerical independent variables and a categorical independent variable. Therefore this is a classification problem, not a regression.
-This data has `r dim(iris)[1]` rows and `r dim(iris)[2]` columns. Dependent variable is `Species`.
+This data has `r dim(iris)[1]` rows and `r dim(iris)[2]` columns.
 
 ```{r data}
 data <- iris
@@ -65,19 +90,21 @@ data %>% count(Species)
 ```{r frame, results='hide'}
 # Convert data to h2o frame
 iris_data <- as.h2o(iris)
-# Identify target and features
-y <- "Species"
-x <- setdiff(colnames(iris_data), y)
-# For classification target should be a factor
-iris_data[, y] <- as.factor(iris_data[, y])
 ```
+
+```{r colnames}
+# Column names of data
+colnames(iris_data)
+```
+
 
 ```{r descb}
 h2o.describe(iris_data)
 ```
 
-
 ### Train Test Split
+H2O package has ` h2o.splitFrame()` function to split the H2O data frame.
+
 ```{r split}
 # 80% train, 20% test
 # Seed is defined in order to get the same result
@@ -86,42 +113,69 @@ train = split[[1]]
 test = split[[2]]
 ```
 
-### Model: gbm
-```{r model, results='hide'}
-# x=features, y=target
-gbm_model <- h2o.gbm(x=x, y=y, training_frame = train, seed=90)
+### Model1: Gradient Boosting Machine(GBM)
+Here the dependent variable is `Sepal.Length` and it's numerical.
+After fitting the model, we can reach some statistics about it. One of the most important statistic is Mean Squared Error (MSE). 
+```{r model1, results='hide'}
+# x=features, y=target, we chose the target to be Sepal.Length
+gbm_model <- h2o.gbm(x=2:5, y=1, training_frame = train,  ntrees = 10, max_depth = 3,min_rows = 2, learn_rate = 0.2, distribution= "gaussian", seed=90)
+```
+
+```{r model1.}
+gbm_model
+```
+
+We could also predict the categorical variable `Species`. Here we can see the confusion matrix.
+
+```{r model1.2, results='hide'}
+# x=features, y=target, we chose the target to be Species
+gbm_model2 <- h2o.gbm(y = 5, x = 1:4, training_frame
+= train, ntrees = 15, max_depth = 5, min_rows =
+2, learn_rate = 0.01, distribution= "multinomial", seed=90)
+```
+
+```{r model1.2.}
+gbm_model2
 ```
 
 ```{r perf,  warning=FALSE}
 # Model's performance using test data, includes R^2 and confusion matrix
 perf <- h2o.performance(gbm_model,test)
 perf
-```
-
-### Model2: Random Forest
-```{r model2, results='hide'}
-# x=features, y=target
-random_forest_model <- h2o.randomForest(x=c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"), y="Species", training_frame = train, seed=90)
-```
-
-```{r perf2}
-# Model's performance using test data, includes R^2 and confusion matrix
-perf2 <- h2o.performance(random_forest_model,test)
+perf2 <- h2o.performance(gbm_model2,test)
 perf2
 ```
 
-## Comparison of the Models
-Let's look at confusion matrices for model predictions on test dataset. 
-```{r comparison}
-# Use confusion matrix
-prediction_gbm = h2o.predict(gbm_model, test)
-prediction_randomforest = h2o.predict(random_forest_model, test)
-matrix_gbm = h2o.confusionMatrix(object=gbm_model, newdata=test$Species)
-matrix_randomforest = h2o.confusionMatrix(object=random_forest_model, newdata=test$Species)
+### Model2: Generalized Linear Models (GLM)
 
+Let's fit Random Forest model into our `train` set and try to predict `Species`.
+
+```{r model2, results='hide'}
+# x=features, y=target
+glm_model <- h2o.glm(x=c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"), y="Species", training_frame = train, family ="multinomial",  nfolds = 10, seed=90)
 ```
 
+```{r model2.}
+glm_model
+```
 
+```{r perf2, warning=FALSE}
+# Model's performance using test data, includes R^2 and confusion matrix
+perf3 <- h2o.performance(glm_model,test)
+perf3
+```
+
+### Comparison of the Models
+Let's look at confusion matrices for model predictions on test dataset. 
+Both of the methods accuracy is below 70%. These models may be overfitting to the training set. Due to memorization, actual learning does not occur. So we may consider changing the parameters of the models and try to improve the result. 
+
+```{r matrices}
+# Use confusion matrix
+matrix_gbm = h2o.confusionMatrix(object=gbm_model2, newdata=test$Species)
+matrix_gbm
+matrix_glm = h2o.confusionMatrix(object=glm_model, newdata=test$Species)
+matrix_glm
+```
 
 
 ## Resources
@@ -131,3 +185,4 @@ matrix_randomforest = h2o.confusionMatrix(object=random_forest_model, newdata=te
 - [Kaggle](https://www.kaggle.com/mlg-ulb/creditcardfraud)
 - [Generalized Linear Model(GLM)](https://docs.h2o.ai/h2o/latest-stable/h2o-docs/data-science/glm.html#)
 - [Datacamp](https://campus.datacamp.com/courses/hyperparameter-tuning-in-r/hyperparameter-tuning-with-h2o?ex=1)
+- [h2o.ai RBooklet](https://www.h2o.ai/wp-content/uploads/2018/01/RBooklet.pdf)

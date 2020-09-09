@@ -373,12 +373,14 @@ summary {
 <li><a href="#introduction">Introduction</a></li>
 <li><a href="#h2o-open-source-automl">H2O Open Source AutoML</a></li>
 <li><a href="#setup-install-and-load-the-library">Setup: Install and Load the Library</a></li>
-<li><a href="#iris-data">Iris Data</a><ul>
+<li><a href="#data-preparation">Data Preparation</a></li>
+<li><a href="#models">Models</a></li>
+<li><a href="#example-iris-data">Example: Iris Data</a><ul>
 <li><a href="#train-test-split">Train Test Split</a></li>
-<li><a href="#model-gbm">Model: gbm</a></li>
-<li><a href="#model2-random-forest">Model2: Random Forest</a></li>
-</ul></li>
+<li><a href="#model1-gradient-boosting-machinegbm">Model1: Gradient Boosting Machine(GBM)</a></li>
+<li><a href="#model2-generalized-linear-models-glm">Model2: Generalized Linear Models (GLM)</a></li>
 <li><a href="#comparison-of-the-models">Comparison of the Models</a></li>
+</ul></li>
 <li><a href="#resources">Resources</a></li>
 </ul>
 </div>
@@ -392,12 +394,19 @@ summary {
 <div id="h2o-open-source-automl" class="section level2">
 <h2>H2O Open Source AutoML</h2>
 <p>Train the best model in the least amount of time to save human hours. Reduce the need for expertise in machine learning by reducing the manual code-writing time. Improve the performance of machine learning models. Increase reproducibility and establish a baseline for scientific research or applications. Scales training data set to clusters (Hadoop, Spark, Kubernetes)</p>
-<p>Normally we follow these steps: - Data - Train/Test Split - Apply Model on Training Set - Prediction on Test Set - Accuracy</p>
-<p>With H2O, we also need to initialize the package and convert data into H2O frame.</p>
+<p>Normally we follow these steps:</p>
+<ul>
+<li>Data</li>
+<li>Train/Test Split</li>
+<li>Apply Model on Training Set</li>
+<li>Prediction on Test Set</li>
+<li>Accuracy</li>
+</ul>
+<p>With H2O, we have additional steps to initialize the package and convert data into H2O frame.</p>
 </div>
 <div id="setup-install-and-load-the-library" class="section level2">
 <h2>Setup: Install and Load the Library</h2>
-<p>First, copy the code in <a href="http://h2o-release.s3.amazonaws.com/h2o/rel-shannon/26/index.html#R">h2o website</a> and paste into the console.</p>
+<p>First, copy the code in <a href="http://h2o-release.s3.amazonaws.com/h2o/rel-shannon/26/index.html#R">h2o website</a> and paste it into the console.</p>
 <pre class="r"><code>knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
 #install one time only
 #install.packages(&quot;h2o&quot;)
@@ -407,19 +416,42 @@ library(bit64)
 library(tidyverse)
 library(ggplot2)
 library(h2o)
-## Initialize h2o cluster
+# Initialize h2o cluster
 h2o.init()</code></pre>
 <pre><code>##  Connection successful!
 ## 
 ## R is connected to the H2O cluster: 
-##     H2O cluster uptime:         7 days 19 hours 
+##     H2O cluster uptime:         7 days 20 hours 
 ##     H2O cluster timezone:       Europe/Istanbul 
 ##     H2O data parsing timezone:  UTC 
 ##     H2O cluster version:        3.30.1.1 
 ##     H2O cluster version age:    29 days  
 ##     H2O cluster name:           H2O_started_from_R_ilaydacelenk_dvp184 
 ##     H2O cluster total nodes:    1 
-##     H2O cluster total memory:   3.65 GB 
+##     H2O cluster total memory:   3.64 GB 
+##     H2O cluster total cores:    8 
+##     H2O cluster allowed cores:  8 
+##     H2O cluster healthy:        TRUE 
+##     H2O Connection ip:          localhost 
+##     H2O Connection port:        54321 
+##     H2O Connection proxy:       NA 
+##     H2O Internal Security:      FALSE 
+##     H2O API Extensions:         Amazon S3, XGBoost, Algos, AutoML, Core V3, TargetEncoder, Core V4 
+##     R Version:                  R version 4.0.1 (2020-06-06)</code></pre>
+<pre class="r"><code># To connect to an established H2O cluster
+# h2o.init(ip = &quot;123.45.67.89&quot;, port = 54321)
+
+# Cluster info
+h2o.clusterInfo()</code></pre>
+<pre><code>## R is connected to the H2O cluster: 
+##     H2O cluster uptime:         7 days 20 hours 
+##     H2O cluster timezone:       Europe/Istanbul 
+##     H2O data parsing timezone:  UTC 
+##     H2O cluster version:        3.30.1.1 
+##     H2O cluster version age:    29 days  
+##     H2O cluster name:           H2O_started_from_R_ilaydacelenk_dvp184 
+##     H2O cluster total nodes:    1 
+##     H2O cluster total memory:   3.64 GB 
 ##     H2O cluster total cores:    8 
 ##     H2O cluster allowed cores:  8 
 ##     H2O cluster healthy:        TRUE 
@@ -430,9 +462,31 @@ h2o.init()</code></pre>
 ##     H2O API Extensions:         Amazon S3, XGBoost, Algos, AutoML, Core V3, TargetEncoder, Core V4 
 ##     R Version:                  R version 4.0.1 (2020-06-06)</code></pre>
 </div>
-<div id="iris-data" class="section level2">
-<h2>Iris Data</h2>
-<p>Iris is a built-in dataset in R. It has 4 numerical independent variables and a categorical independent variable. Therefore this is a classification problem, not a regression. This data has 150 rows and 5 columns. Dependent variable is <code>Species</code>.</p>
+<div id="data-preparation" class="section level2">
+<h2>Data Preparation</h2>
+<p>Data preparation/manipulation can be made using the methods available in h2o package.</p>
+<ul>
+<li><code>as.data.frame()</code>: Converts H2O data frame into R data frame</li>
+<li><code>as.h2o()</code>: Transfers data from R to the H2O instance</li>
+<li><code>str.H2OFrame()</code>: Returns the elements of the new object</li>
+<li><code>h2o.describe()</code> : Returns information about column types</li>
+</ul>
+</div>
+<div id="models" class="section level2">
+<h2>Models</h2>
+<p>Some of the models H2O supports:</p>
+<ul>
+<li>Generalized Linear Models (GLM)</li>
+<li>Gradient Boosting Machine (GBM)</li>
+<li>Distributed Random Forest (DRF)</li>
+<li>Principal Components Analysis (PCA)</li>
+<li>Deep Learning</li>
+<li>K-means</li>
+</ul>
+</div>
+<div id="example-iris-data" class="section level2">
+<h2>Example: Iris Data</h2>
+<p>Iris is a built-in dataset in R. It has 4 numerical independent variables and a categorical independent variable. Therefore this is a classification problem, not a regression. This data has 150 rows and 5 columns.</p>
 <pre class="r"><code>data &lt;- iris
 glimpse(data)</code></pre>
 <pre><code>## Rows: 150
@@ -448,12 +502,10 @@ glimpse(data)</code></pre>
 ## 2 versicolor 50
 ## 3  virginica 50</code></pre>
 <pre class="r"><code># Convert data to h2o frame
-iris_data &lt;- as.h2o(iris)
-# Identify target and features
-y &lt;- &quot;Species&quot;
-x &lt;- setdiff(colnames(iris_data), y)
-# For classification target should be a factor
-iris_data[, y] &lt;- as.factor(iris_data[, y])</code></pre>
+iris_data &lt;- as.h2o(iris)</code></pre>
+<pre class="r"><code># Column names of data
+colnames(iris_data)</code></pre>
+<pre><code>## [1] &quot;Sepal.Length&quot; &quot;Sepal.Width&quot;  &quot;Petal.Length&quot; &quot;Petal.Width&quot;  &quot;Species&quot;</code></pre>
 <pre class="r"><code>h2o.describe(iris_data)</code></pre>
 <pre><code>##          Label Type Missing Zeros PosInf NegInf Min Max     Mean     Sigma
 ## 1 Sepal.Length real       0     0      0      0 4.3 7.9 5.843333 0.8280661
@@ -469,29 +521,107 @@ iris_data[, y] &lt;- as.factor(iris_data[, y])</code></pre>
 ## 5           3</code></pre>
 <div id="train-test-split" class="section level3">
 <h3>Train Test Split</h3>
+<p>H2O package has <code>h2o.splitFrame()</code> function to split the H2O data frame.</p>
 <pre class="r"><code># 80% train, 20% test
 # Seed is defined in order to get the same result
 split = h2o.splitFrame(data = iris_data, ratios = 0.8, seed=90)
 train = split[[1]]
 test = split[[2]]</code></pre>
 </div>
-<div id="model-gbm" class="section level3">
-<h3>Model: gbm</h3>
-<pre class="r"><code># x=features, y=target
-gbm_model &lt;- h2o.gbm(x=x, y=y, training_frame = train, seed=90)</code></pre>
+<div id="model1-gradient-boosting-machinegbm" class="section level3">
+<h3>Model1: Gradient Boosting Machine(GBM)</h3>
+<p>Here the dependent variable is <code>Sepal.Length</code> and it’s numerical. After fitting the model, we can reach some statistics about it. One of the most important statistic is Mean Squared Error (MSE).</p>
+<pre class="r"><code># x=features, y=target, we chose the target to be Sepal.Length
+gbm_model &lt;- h2o.gbm(x=2:5, y=1, training_frame = train,  ntrees = 10, max_depth = 3,min_rows = 2, learn_rate = 0.2, distribution= &quot;gaussian&quot;, seed=90)</code></pre>
+<pre class="r"><code>gbm_model</code></pre>
+<pre><code>## Model Details:
+## ==============
+## 
+## H2ORegressionModel: gbm
+## Model ID:  GBM_model_R_1598965103261_95 
+## Model Summary: 
+##   number_of_trees number_of_internal_trees model_size_in_bytes min_depth
+## 1              10                       10                1542         3
+##   max_depth mean_depth min_leaves max_leaves mean_leaves
+## 1         3    3.00000          7          8     7.70000
+## 
+## 
+## H2ORegressionMetrics: gbm
+## ** Reported on training data. **
+## 
+## MSE:  0.0673553
+## RMSE:  0.259529
+## MAE:  0.2143559
+## RMSLE:  0.03822407
+## Mean Residual Deviance :  0.0673553</code></pre>
+<p>We could also predict the categorical variable <code>Species</code>. Here we can see the confusion matrix.</p>
+<pre class="r"><code># x=features, y=target, we chose the target to be Species
+gbm_model2 &lt;- h2o.gbm(y = 5, x = 1:4, training_frame
+= train, ntrees = 15, max_depth = 5, min_rows =
+2, learn_rate = 0.01, distribution= &quot;multinomial&quot;, seed=90)</code></pre>
+<pre class="r"><code>gbm_model2</code></pre>
+<pre><code>## Model Details:
+## ==============
+## 
+## H2OMultinomialModel: gbm
+## Model ID:  GBM_model_R_1598965103261_96 
+## Model Summary: 
+##   number_of_trees number_of_internal_trees model_size_in_bytes min_depth
+## 1              15                       45                7559         1
+##   max_depth mean_depth min_leaves max_leaves mean_leaves
+## 1         5    4.66667          2         15     8.80000
+## 
+## 
+## H2OMultinomialMetrics: gbm
+## ** Reported on training data. **
+## 
+## Training Set Metrics: 
+## =====================
+## 
+## Extract training frame with `h2o.getFrame(&quot;RTMP_sid_b8b8_3&quot;)`
+## MSE: (Extract with `h2o.mse`) 0.3284647
+## RMSE: (Extract with `h2o.rmse`) 0.5731184
+## Logloss: (Extract with `h2o.logloss`) 0.8513657
+## Mean Per-Class Error: 0
+## R^2: (Extract with `h2o.r2`) 0.5092805
+## Confusion Matrix: Extract with `h2o.confusionMatrix(&lt;model&gt;,train = TRUE)`)
+## =========================================================================
+## Confusion Matrix: Row labels: Actual class; Column labels: Predicted class
+##            setosa versicolor virginica  Error      Rate
+## setosa         40          0         0 0.0000 =  0 / 40
+## versicolor      0         40         0 0.0000 =  0 / 40
+## virginica       0          0        41 0.0000 =  0 / 41
+## Totals         40         40        41 0.0000 = 0 / 121
+## 
+## Hit Ratio Table: Extract with `h2o.hit_ratio_table(&lt;model&gt;,train = TRUE)`
+## =======================================================================
+## Top-3 Hit Ratios: 
+##   k hit_ratio
+## 1 1  1.000000
+## 2 2  1.000000
+## 3 3  1.000000</code></pre>
 <pre class="r"><code># Model&#39;s performance using test data, includes R^2 and confusion matrix
 perf &lt;- h2o.performance(gbm_model,test)
 perf</code></pre>
+<pre><code>## H2ORegressionMetrics: gbm
+## 
+## MSE:  0.1367617
+## RMSE:  0.369813
+## MAE:  0.3225538
+## RMSLE:  0.05592245
+## Mean Residual Deviance :  0.1367617</code></pre>
+<pre class="r"><code>perf2 &lt;- h2o.performance(gbm_model2,test)
+perf2</code></pre>
 <pre><code>## H2OMultinomialMetrics: gbm
 ## 
 ## Test Set Metrics: 
 ## =====================
 ## 
-## MSE: (Extract with `h2o.mse`) 0.04639463
-## RMSE: (Extract with `h2o.rmse`) 0.2153941
-## Logloss: (Extract with `h2o.logloss`) 0.1819487
+## MSE: (Extract with `h2o.mse`) 0.3433333
+## RMSE: (Extract with `h2o.rmse`) 0.5859465
+## Logloss: (Extract with `h2o.logloss`) 0.8835027
 ## Mean Per-Class Error: 0.06666667
-## R^2: (Extract with `h2o.r2`) 0.9290584
+## R^2: (Extract with `h2o.r2`) 0.4750121
 ## Confusion Matrix: Extract with `h2o.confusionMatrix(&lt;model&gt;, &lt;data&gt;)`)
 ## =========================================================================
 ## Confusion Matrix: Row labels: Actual class; Column labels: Predicted class
@@ -509,59 +639,192 @@ perf</code></pre>
 ## 2 2  1.000000
 ## 3 3  1.000000</code></pre>
 </div>
-<div id="model2-random-forest" class="section level3">
-<h3>Model2: Random Forest</h3>
+<div id="model2-generalized-linear-models-glm" class="section level3">
+<h3>Model2: Generalized Linear Models (GLM)</h3>
+<p>Let’s fit Random Forest model into our <code>train</code> set and try to predict <code>Species</code>.</p>
 <pre class="r"><code># x=features, y=target
-random_forest_model &lt;- h2o.randomForest(x=c(&quot;Sepal.Length&quot;, &quot;Sepal.Width&quot;, &quot;Petal.Length&quot;, &quot;Petal.Width&quot;), y=&quot;Species&quot;, training_frame = train, seed=90)</code></pre>
+glm_model &lt;- h2o.glm(x=c(&quot;Sepal.Length&quot;, &quot;Sepal.Width&quot;, &quot;Petal.Length&quot;, &quot;Petal.Width&quot;), y=&quot;Species&quot;, training_frame = train, family =&quot;multinomial&quot;,  nfolds = 10, seed=90)</code></pre>
+<pre class="r"><code>glm_model</code></pre>
+<pre><code>## Model Details:
+## ==============
+## 
+## H2OMultinomialModel: glm
+## Model ID:  GLM_model_R_1598965103261_97 
+## GLM Model: summary
+##        family        link                                regularization
+## 1 multinomial multinomial Elastic Net (alpha = 0.5, lambda = 8.653E-4 )
+##   number_of_predictors_total number_of_active_predictors number_of_iterations
+## 1                         15                          11                   19
+##    training_frame
+## 1 RTMP_sid_b8b8_3
+## 
+## Coefficients: glm multinomial coefficients
+##          names coefs_class_0 coefs_class_1 coefs_class_2 std_coefs_class_0
+## 1    Intercept      1.071374     -1.260527    -19.417966         -3.989312
+## 2 Sepal.Length     -1.363125      1.391185      0.000000         -1.101293
+## 3  Sepal.Width      4.883751     -0.963682     -3.419822          2.109079
+## 4 Petal.Length     -1.855808     -0.657764      3.332561         -3.277225
+## 5  Petal.Width     -4.221242     -1.446903      7.327886         -3.218247
+##   std_coefs_class_1 std_coefs_class_2
+## 1         -0.278372         -8.555442
+## 2          1.123964          0.000000
+## 3         -0.416172         -1.476872
+## 4         -1.161565          5.885066
+## 5         -1.103109          5.586733
+## 
+## H2OMultinomialMetrics: glm
+## ** Reported on training data. **
+## 
+## Training Set Metrics: 
+## =====================
+## 
+## Extract training frame with `h2o.getFrame(&quot;RTMP_sid_b8b8_3&quot;)`
+## MSE: (Extract with `h2o.mse`) 0.01356239
+## RMSE: (Extract with `h2o.rmse`) 0.1164577
+## Logloss: (Extract with `h2o.logloss`) 0.05513559
+## Mean Per-Class Error: 0.02479675
+## Null Deviance: (Extract with `h2o.nulldeviance`) 265.8477
+## Residual Deviance: (Extract with `h2o.residual_deviance`) 13.34281
+## R^2: (Extract with `h2o.r2`) 0.9797381
+## AIC: (Extract with `h2o.aic`) NaN
+## Confusion Matrix: Extract with `h2o.confusionMatrix(&lt;model&gt;,train = TRUE)`)
+## =========================================================================
+## Confusion Matrix: Row labels: Actual class; Column labels: Predicted class
+##            setosa versicolor virginica  Error      Rate
+## setosa         40          0         0 0.0000 =  0 / 40
+## versicolor      0         38         2 0.0500 =  2 / 40
+## virginica       0          1        40 0.0244 =  1 / 41
+## Totals         40         39        42 0.0248 = 3 / 121
+## 
+## Hit Ratio Table: Extract with `h2o.hit_ratio_table(&lt;model&gt;,train = TRUE)`
+## =======================================================================
+## Top-3 Hit Ratios: 
+##   k hit_ratio
+## 1 1  0.975207
+## 2 2  1.000000
+## 3 3  1.000000
+## 
+## 
+## 
+## H2OMultinomialMetrics: glm
+## ** Reported on cross-validation data. **
+## ** 10-fold cross-validation on training data (Metrics computed for combined holdout predictions) **
+## 
+## Cross-Validation Set Metrics: 
+## =====================
+## 
+## Extract cross-validation frame with `h2o.getFrame(&quot;RTMP_sid_b8b8_3&quot;)`
+## MSE: (Extract with `h2o.mse`) 0.02292474
+## RMSE: (Extract with `h2o.rmse`) 0.1514092
+## Logloss: (Extract with `h2o.logloss`) 0.08051907
+## Mean Per-Class Error: 0.03313008
+## Null Deviance: (Extract with `h2o.nulldeviance`) 271.7119
+## Residual Deviance: (Extract with `h2o.residual_deviance`) 19.48561
+## R^2: (Extract with `h2o.r2`) 0.9657509
+## AIC: (Extract with `h2o.aic`) NaN
+## Hit Ratio Table: Extract with `h2o.hit_ratio_table(&lt;model&gt;,xval = TRUE)`
+## =======================================================================
+## Top-3 Hit Ratios: 
+##   k hit_ratio
+## 1 1  0.966942
+## 2 2  1.000000
+## 3 3  1.000000
+## 
+## 
+## Cross-Validation Metrics Summary: 
+##                                mean          sd  cv_1_valid  cv_2_valid
+## accuracy                  0.9677244 0.042623263         1.0         1.0
+## err                      0.03227564 0.042623263         0.0         0.0
+## err_count                       0.4   0.5163978         0.0         0.0
+## logloss                  0.08558812 0.062874585  0.07203252 0.045333378
+## max_per_class_error      0.06468254 0.090568386         0.0         0.0
+## mean_per_class_accuracy  0.97843915 0.030189462         1.0         1.0
+## mean_per_class_error    0.021560846 0.030189462         0.0         0.0
+## mse                     0.024717443 0.023388011 0.017927276 0.009334384
+## null_deviance              27.17119    11.21201   27.547539     48.8759
+## r2                        0.9527126 0.045775954  0.96926755   0.9878878
+## residual_deviance         1.9485614   1.1776518   1.7287804   1.9946686
+## rmse                     0.13811857  0.07916722  0.13389277  0.09661462
+##                           cv_3_valid  cv_4_valid   cv_5_valid  cv_6_valid
+## accuracy                         1.0         1.0          1.0         1.0
+## err                              0.0         0.0          0.0         0.0
+## err_count                        0.0         0.0          0.0         0.0
+## logloss                   0.02732801  0.04332326  0.011267465  0.16420272
+## max_per_class_error              0.0         0.0          0.0         0.0
+## mean_per_class_accuracy          1.0         1.0          1.0         1.0
+## mean_per_class_error             0.0         0.0          0.0         0.0
+## mse                     0.0031215441 0.005377187 2.3408124E-4 0.048050396
+## null_deviance              17.652943   35.221733    13.292308   13.292308
+## r2                        0.99487746   0.9921339    0.9997094  0.94035125
+## residual_deviance         0.43724817   1.3863443   0.13520958   1.9704326
+## rmse                     0.055870783  0.07332931  0.015299713  0.21920401
+##                          cv_7_valid  cv_8_valid cv_9_valid cv_10_valid
+## accuracy                  0.9166667      0.9375  0.9230769         0.9
+## err                     0.083333336      0.0625 0.07692308         0.1
+## err_count                       1.0         1.0        1.0         1.0
+## logloss                  0.09878396  0.08604867 0.09288897  0.21467222
+## max_per_class_error      0.14285715  0.11111111 0.14285715        0.25
+## mean_per_class_accuracy  0.95238096    0.962963 0.95238096   0.9166667
+## mean_per_class_error     0.04761905 0.037037037 0.04761905 0.083333336
+## mse                      0.02629372 0.028165026 0.03327432  0.07539649
+## null_deviance             28.087763   36.621292  29.035349   22.084764
+## r2                       0.89182013   0.9350428 0.95067227   0.8653634
+## residual_deviance         2.3708153   2.7535574  2.4151134   4.2934446
+## rmse                     0.16215338  0.16782439  0.1824125   0.2745842</code></pre>
 <pre class="r"><code># Model&#39;s performance using test data, includes R^2 and confusion matrix
-perf2 &lt;- h2o.performance(random_forest_model,test)
-perf2</code></pre>
-<pre><code>## H2OMultinomialMetrics: drf
+perf3 &lt;- h2o.performance(glm_model,test)
+perf3</code></pre>
+<pre><code>## H2OMultinomialMetrics: glm
 ## 
 ## Test Set Metrics: 
 ## =====================
 ## 
-## MSE: (Extract with `h2o.mse`) 0.04523039
-## RMSE: (Extract with `h2o.rmse`) 0.2126744
-## Logloss: (Extract with `h2o.logloss`) 0.1785204
-## Mean Per-Class Error: 0.06666667
-## R^2: (Extract with `h2o.r2`) 0.9308386
+## MSE: (Extract with `h2o.mse`) 0.02441544
+## RMSE: (Extract with `h2o.rmse`) 0.1562544
+## Logloss: (Extract with `h2o.logloss`) 0.07799228
+## Mean Per-Class Error: 0.03333333
+## Null Deviance: (Extract with `h2o.nulldeviance`) 63.75638
+## Residual Deviance: (Extract with `h2o.residual_deviance`) 4.523552
+## R^2: (Extract with `h2o.r2`) 0.9626666
+## AIC: (Extract with `h2o.aic`) NaN
 ## Confusion Matrix: Extract with `h2o.confusionMatrix(&lt;model&gt;, &lt;data&gt;)`)
 ## =========================================================================
 ## Confusion Matrix: Row labels: Actual class; Column labels: Predicted class
 ##            setosa versicolor virginica  Error     Rate
 ## setosa         10          0         0 0.0000 = 0 / 10
-## versicolor      0          8         2 0.2000 = 2 / 10
+## versicolor      0          9         1 0.1000 = 1 / 10
 ## virginica       0          0         9 0.0000 =  0 / 9
-## Totals         10          8        11 0.0690 = 2 / 29
+## Totals         10          9        10 0.0345 = 1 / 29
 ## 
 ## Hit Ratio Table: Extract with `h2o.hit_ratio_table(&lt;model&gt;, &lt;data&gt;)`
 ## =======================================================================
 ## Top-3 Hit Ratios: 
 ##   k hit_ratio
-## 1 1  0.931034
+## 1 1  0.965517
 ## 2 2  1.000000
 ## 3 3  1.000000</code></pre>
 </div>
-</div>
-<div id="comparison-of-the-models" class="section level2">
-<h2>Comparison of the Models</h2>
-<p>Let’s look at confusion matrices for model predictions on test dataset.</p>
+<div id="comparison-of-the-models" class="section level3">
+<h3>Comparison of the Models</h3>
+<p>Let’s look at confusion matrices for model predictions on test dataset. Both of the methods accuracy is below 70%. These models may be overfitting to the training set. Due to memorization, actual learning does not occur. So we may consider changing the parameters of the models and try to improve the result.</p>
 <pre class="r"><code># Use confusion matrix
-prediction_gbm = h2o.predict(gbm_model, test)</code></pre>
-<pre><code>## 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |======================================================================| 100%</code></pre>
-<pre class="r"><code>prediction_randomforest = h2o.predict(random_forest_model, test)</code></pre>
-<pre><code>## 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |======================================================================| 100%</code></pre>
-<pre class="r"><code>matrix_gbm = h2o.confusionMatrix(object=gbm_model, newdata=test$Species)
-matrix_randomforest = h2o.confusionMatrix(object=random_forest_model, newdata=test$Species)</code></pre>
+matrix_gbm = h2o.confusionMatrix(object=gbm_model2, newdata=test$Species)
+matrix_gbm</code></pre>
+<pre><code>## Confusion Matrix: Row labels: Actual class; Column labels: Predicted class
+##            setosa versicolor virginica  Error      Rate
+## setosa          0          0        10 1.0000 = 10 / 10
+## versicolor      0          0        10 1.0000 = 10 / 10
+## virginica       0          0         9 0.0000 =   0 / 9
+## Totals          0          0        29 0.6897 = 20 / 29</code></pre>
+<pre class="r"><code>matrix_glm = h2o.confusionMatrix(object=glm_model, newdata=test$Species)
+matrix_glm</code></pre>
+<pre><code>## Confusion Matrix: Row labels: Actual class; Column labels: Predicted class
+##            setosa versicolor virginica  Error      Rate
+## setosa          0         10         0 1.0000 = 10 / 10
+## versicolor      0         10         0 0.0000 =  0 / 10
+## virginica       0          9         0 1.0000 =   9 / 9
+## Totals          0         29         0 0.6552 = 19 / 29</code></pre>
+</div>
 </div>
 <div id="resources" class="section level2">
 <h2>Resources</h2>
@@ -572,6 +835,7 @@ matrix_randomforest = h2o.confusionMatrix(object=random_forest_model, newdata=te
 <li><a href="https://www.kaggle.com/mlg-ulb/creditcardfraud">Kaggle</a></li>
 <li><a href="https://docs.h2o.ai/h2o/latest-stable/h2o-docs/data-science/glm.html#">Generalized Linear Model(GLM)</a></li>
 <li><a href="https://campus.datacamp.com/courses/hyperparameter-tuning-in-r/hyperparameter-tuning-with-h2o?ex=1">Datacamp</a></li>
+<li><a href="https://www.h2o.ai/wp-content/uploads/2018/01/RBooklet.pdf">h2o.ai RBooklet</a></li>
 </ul>
 </div>
 
