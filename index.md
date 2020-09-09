@@ -19,7 +19,7 @@ This is group Dol_R's [Progress Journal website](https://pjournal.github.io/boun
 
 ### Bonus Work: [H2O Package](https://cran.r-project.org/web/packages/h2o/index.html) Tutorial
 - Written tutorial: [HTML](https://pjournal.github.io/boun01g-dol-r/bonus_h2o_package/H2O_tutorial.html)
-- Video tutorial of presentation[Youtube](https://youtu.be/pdAuqsj8tXU)
+- Video tutorial of presentation: [Youtube](https://youtu.be/pdAuqsj8tXU)
 
 
 ### Final Project
