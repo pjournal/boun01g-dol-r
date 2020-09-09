@@ -541,10 +541,10 @@ gbm_model &lt;- h2o.gbm(x=2:5, y=1, training_frame = train,  ntrees = 10, max_de
 ## ==============
 ## 
 ## H2ORegressionModel: gbm
-## Model ID:  GBM_model_R_1598965103261_98 
+## Model ID:  GBM_model_R_1598965103261_104 
 ## Model Summary: 
 ##   number_of_trees number_of_internal_trees model_size_in_bytes min_depth
-## 1              10                       10                1542         3
+## 1              10                       10                1539         3
 ##   max_depth mean_depth min_leaves max_leaves mean_leaves
 ## 1         3    3.00000          7          8     7.70000
 ## 
@@ -567,10 +567,10 @@ gbm_model2 &lt;- h2o.gbm(y = 5, x = 1:4, training_frame
 ## ==============
 ## 
 ## H2OMultinomialModel: gbm
-## Model ID:  GBM_model_R_1598965103261_99 
+## Model ID:  GBM_model_R_1598965103261_105 
 ## Model Summary: 
 ##   number_of_trees number_of_internal_trees model_size_in_bytes min_depth
-## 1              15                       45                7559         1
+## 1              15                       45                7558         1
 ##   max_depth mean_depth min_leaves max_leaves mean_leaves
 ## 1         5    4.66667          2         15     8.80000
 ## 
@@ -581,7 +581,7 @@ gbm_model2 &lt;- h2o.gbm(y = 5, x = 1:4, training_frame
 ## Training Set Metrics: 
 ## =====================
 ## 
-## Extract training frame with `h2o.getFrame(&quot;RTMP_sid_b8f2_3&quot;)`
+## Extract training frame with `h2o.getFrame(&quot;RTMP_sid_a030_3&quot;)`
 ## MSE: (Extract with `h2o.mse`) 0.3284647
 ## RMSE: (Extract with `h2o.rmse`) 0.5731184
 ## Logloss: (Extract with `h2o.logloss`) 0.8513657
@@ -652,14 +652,14 @@ glm_model &lt;- h2o.glm(x=c(&quot;Sepal.Length&quot;, &quot;Sepal.Width&quot;, &
 ## ==============
 ## 
 ## H2OMultinomialModel: glm
-## Model ID:  GLM_model_R_1598965103261_100 
+## Model ID:  GLM_model_R_1598965103261_106 
 ## GLM Model: summary
 ##        family        link                                regularization
 ## 1 multinomial multinomial Elastic Net (alpha = 0.5, lambda = 8.653E-4 )
 ##   number_of_predictors_total number_of_active_predictors number_of_iterations
 ## 1                         15                          11                   19
 ##    training_frame
-## 1 RTMP_sid_b8f2_3
+## 1 RTMP_sid_a030_3
 ## 
 ## Coefficients: glm multinomial coefficients
 ##          names coefs_class_0 coefs_class_1 coefs_class_2 std_coefs_class_0
@@ -681,7 +681,7 @@ glm_model &lt;- h2o.glm(x=c(&quot;Sepal.Length&quot;, &quot;Sepal.Width&quot;, &
 ## Training Set Metrics: 
 ## =====================
 ## 
-## Extract training frame with `h2o.getFrame(&quot;RTMP_sid_b8f2_3&quot;)`
+## Extract training frame with `h2o.getFrame(&quot;RTMP_sid_a030_3&quot;)`
 ## MSE: (Extract with `h2o.mse`) 0.01356239
 ## RMSE: (Extract with `h2o.rmse`) 0.1164577
 ## Logloss: (Extract with `h2o.logloss`) 0.05513559
@@ -716,7 +716,7 @@ glm_model &lt;- h2o.glm(x=c(&quot;Sepal.Length&quot;, &quot;Sepal.Width&quot;, &
 ## Cross-Validation Set Metrics: 
 ## =====================
 ## 
-## Extract cross-validation frame with `h2o.getFrame(&quot;RTMP_sid_b8f2_3&quot;)`
+## Extract cross-validation frame with `h2o.getFrame(&quot;RTMP_sid_a030_3&quot;)`
 ## MSE: (Extract with `h2o.mse`) 0.02292474
 ## RMSE: (Extract with `h2o.rmse`) 0.1514092
 ## Logloss: (Extract with `h2o.logloss`) 0.08051907
@@ -809,24 +809,7 @@ perf3</code></pre>
 </div>
 <div id="comparison-of-the-models" class="section level3">
 <h3>Comparison of the Models</h3>
-<p>Let’s look at confusion matrices for model predictions on test dataset. Both of the methods accuracy is below 70%. These models may be overfitting to the training set. Due to memorization, actual learning does not occur. So we may consider changing the parameters of the models and try to improve the result.</p>
-<pre class="r"><code># Use confusion matrix
-matrix_gbm = h2o.confusionMatrix(object=gbm_model2, newdata=test$Species)
-matrix_gbm</code></pre>
-<pre><code>## Confusion Matrix: Row labels: Actual class; Column labels: Predicted class
-##            setosa versicolor virginica  Error      Rate
-## setosa          0          0        10 1.0000 = 10 / 10
-## versicolor      0          0        10 1.0000 = 10 / 10
-## virginica       0          0         9 0.0000 =   0 / 9
-## Totals          0          0        29 0.6897 = 20 / 29</code></pre>
-<pre class="r"><code>matrix_glm = h2o.confusionMatrix(object=glm_model, newdata=test$Species)
-matrix_glm</code></pre>
-<pre><code>## Confusion Matrix: Row labels: Actual class; Column labels: Predicted class
-##            setosa versicolor virginica  Error      Rate
-## setosa          0         10         0 1.0000 = 10 / 10
-## versicolor      0         10         0 0.0000 =  0 / 10
-## virginica       0          9         0 1.0000 =   9 / 9
-## Totals          0         29         0 0.6552 = 19 / 29</code></pre>
+<p>To compare the classification models we look at the confusion matrices of the test data. Both of the methods work very well with 1 or 2 errors.</p>
 </div>
 </div>
 <div id="resources" class="section level2">

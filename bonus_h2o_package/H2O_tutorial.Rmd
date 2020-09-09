@@ -166,16 +166,9 @@ perf3
 ```
 
 ### Comparison of the Models
-Let's look at confusion matrices for model predictions on test dataset. 
-Both of the methods accuracy is below 70%. These models may be overfitting to the training set. Due to memorization, actual learning does not occur. So we may consider changing the parameters of the models and try to improve the result. 
+To compare the classification models we look at the confusion matrices of the test data.
+Both of the methods work very well with 1 or 2 errors.
 
-```{r matrices}
-# Use confusion matrix
-matrix_gbm = h2o.confusionMatrix(object=gbm_model2, newdata=test$Species)
-matrix_gbm
-matrix_glm = h2o.confusionMatrix(object=glm_model, newdata=test$Species)
-matrix_glm
-```
 
 
 ## Resources
