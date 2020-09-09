@@ -371,6 +371,7 @@ summary {
 <div id="TOC">
 <ul>
 <li><a href="#introduction">Introduction</a></li>
+<li><a href="#leading-algorithms">Leading Algorithms</a></li>
 <li><a href="#h2o-open-source-automl">H2O Open Source AutoML</a></li>
 <li><a href="#setup-install-and-load-the-library">Setup: Install and Load the Library</a></li>
 <li><a href="#data-preparation">Data Preparation</a></li>
@@ -388,7 +389,9 @@ summary {
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
 <p><code>H2O</code> is a fully open source, distributed in-memory machine learning platform with linear scalability. H2O supports the most widely used statistical &amp; machine learning algorithms including gradient boosted machines, generalized linear models, deep learning and more. H2O also has an industry leading AutoML functionality that automatically runs through all the algorithms and their hyperparameters to produce a leaderboard of the best models. The H2O platform is used by over 18,000 organizations globally and is extremely popular in both the R &amp; Python communities.</p>
-<p>##Leading Algorithms</p>
+</div>
+<div id="leading-algorithms" class="section level2">
+<h2>Leading Algorithms</h2>
 <p>Algorithms developed from the ground up for distributed computing and for both supervised and unsupervised approaches including Random Forest, GLM, GBM, XGBoost, GLRM, Word2Vec and many more.</p>
 </div>
 <div id="h2o-open-source-automl" class="section level2">
@@ -538,7 +541,7 @@ gbm_model &lt;- h2o.gbm(x=2:5, y=1, training_frame = train,  ntrees = 10, max_de
 ## ==============
 ## 
 ## H2ORegressionModel: gbm
-## Model ID:  GBM_model_R_1598965103261_95 
+## Model ID:  GBM_model_R_1598965103261_98 
 ## Model Summary: 
 ##   number_of_trees number_of_internal_trees model_size_in_bytes min_depth
 ## 1              10                       10                1542         3
@@ -564,7 +567,7 @@ gbm_model2 &lt;- h2o.gbm(y = 5, x = 1:4, training_frame
 ## ==============
 ## 
 ## H2OMultinomialModel: gbm
-## Model ID:  GBM_model_R_1598965103261_96 
+## Model ID:  GBM_model_R_1598965103261_99 
 ## Model Summary: 
 ##   number_of_trees number_of_internal_trees model_size_in_bytes min_depth
 ## 1              15                       45                7559         1
@@ -578,7 +581,7 @@ gbm_model2 &lt;- h2o.gbm(y = 5, x = 1:4, training_frame
 ## Training Set Metrics: 
 ## =====================
 ## 
-## Extract training frame with `h2o.getFrame(&quot;RTMP_sid_b8b8_3&quot;)`
+## Extract training frame with `h2o.getFrame(&quot;RTMP_sid_b8f2_3&quot;)`
 ## MSE: (Extract with `h2o.mse`) 0.3284647
 ## RMSE: (Extract with `h2o.rmse`) 0.5731184
 ## Logloss: (Extract with `h2o.logloss`) 0.8513657
@@ -649,14 +652,14 @@ glm_model &lt;- h2o.glm(x=c(&quot;Sepal.Length&quot;, &quot;Sepal.Width&quot;, &
 ## ==============
 ## 
 ## H2OMultinomialModel: glm
-## Model ID:  GLM_model_R_1598965103261_97 
+## Model ID:  GLM_model_R_1598965103261_100 
 ## GLM Model: summary
 ##        family        link                                regularization
 ## 1 multinomial multinomial Elastic Net (alpha = 0.5, lambda = 8.653E-4 )
 ##   number_of_predictors_total number_of_active_predictors number_of_iterations
 ## 1                         15                          11                   19
 ##    training_frame
-## 1 RTMP_sid_b8b8_3
+## 1 RTMP_sid_b8f2_3
 ## 
 ## Coefficients: glm multinomial coefficients
 ##          names coefs_class_0 coefs_class_1 coefs_class_2 std_coefs_class_0
@@ -678,7 +681,7 @@ glm_model &lt;- h2o.glm(x=c(&quot;Sepal.Length&quot;, &quot;Sepal.Width&quot;, &
 ## Training Set Metrics: 
 ## =====================
 ## 
-## Extract training frame with `h2o.getFrame(&quot;RTMP_sid_b8b8_3&quot;)`
+## Extract training frame with `h2o.getFrame(&quot;RTMP_sid_b8f2_3&quot;)`
 ## MSE: (Extract with `h2o.mse`) 0.01356239
 ## RMSE: (Extract with `h2o.rmse`) 0.1164577
 ## Logloss: (Extract with `h2o.logloss`) 0.05513559
@@ -713,7 +716,7 @@ glm_model &lt;- h2o.glm(x=c(&quot;Sepal.Length&quot;, &quot;Sepal.Width&quot;, &
 ## Cross-Validation Set Metrics: 
 ## =====================
 ## 
-## Extract cross-validation frame with `h2o.getFrame(&quot;RTMP_sid_b8b8_3&quot;)`
+## Extract cross-validation frame with `h2o.getFrame(&quot;RTMP_sid_b8f2_3&quot;)`
 ## MSE: (Extract with `h2o.mse`) 0.02292474
 ## RMSE: (Extract with `h2o.rmse`) 0.1514092
 ## Logloss: (Extract with `h2o.logloss`) 0.08051907
