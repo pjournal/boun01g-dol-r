@@ -9,7 +9,22 @@ output:
 ---
 
 ## Introduction
-`h2o` is an open source Machine Learning library that can be used in both R and Python. It provides easy and fast solutions for large datasets. It is integrated with R, Python etc. In this tutorial we will demonstrate how to use this package for machine learning.  
+
+`H2O` is a fully open source, distributed in-memory machine learning platform with linear scalability. H2O supports the most widely used statistical & machine learning algorithms including gradient boosted machines, generalized linear models, deep learning and more. H2O also has an industry leading AutoML functionality that automatically runs through all the algorithms and their hyperparameters to produce a leaderboard of the best models. The H2O platform is used by over 18,000 organizations globally and is extremely popular in both the R & Python communities.
+
+##Leading Algorithms
+
+Algorithms developed from the ground up for distributed computing and for both supervised and unsupervised approaches including Random Forest, GLM, GBM, XGBoost, GLRM, Word2Vec and many more.
+
+## H2O Open Source AutoML
+
+Train the best model in the least amount of time to save human hours.
+Reduce the need for expertise in machine learning by reducing the manual code-writing time.
+Improve the performance of machine learning models.
+Increase reproducibility and establish a baseline for scientific research or applications.
+Scales training data set to clusters (Hadoop, Spark, Kubernetes)
+
+
 
 Normally we follow these steps:
 - Data
